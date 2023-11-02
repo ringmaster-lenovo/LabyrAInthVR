@@ -18,6 +18,6 @@ void UStartMenuWidget::OnStartClicked()
 {
 	if(BP_3DWidgetController)
 	{
-		WidgetController->RemoveStartUI();
+		WidgetController->StartGame();
 	}
 }
