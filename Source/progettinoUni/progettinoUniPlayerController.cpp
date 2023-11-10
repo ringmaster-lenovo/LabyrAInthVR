@@ -49,6 +49,10 @@ void AprogettinoUniPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Triggered, this, &AprogettinoUniPlayerController::OnTouchTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &AprogettinoUniPlayerController::OnTouchReleased);
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &AprogettinoUniPlayerController::OnTouchReleased);
+
+		// Setup keyboard input events
+		EnhancedInputComponent->BindAction(ManualMovement, ETriggerEvent::Started, this, &AprogettinoUniPlayerController::OnInputStarted);
+		EnhancedInputComponent->BindAction(ManualMovement, ETriggerEvent::Triggered, this, &AprogettinoUniPlayerController::OnMovementTriggered);
 	}
 }
 
@@ -114,4 +118,22 @@ void AprogettinoUniPlayerController::OnTouchReleased()
 {
 	bIsTouch = false;
 	OnSetDestinationReleased();
+}
+
+void AprogettinoUniPlayerController::OnMovementTriggered(const FInputActionValue& Value)
+{
+	// We flag that the input is being pressed
+	FollowTime += GetWorld()->GetDeltaSeconds();
+
+	// Move towards mouse pointer or touch
+	APawn* ControlledPawn = GetPawn();
+	if (ControlledPawn != nullptr)
+	{
+		// We look for the location in the world where the player has pressed the input
+		// depending on the keyboard input we move the player in that direction
+		FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
+		ControlledPawn->GetControlRotation().Roll;
+		ControlledPawn->GetControlRotation().Yaw;
+		ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);
+	}
 }

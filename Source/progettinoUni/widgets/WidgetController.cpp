@@ -42,7 +42,7 @@ void AWidgetController::RemoveStartUI()
 {
 	if(StartMenuWidget)
 	{
-		StartMenuWidget->RemoveFromViewport();
+		StartMenuWidget->RemoveFromParent();
 	}
 }
 

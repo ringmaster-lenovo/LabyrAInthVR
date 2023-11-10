@@ -1,6 +1,9 @@
 # Visual Studio 2015 user specific files
 .vs/
 
+# Rider user specific files
+.idea/
+
 # Compiled Object files
 *.slo
 *.lo
@@ -69,8 +72,13 @@ Saved/*
 # Compiled source files for the engine to use
 Intermediate/*
 Plugins/*/Intermediate/*
+Plugins/*/RiderLink/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
 
+# Content derived from the engine
 Content/StarterContent
+
+# Content specific to the user
+Content/Developers
