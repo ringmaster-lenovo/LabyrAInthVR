@@ -41,7 +41,7 @@ public:
 
 	/** Keyboard Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	class UInputAction* ManualMovement;
+	class UInputAction* KeyboardMovement;
 
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
@@ -59,8 +59,8 @@ protected:
 	void OnTouchTriggered();
 	void OnTouchReleased();
 
-	/** Input handlers for ManualMovement action. */
-	void OnMovementTriggered(const FInputActionValue& Value);
+	/** Input handlers for KeyboardMovement action. */
+	void OnKeyboardMovementTriggered(const FInputActionValue& Value);
 
 private:
 	FVector CachedDestination;

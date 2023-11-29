@@ -51,8 +51,8 @@ void AprogettinoUniPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &AprogettinoUniPlayerController::OnTouchReleased);
 
 		// Setup keyboard input events
-		EnhancedInputComponent->BindAction(ManualMovement, ETriggerEvent::Started, this, &AprogettinoUniPlayerController::OnInputStarted);
-		EnhancedInputComponent->BindAction(ManualMovement, ETriggerEvent::Triggered, this, &AprogettinoUniPlayerController::OnMovementTriggered);
+		EnhancedInputComponent->BindAction(KeyboardMovement, ETriggerEvent::Started, this, &AprogettinoUniPlayerController::OnInputStarted);
+		EnhancedInputComponent->BindAction(KeyboardMovement, ETriggerEvent::Triggered, this, &AprogettinoUniPlayerController::OnKeyboardMovementTriggered);
 	}
 }
 
@@ -120,20 +120,22 @@ void AprogettinoUniPlayerController::OnTouchReleased()
 	OnSetDestinationReleased();
 }
 
-void AprogettinoUniPlayerController::OnMovementTriggered(const FInputActionValue& Value)
+void AprogettinoUniPlayerController::OnKeyboardMovementTriggered(const FInputActionValue& Value)
 {
 	// We flag that the input is being pressed
 	FollowTime += GetWorld()->GetDeltaSeconds();
 
-	// Move towards mouse pointer or touch
+	const FVector2D AxisValue = Value.Get<FVector2D>();
+
 	APawn* ControlledPawn = GetPawn();
 	if (ControlledPawn != nullptr)
 	{
-		// We look for the location in the world where the player has pressed the input
-		// depending on the keyboard input we move the player in that direction
-		FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
-		ControlledPawn->GetControlRotation().Roll;
-		ControlledPawn->GetControlRotation().Yaw;
-		ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);
+		const FRotator Rotation = this->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		ControlledPawn->AddMovementInput(ForwardDirection, AxisValue.Y, false);
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		ControlledPawn->AddMovementInput(RightDirection, AxisValue.X, false);
 	}
 }
