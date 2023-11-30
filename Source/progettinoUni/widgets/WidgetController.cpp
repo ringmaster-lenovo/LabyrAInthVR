@@ -46,9 +46,14 @@ void AWidgetController::RemoveStartUI()
 	}
 }
 
+UStartMenuWidget* AWidgetController::GetStartMenuWidget()
+{
+	if (StartMenuWidget) return StartMenuWidget;
+	else return nullptr;
+}
+
 // Called every frame
 void AWidgetController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }

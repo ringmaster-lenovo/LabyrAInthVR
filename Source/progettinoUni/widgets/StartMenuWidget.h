@@ -26,7 +26,9 @@ public:
 
 	virtual void NativeConstruct() override;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void OnStartClicked();
-	
+
+	UFUNCTION()
+	void StartMusicBackground();
 };
