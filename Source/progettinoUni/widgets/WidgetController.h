@@ -28,6 +28,8 @@ protected:
 	UPROPERTY()
 	UStartMenuWidget* StartMenuWidget;
 
+
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -35,5 +37,8 @@ public:
 	void ShowStartUI();
 
 	void RemoveStartUI();
+
+	UFUNCTION(BlueprintCallable)
+	UStartMenuWidget* GetStartMenuWidget();
 	
 };
