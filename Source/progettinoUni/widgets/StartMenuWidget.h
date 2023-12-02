@@ -13,8 +13,10 @@ UCLASS()
 class PROGETTINOUNI_API UStartMenuWidget : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 public:
+	// UStartMenuWidget(const FObjectInitializer& ObjectInitializer);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UButton* StartButton;
 
@@ -29,6 +31,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnStartClicked();
 
-	UFUNCTION()
-	void StartMusicBackground();
+// 	UFUNCTION()
+// 	void StartMusicBackground();
+//
+// 	UPROPERTY(BlueprintReadOnly)
+// 	class USoundBase* BackgroudMusicCue = nullptr;
+//
+// protected:
+// 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Audio")
+// 	class UAudioComponent* BackgroundMusicAudioComponent;
+
 };
