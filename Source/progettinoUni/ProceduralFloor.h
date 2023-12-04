@@ -34,14 +34,17 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pillar", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AActor> BP_Pillar;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pillar", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wall", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AActor> BP_Wall;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pillar", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovableBlock", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AActor> BP_MovableBlocks;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pillar", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AActor> BP_Gems;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Coin", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AActor> BP_Coin;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gem", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AActor> BP_Gem;
 
 	void ProcedurallySpawnObjects(UClass* ObjectClass, int32 NumberOfObjects = 1, bool bCheckCollision = false, float ZHeight = 0) const;
 

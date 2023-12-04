@@ -27,7 +27,8 @@ void AProceduralFloor::BeginPlay()
 	ProcedurallySpawnObjects(BP_Wall, 40);
 	ProcedurallySpawnObjects(BP_Pillar, 30, true);
 	ProcedurallySpawnObjects(BP_MovableBlocks, 20, true);
-	ProcedurallySpawnObjects(BP_Gems, 10, true, 100);
+	ProcedurallySpawnObjects(BP_Coin, 10, true, 50);
+	ProcedurallySpawnObjects(BP_Gem, 5, true, 100);
 }
 
 // Called every frame
