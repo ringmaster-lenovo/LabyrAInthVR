@@ -86,8 +86,7 @@ void AprogettinoUniPlayerController::OnSetDestinationTriggered()
 	}
 	
 	// Move towards mouse pointer or touch
-	APawn* ControlledPawn = GetPawn();
-	if (ControlledPawn != nullptr)
+	if (APawn* ControlledPawn = GetPawn(); ControlledPawn != nullptr)
 	{
 		FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
 		ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);
@@ -127,8 +126,7 @@ void AprogettinoUniPlayerController::OnKeyboardMovementTriggered(const FInputAct
 
 	const FVector2D AxisValue = Value.Get<FVector2D>();
 
-	APawn* ControlledPawn = GetPawn();
-	if (ControlledPawn != nullptr)
+	if (APawn* ControlledPawn = GetPawn(); ControlledPawn != nullptr)
 	{
 		const FRotator Rotation = this->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);

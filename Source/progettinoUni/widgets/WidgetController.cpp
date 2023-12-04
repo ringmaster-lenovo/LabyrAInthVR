@@ -3,6 +3,9 @@
 
 #include "WidgetController.h"
 
+#include "TimerWidget.h"
+#include "EndWidget.h"
+#include "StartMenuWidget.h"
 #include "Components/TileView.h"
 
 // Sets default values
@@ -26,27 +29,48 @@ void AWidgetController::BeginPlay()
 		StartMenuWidget->WidgetController = this;
 	}
 
+	if (BP_EndWidget)
+	{
+		EndWidget = CreateWidget<UEndWidget>(World, BP_EndWidget);
+		EndWidget->WidgetController = this;
+	}
+	
+	if (BP_TimerWidget)
+	{
+		TimerWidget = CreateWidget<UTimerWidget>(World, BP_TimerWidget);
+		TimerWidget->WidgetController = this;
+	}
+
 	ShowStartUI();
 	
 }
 
-void AWidgetController::ShowStartUI()
+void AWidgetController::ShowStartUI() const
 {
-	if(StartMenuWidget)
+	if (StartMenuWidget)
 	{
 		StartMenuWidget->AddToViewport(0);
 	}
 }
 
-void AWidgetController::RemoveStartUI()
+void AWidgetController::StartGame() const
 {
-	if(StartMenuWidget)
+	if (StartMenuWidget)
 	{
 		StartMenuWidget->RemoveFromParent();
 	}
+	if (TimerWidget)
+	{
+		TimerWidget->AddToViewport(0);
+	}
 }
 
-UStartMenuWidget* AWidgetController::GetStartMenuWidget()
+void AWidgetController::RestartGame()
+{
+	FGenericPlatformMisc::RequestExit(false);
+}
+
+UStartMenuWidget* AWidgetController::GetStartMenuWidget() const
 {
 	if (StartMenuWidget) return StartMenuWidget;
 	else return nullptr;
