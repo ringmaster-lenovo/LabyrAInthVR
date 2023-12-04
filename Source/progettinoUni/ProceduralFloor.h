@@ -24,11 +24,26 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	int32 FloorLength;
+
+	int32 FloorWidth;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* FloorMeshComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pillar", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AActor> BP_Pillar;
 
-	void SpawnPillars(UClass* PillarClass);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pillar", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AActor> BP_Wall;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pillar", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AActor> BP_MovableBlocks;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pillar", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AActor> BP_Gems;
+
+	void ProcedurallySpawnObjects(UClass* ObjectClass, int32 NumberOfObjects = 1, bool bCheckCollision = false, float ZHeight = 0) const;
+
+	bool CheckOverlap(const AActor* ActorToIgnore, const FVector& SpawnLocation, const FVector& BoxHalfExtent) const;
 };
