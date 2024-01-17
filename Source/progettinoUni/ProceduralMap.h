@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ProceduralFloor.generated.h"
+#include "ProceduralMap.generated.h"
 
 UCLASS()
-class PROGETTINOUNI_API AProceduralFloor : public AActor
+class PROGETTINOUNI_API AProceduralMap : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AProceduralFloor();
+	AProceduralMap();
 
 protected:
 	// Called when the game starts or when spawned
@@ -24,18 +24,21 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	int32 FloorLength;
+	int32 FloorLength;  // floor length in cm in the X axis
 
-	int32 FloorWidth;
+	int32 FloorWidth;  // floor width in cm in the Y axis
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* FloorMeshComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AActor> BP_Wall;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pillar", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AActor> BP_Pillar;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wall", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AActor> BP_Wall;
+	TSubclassOf<AActor> BP_Archway;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MovableBlock", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AActor> BP_MovableBlocks;
@@ -45,6 +48,10 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gem", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AActor> BP_Gem;
+
+	void PlaceWalls();
+
+	void ProgrammaticallyPlaceFloor();
 
 	void ProcedurallySpawnObjects(UClass* ObjectClass, int32 NumberOfObjects = 1, bool bCheckCollision = false, float ZHeight = 0) const;
 
