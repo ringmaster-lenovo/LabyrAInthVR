@@ -55,5 +55,5 @@ private:
 
 	void ProcedurallySpawnObjects(UClass* ObjectClass, int32 NumberOfObjects = 1, bool bCheckCollision = false, float ZHeight = 0) const;
 
-	bool CheckOverlap(const AActor* ActorToIgnore, const FVector& SpawnLocation, const FVector& BoxHalfExtent) const;
+	bool IsActorColliding(const AActor* ActorToCheck, const FVector& ActorSpawnLocation, const FVector& ActorBoxHalfExtent) const;
 };

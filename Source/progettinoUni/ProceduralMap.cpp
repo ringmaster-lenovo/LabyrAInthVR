@@ -25,10 +25,10 @@ void AProceduralMap::BeginPlay()
 
 	PlaceWalls();
 	
-	ProcedurallySpawnObjects(BP_Archway, 40);
-	ProcedurallySpawnObjects(BP_Pillar, 30);
-	ProcedurallySpawnObjects(BP_MovableBlocks, 20, true, 55);
-	ProcedurallySpawnObjects(BP_Coin, 10, true, 50);
+	ProcedurallySpawnObjects(BP_Archway, 50);
+	ProcedurallySpawnObjects(BP_Pillar, 40, true);
+	ProcedurallySpawnObjects(BP_MovableBlocks, 30, true, 55);
+	ProcedurallySpawnObjects(BP_Coin, 20, true, 50);
 	ProcedurallySpawnObjects(BP_Gem, 5, true, 100);
 }
 
@@ -87,18 +87,8 @@ void AProceduralMap::ProgrammaticallyPlaceFloor()
 		UE_LOG(LogTemp, Error, TEXT("BP_Floor is null!"));
 		return;
 	}
-
-	// UE_LOG(LogTemp, Warning, TEXT("MyBlueprintActor: %s"), *MyBlueprintActor->GetName());
-	// UE_LOG(LogTemp, Warning, TEXT("MyBlueprintActor location: %s"), *MyBlueprintActor->GetActorLocation().ToString());
-	// UE_LOG(LogTemp, Warning, TEXT("MyBlueprintActor rotation: %s"), *MyBlueprintActor->GetActorRotation().ToString());
-	// UE_LOG(LogTemp, Warning, TEXT("MyBlueprintActor scale: %s"), *MyBlueprintActor->GetActorScale().ToString());
-
 	// scale the actor floor
 	ProceduralMapBPActor->SetActorScale3D(FVector(50.f, 50.f, 1.f));  // remember these values are in m
-
-	// UE_LOG(LogTemp, Warning, TEXT("MyBlueprintActor location: %s"), *MyBlueprintActor->GetActorLocation().ToString());
-	// UE_LOG(LogTemp, Warning, TEXT("MyBlueprintActor rotation: %s"), *MyBlueprintActor->GetActorRotation().ToString());
-	// UE_LOG(LogTemp, Warning, TEXT("MyBlueprintActor scale: %s"), *MyBlueprintActor->GetActorScale().ToString());
 
 	// Get the dimensions of the floor
 	FloorLength = ProceduralMapBPActor->GetActorScale().X * 100.0;
@@ -179,7 +169,7 @@ void AProceduralMap::ProcedurallySpawnObjects(UClass* ObjectClass, const int32 N
 		{
 			const UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(SpawnedActor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
 			FVector BoxHalfExtent = MeshComponent->GetStaticMesh()->GetBoundingBox().GetExtent();
-			if (CheckOverlap(SpawnedActor, SpawnLocation, BoxHalfExtent))
+			if (IsActorColliding(SpawnedActor, SpawnLocation, BoxHalfExtent))
 			{
 				UE_LOG(LogTemp, Warning, TEXT("BoxHalfExtent: %s"), *BoxHalfExtent.ToString());
 				UE_LOG(LogTemp, Warning, TEXT("Overlap detected!"));
@@ -194,24 +184,24 @@ void AProceduralMap::ProcedurallySpawnObjects(UClass* ObjectClass, const int32 N
 }
 
 /**
- * Check if the SpawnLocation overlaps with other objects given the BoxHalfExtent, the dimensions of the object's bounding box.
- * @param ActorToIgnore The actor to ignore when checking for overlap, usually the actor itself that is calling this function
- * @param SpawnLocation The location at which theobject is going to be spawned
- * @param BoxHalfExtent The half extent of the object's bounding box
+ * Check if the ActorSpawnLocation overlaps with other objects given the ActorBoxHalfExtent, the dimensions of the object's bounding box.
+ * @param ActorToCheck The actor to ignore when checking for overlap, usually the actor itself that is calling this function
+ * @param ActorSpawnLocation The location at which theobject is going to be spawned
+ * @param ActorBoxHalfExtent The half extent of the object's bounding box
  * @return TRUE Whether the object overlaps with other objects
  */
-bool AProceduralMap::CheckOverlap(const AActor* ActorToIgnore, const FVector& SpawnLocation, const FVector& BoxHalfExtent) const
+bool AProceduralMap::IsActorColliding(const AActor* ActorToCheck, const FVector& ActorSpawnLocation, const FVector& ActorBoxHalfExtent) const
 {
 	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(ActorToIgnore); // Ignore self if needed
+	CollisionParams.AddIgnoredActor(ActorToCheck); // Ignore self if needed
 
 	TArray<FOverlapResult> HitResults;
 	const bool bHit = GetWorld()->OverlapMultiByObjectType(
 		HitResults,
-		SpawnLocation,
+		ActorSpawnLocation,
 		FQuat::Identity,
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_WorldStatic),
-		FCollisionShape::MakeBox(BoxHalfExtent), // Adjust the shape based on your object's size
+		FCollisionShape::MakeBox(ActorBoxHalfExtent), // Adjust the shape based on your object's size
 		CollisionParams
 	);
 
