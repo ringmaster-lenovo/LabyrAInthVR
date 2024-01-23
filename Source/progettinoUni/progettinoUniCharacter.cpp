@@ -49,9 +49,3 @@ void AprogettinoUniCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 }
-
-int32 AprogettinoUniCharacter::GetTotalScore()
-{
-	TotalScore = CoinsCollected + GemsCollected * 10;
-	return TotalScore;
-}

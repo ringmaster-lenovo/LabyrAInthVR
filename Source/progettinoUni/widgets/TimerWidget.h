@@ -21,6 +21,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* Seconds;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	int32 MinutesInt = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	int32 SecondsInt = 60;
+
 	UPROPERTY()
 	class AWidgetController* WidgetController = nullptr;
 

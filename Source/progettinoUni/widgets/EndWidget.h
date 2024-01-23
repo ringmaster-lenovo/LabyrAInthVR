@@ -18,9 +18,6 @@ public:
 	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UButton* RestartButton;*/
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UTextBlock* Result;
-
 	UPROPERTY()
 	class AWidgetController* WidgetController = nullptr;
 

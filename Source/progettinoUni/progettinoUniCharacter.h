@@ -48,7 +48,7 @@ public:
 	int32 GetGemsCollected() const { return GemsCollected; }
 
 	UFUNCTION(BlueprintCallable, Category = "Score")
-	int32 GetTotalScore();
+	int32 GetTotalScore() const {	return CoinsCollected + GemsCollected * 10; }
 
 	UFUNCTION(BlueprintCallable, Category = "Score")
 	void AddCoinsCollected() { CoinsCollected += 1; }
