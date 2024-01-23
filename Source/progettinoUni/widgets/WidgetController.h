@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "StartMenuWidget.h"
 #include "EndWidget.h"
+#include "PauseMenuWidget.h"
 #include "TimerWidget.h"
 #include "GameFramework/Actor.h"
 #include "WidgetController.generated.h"
@@ -28,6 +29,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<UTimerWidget> BP_TimerWidget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UPauseMenuWidget> BP_PauseMenuWidget;
 
 protected:
 	// Called when the game starts or when spawned
@@ -45,6 +48,9 @@ protected:
 	UPROPERTY()
 	UTimerWidget* TimerWidget;
 
+	UPROPERTY()
+	UPauseMenuWidget* PauseMenuWidget;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -52,6 +58,12 @@ public:
 	void ShowStartUI() const;
 
 	void StartGame() const;
+
+	void PauseGame() const;
+
+	void ResumeGame() const;
+
+	void QuitGame() const;
 
 	static void RestartGame();
 	

@@ -28,17 +28,20 @@ void AWidgetController::BeginPlay()
 		StartMenuWidget = CreateWidget<UStartMenuWidget>(World, BP_StartWidget);
 		StartMenuWidget->WidgetController = this;
 	}
-
 	if (BP_EndWidget)
 	{
 		EndWidget = CreateWidget<UEndWidget>(World, BP_EndWidget);
 		EndWidget->WidgetController = this;
 	}
-	
 	if (BP_TimerWidget)
 	{
 		TimerWidget = CreateWidget<UTimerWidget>(World, BP_TimerWidget);
 		TimerWidget->WidgetController = this;
+	}
+	if (BP_PauseMenuWidget)
+	{
+		PauseMenuWidget = CreateWidget<UPauseMenuWidget>(World, BP_PauseMenuWidget);
+		PauseMenuWidget->WidgetController = this;
 	}
 
 	ShowStartUI();
@@ -62,6 +65,30 @@ void AWidgetController::StartGame() const
 	if (TimerWidget)
 	{
 		TimerWidget->AddToViewport(0);
+	}
+}
+
+void AWidgetController::PauseGame() const
+{
+	if (PauseMenuWidget)
+	{
+		PauseMenuWidget->AddToViewport(0);
+	}
+}
+
+void AWidgetController::ResumeGame() const
+{
+	if (PauseMenuWidget)
+	{
+		PauseMenuWidget->RemoveFromParent();
+	}
+}
+
+void AWidgetController::QuitGame() const
+{
+	if (PauseMenuWidget)
+	{
+		
 	}
 }
 
