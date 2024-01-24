@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
-#include "3DSinglePlayerGameState.generated.h"
+#include "3DGameState.generated.h"
 
 /**
  * 

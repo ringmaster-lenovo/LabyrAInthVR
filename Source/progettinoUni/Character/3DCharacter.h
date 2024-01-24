@@ -1,18 +1,18 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "progettinoUniCharacter.generated.h"
+#include "3DCharacter.generated.h"
 
 UCLASS(Blueprintable)
-class AprogettinoUniCharacter : public ACharacter
+class A3DCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	AprogettinoUniCharacter();
+	A3DCharacter();
 
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;

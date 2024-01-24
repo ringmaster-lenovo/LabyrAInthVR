@@ -25,11 +25,11 @@ void AProceduralMap::BeginPlay()
 
 	PlaceWalls();
 	
-	ProcedurallySpawnObjects(BP_Archway, 50);
-	ProcedurallySpawnObjects(BP_Pillar, 40, true);
-	ProcedurallySpawnObjects(BP_MovableBlocks, 30, true, 55);
-	ProcedurallySpawnObjects(BP_Coin, 20, true, 50);
-	ProcedurallySpawnObjects(BP_Gem, 5, true, 100);
+	ProcedurallySpawnObjects(BP_Archway, 0);
+	ProcedurallySpawnObjects(BP_Pillar, 0, true);
+	ProcedurallySpawnObjects(BP_MovableBlocks, 0, true, 55);
+	ProcedurallySpawnObjects(BP_Coin, 7, true, 50);
+	ProcedurallySpawnObjects(BP_Gem, 3, true, 100);
 }
 
 // Called every frame
@@ -88,7 +88,7 @@ void AProceduralMap::ProgrammaticallyPlaceFloor()
 		return;
 	}
 	// scale the actor floor
-	ProceduralMapBPActor->SetActorScale3D(FVector(50.f, 50.f, 1.f));  // remember these values are in m
+	ProceduralMapBPActor->SetActorScale3D(FVector(10.f, 10.f, 1.f));  // remember these values are in m
 
 	// Get the dimensions of the floor
 	FloorLength = ProceduralMapBPActor->GetActorScale().X * 100.0;

@@ -4,15 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "progettinoUniGameMode.generated.h"
+#include "3DGameMode.generated.h"
 
 UCLASS(minimalapi)
-class AprogettinoUniGameMode : public AGameModeBase
+class A3DGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
 public:
-	AprogettinoUniGameMode();
+	A3DGameMode();
 };
 
 

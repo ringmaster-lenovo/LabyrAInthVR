@@ -1,16 +1,16 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "progettinoUniPlayerController.h"
+#include "3DPlayerController.h"
 #include "GameFramework/Pawn.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
-#include "progettinoUniCharacter.h"
+#include "3DPlayerController.h"
 #include "Engine/World.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
-AprogettinoUniPlayerController::AprogettinoUniPlayerController()
+A3DPlayerController::A3DPlayerController()
 {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
@@ -18,7 +18,7 @@ AprogettinoUniPlayerController::AprogettinoUniPlayerController()
 	FollowTime = 0.f;
 }
 
-void AprogettinoUniPlayerController::BeginPlay()
+void A3DPlayerController::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
@@ -30,7 +30,7 @@ void AprogettinoUniPlayerController::BeginPlay()
 	}
 }
 
-void AprogettinoUniPlayerController::SetupInputComponent()
+void A3DPlayerController::SetupInputComponent()
 {
 	// set up gameplay key bindings
 	Super::SetupInputComponent();
@@ -39,30 +39,30 @@ void AprogettinoUniPlayerController::SetupInputComponent()
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
 		// Setup mouse input events
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &AprogettinoUniPlayerController::OnInputStarted);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &AprogettinoUniPlayerController::OnSetDestinationTriggered);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &AprogettinoUniPlayerController::OnSetDestinationReleased);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &AprogettinoUniPlayerController::OnSetDestinationReleased);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &A3DPlayerController::OnInputStarted);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &A3DPlayerController::OnSetDestinationTriggered);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &A3DPlayerController::OnSetDestinationReleased);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &A3DPlayerController::OnSetDestinationReleased);
 
 		// Setup touch input events
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &AprogettinoUniPlayerController::OnInputStarted);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Triggered, this, &AprogettinoUniPlayerController::OnTouchTriggered);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &AprogettinoUniPlayerController::OnTouchReleased);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &AprogettinoUniPlayerController::OnTouchReleased);
+		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &A3DPlayerController::OnInputStarted);
+		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Triggered, this, &A3DPlayerController::OnTouchTriggered);
+		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &A3DPlayerController::OnTouchReleased);
+		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &A3DPlayerController::OnTouchReleased);
 
 		// Setup keyboard input events
-		EnhancedInputComponent->BindAction(KeyboardMovement, ETriggerEvent::Started, this, &AprogettinoUniPlayerController::OnInputStarted);
-		EnhancedInputComponent->BindAction(KeyboardMovement, ETriggerEvent::Triggered, this, &AprogettinoUniPlayerController::OnKeyboardMovementTriggered);
+		EnhancedInputComponent->BindAction(KeyboardMovement, ETriggerEvent::Started, this, &A3DPlayerController::OnInputStarted);
+		EnhancedInputComponent->BindAction(KeyboardMovement, ETriggerEvent::Triggered, this, &A3DPlayerController::OnKeyboardMovementTriggered);
 	}
 }
 
-void AprogettinoUniPlayerController::OnInputStarted()
+void A3DPlayerController::OnInputStarted()
 {
 	StopMovement();
 }
 
 // Triggered every frame when the input is held down
-void AprogettinoUniPlayerController::OnSetDestinationTriggered()
+void A3DPlayerController::OnSetDestinationTriggered()
 {
 	// We flag that the input is being pressed
 	FollowTime += GetWorld()->GetDeltaSeconds();
@@ -93,7 +93,7 @@ void AprogettinoUniPlayerController::OnSetDestinationTriggered()
 	}
 }
 
-void AprogettinoUniPlayerController::OnSetDestinationReleased()
+void A3DPlayerController::OnSetDestinationReleased()
 {
 	// If it was a short press
 	if (FollowTime <= ShortPressThreshold)
@@ -107,19 +107,19 @@ void AprogettinoUniPlayerController::OnSetDestinationReleased()
 }
 
 // Triggered every frame when the input is held down
-void AprogettinoUniPlayerController::OnTouchTriggered()
+void A3DPlayerController::OnTouchTriggered()
 {
 	bIsTouch = true;
 	OnSetDestinationTriggered();
 }
 
-void AprogettinoUniPlayerController::OnTouchReleased()
+void A3DPlayerController::OnTouchReleased()
 {
 	bIsTouch = false;
 	OnSetDestinationReleased();
 }
 
-void AprogettinoUniPlayerController::OnKeyboardMovementTriggered(const FInputActionValue& Value)
+void A3DPlayerController::OnKeyboardMovementTriggered(const FInputActionValue& Value)
 {
 	// We flag that the input is being pressed
 	FollowTime += GetWorld()->GetDeltaSeconds();
