@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "StartMenuWidget.h"
 #include "EndWidget.h"
+#include "GenMapWidget.h"
 #include "PauseMenuWidget.h"
 #include "TimerWidget.h"
 #include "GameFramework/Actor.h"
@@ -21,6 +22,9 @@ public:
 	AWidgetController();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UGenMapWidget> BP_GenMapWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<UStartMenuWidget> BP_StartWidget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
@@ -35,6 +39,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY()
+	UGenMapWidget* GenMapWidget;
 	
 	UPROPERTY()
 	UStartMenuWidget* StartMenuWidget;
@@ -54,6 +61,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void ShowGenMapUI() const;
 	
 	void ShowStartUI() const;
 

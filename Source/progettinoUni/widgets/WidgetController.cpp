@@ -23,6 +23,11 @@ void AWidgetController::BeginPlay()
 	UWorld* World = GetWorld();
 	if (!World) { return; }
 
+	if (BP_GenMapWidget)
+	{
+		GenMapWidget = CreateWidget<UGenMapWidget>(World, BP_GenMapWidget);
+		GenMapWidget->WidgetController = this;
+	}
 	if (BP_StartWidget)
 	{
 		StartMenuWidget = CreateWidget<UStartMenuWidget>(World, BP_StartWidget);
@@ -44,12 +49,25 @@ void AWidgetController::BeginPlay()
 		PauseMenuWidget->WidgetController = this;
 	}
 
-	ShowStartUI();
+	ShowGenMapUI();
 	
+}
+
+
+void AWidgetController::ShowGenMapUI() const
+{
+	if (GenMapWidget)
+	{
+		GenMapWidget->AddToViewport(0);
+	}
 }
 
 void AWidgetController::ShowStartUI() const
 {
+	if (GenMapWidget)
+	{
+		GenMapWidget->RemoveFromParent();
+	}
 	if (StartMenuWidget)
 	{
 		StartMenuWidget->AddToViewport(0);

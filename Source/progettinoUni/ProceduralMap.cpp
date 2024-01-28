@@ -22,14 +22,7 @@ void AProceduralMap::BeginPlay()
 	Super::BeginPlay();
 
 	ProgrammaticallyPlaceFloor();
-
-	PlaceWalls();
-	
-	ProcedurallySpawnObjects(BP_Archway, 0);
-	ProcedurallySpawnObjects(BP_Pillar, 0, true);
-	ProcedurallySpawnObjects(BP_MovableBlocks, 0, true, 55);
-	ProcedurallySpawnObjects(BP_Coin, 7, true, 50);
-	ProcedurallySpawnObjects(BP_Gem, 3, true, 100);
+	SpawnObjects();
 }
 
 // Called every frame
@@ -39,8 +32,24 @@ void AProceduralMap::Tick(float DeltaTime)
 
 }
 
+void AProceduralMap::ProgrammaticallyPlaceFloor()
+{
+	AProceduralMap* ProceduralMapBPActor = Cast<AProceduralMap>(UGameplayStatics::GetActorOfClass(GetWorld(), AProceduralMap::StaticClass()));
+	if (ProceduralMapBPActor == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("BP_Floor is null!"));
+		return;
+	}
+	// scale the actor floor
+	ProceduralMapBPActor->SetActorScale3D(FVector(FloorWidth / 100, FloorLength / 100, 1.f));  // remember these values are in m
+
+	PlaceWalls();
+}
+
 void AProceduralMap::PlaceWalls()
 {
+	CleanObject(BP_Wall);  // destroy all the walls in the scene
+	
 	// place the walls on the edges of the floor
 	constexpr int32 WallThickness = 100;  // thickness of the edge's walls is 100cm or 0.1m in scale language
 	constexpr int32 WallHeight = 300;  // 300cm or 3m in scale language
@@ -76,25 +85,31 @@ void AProceduralMap::PlaceWalls()
 	FTransform BottomWallTransform(BottomWallRotation, BottomWallLocation, BottomWallScale);
 	AActor* BottomWall = GetWorld()->SpawnActor<AActor>(BP_Wall, BottomWallTransform);
 	BottomWall->SetActorScale3D(BottomWallScale);
-	
 }
 
-void AProceduralMap::ProgrammaticallyPlaceFloor()
+void AProceduralMap::SpawnObjects() const
 {
-	AProceduralMap* ProceduralMapBPActor = Cast<AProceduralMap>(UGameplayStatics::GetActorOfClass(GetWorld(), AProceduralMap::StaticClass()));
-	if (ProceduralMapBPActor == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("BP_Floor is null!"));
-		return;
-	}
-	// scale the actor floor
-	ProceduralMapBPActor->SetActorScale3D(FVector(10.f, 10.f, 1.f));  // remember these values are in m
+	CleanObject(BP_Archway);
+	CleanObject(BP_Pillar);
+	CleanObject(BP_MovableBlocks);
+	CleanObject(BP_Coin);
+	CleanObject(BP_Gem);
+	ProcedurallySpawnObjects(BP_Archway, ArchwayAmount);
+	ProcedurallySpawnObjects(BP_Pillar, PillarAmount, true);
+	ProcedurallySpawnObjects(BP_MovableBlocks, MovableBlockAmount, true, 150);
+	ProcedurallySpawnObjects(BP_Coin, CoinAmount, true, 50);
+	ProcedurallySpawnObjects(BP_Gem, GemAmount, true, 100);
+}
 
-	// Get the dimensions of the floor
-	FloorLength = ProceduralMapBPActor->GetActorScale().X * 100.0;
-	UE_LOG(LogTemp, Warning, TEXT("FloorLength: %d"), FloorLength);
-	FloorWidth = ProceduralMapBPActor->GetActorScale().Y * 100.0;
-	UE_LOG(LogTemp, Warning, TEXT("FloorWidth: %d"), FloorWidth);
+void AProceduralMap::CleanObject(const TSubclassOf<AActor> BP_Object) const
+{
+	// destroy all the objects of the same type of the parameter in the scene
+	TArray<AActor*> Objects;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), BP_Object, Objects);
+	for (AActor* Object : Objects)
+	{
+		Object->Destroy();
+	}
 }
 
 /**
