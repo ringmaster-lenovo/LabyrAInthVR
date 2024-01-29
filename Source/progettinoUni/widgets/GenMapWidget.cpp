@@ -21,17 +21,20 @@ void UGenMapWidget::NativeConstruct()
 
 void UGenMapWidget::OnGeneraButtonClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("GeneraButtonClicked"));
-	// Replace AYourActorClass with the actual class of your actor
-	const TSubclassOf<AProceduralMap> AProceduralMapClass = AProceduralMap::StaticClass();
+	WidgetController->ShowStartUI();
 
-	// Use the actor as needed
+	const TSubclassOf<AProceduralMap> AProceduralMapClass = AProceduralMap::StaticClass();
+	
 	if (AProceduralMap* ProceduralMap = Cast<AProceduralMap>(UGameplayStatics::GetActorOfClass(GetWorld(), AProceduralMapClass)))
 	{
+		if (AvailableTimeAmount)
+		{
+			WidgetController->SetAvailableTimeAmount(AvailableTimeAmount->GetValue());
+		}
 		if (FloorLengthAmount && FloorWidthAmount)
 		{
-			ProceduralMap->SetFloorLength(FloorLengthAmount->GetValue());
 			ProceduralMap->SetFloorWidth(FloorWidthAmount->GetValue());
+			ProceduralMap->SetFloorLength(FloorLengthAmount->GetValue());
 			ProceduralMap->ProgrammaticallyPlaceFloor();
 		}
 		if (ArchwayAmount)
@@ -56,6 +59,4 @@ void UGenMapWidget::OnGeneraButtonClicked()
 		}
 		ProceduralMap->SpawnObjects();
 	}
-	
-	WidgetController->ShowStartUI();
 }

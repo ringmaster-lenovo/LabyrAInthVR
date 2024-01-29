@@ -32,10 +32,10 @@ public:
 	USpinBox* AvailableTimeAmount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget), Category = "Map")
-	USpinBox* FloorLengthAmount;
+	USpinBox* FloorWidthAmount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget), Category = "Map")
-	USpinBox* FloorWidthAmount;
+	USpinBox* FloorLengthAmount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget), Category = "Map")
 	USpinBox* ArchwayAmount;

@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "ProceduralMap.generated.h"
 
+/**
+ * This class is used to generate a procedural map
+ */
 UCLASS()
 class PROGETTINOUNI_API AProceduralMap : public AActor
 {
@@ -24,9 +27,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	int32 FloorLength = 1000;  // floor length in cm in the X axis
+	int32 FloorLength = 1000;  // floor length in cm in the Y axis
 
-	int32 FloorWidth = 1000;  // floor width in cm in the Y axis
+	int32 FloorWidth = 1000;  // floor width in cm in the X axis
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Floor", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* FloorMeshComponent;
@@ -68,11 +71,13 @@ private:
 
 	bool IsActorColliding(const AActor* ActorToCheck, const FVector& ActorSpawnLocation, const FVector& ActorBoxHalfExtent) const;
 
+	static bool IsActorCollidingWithPlayerStart(const FVector& ActorSpawnLocation);
+
 public:
 	FORCEINLINE int32 GetFloorLength() const {return FloorLength;}
 	FORCEINLINE int32 GetFloorWidth() const {return FloorWidth;}
-	void SetFloorLength(const int32 Length) {FloorLength = Length;}
-	void SetFloorWidth(const int32 Width) {FloorWidth = Width;}
+	void SetFloorWidth(const int32 Width) {FloorWidth = FMath::Floor(Width / 100) * 100;}
+	void SetFloorLength(const int32 Length) {FloorLength = FMath::Floor(Length / 100) * 100;}
 	
 	UFUNCTION()
 	void SetArchways(const uint32 Amount) {ArchwayAmount = Amount;}

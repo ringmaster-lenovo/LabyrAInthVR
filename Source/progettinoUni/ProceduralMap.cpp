@@ -21,6 +21,7 @@ void AProceduralMap::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// to spawn a default floor and a default amount of objects
 	ProgrammaticallyPlaceFloor();
 	SpawnObjects();
 }
@@ -29,9 +30,12 @@ void AProceduralMap::BeginPlay()
 void AProceduralMap::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
+/**
+ * Scale the floor according to the FloorWidth and FloorLength variables
+ * then calls PlaceWalls() to place the walls on the edges of the floor
+ */
 void AProceduralMap::ProgrammaticallyPlaceFloor()
 {
 	AProceduralMap* ProceduralMapBPActor = Cast<AProceduralMap>(UGameplayStatics::GetActorOfClass(GetWorld(), AProceduralMap::StaticClass()));
@@ -46,24 +50,26 @@ void AProceduralMap::ProgrammaticallyPlaceFloor()
 	PlaceWalls();
 }
 
+/**
+ * place the walls on the edges of the floor
+ */
 void AProceduralMap::PlaceWalls()
 {
 	CleanObject(BP_Wall);  // destroy all the walls in the scene
 	
-	// place the walls on the edges of the floor
 	constexpr int32 WallThickness = 100;  // thickness of the edge's walls is 100cm or 0.1m in scale language
 	constexpr int32 WallHeight = 300;  // 300cm or 3m in scale language
 	
 	// left wall
-	FVector LeftWallLocation = FVector(0, -((FloorWidth / 2) + (WallThickness / 2)), WallHeight / 2);  // we need to move of half the thickness of a wall to the left to not occupy space on the floor, and let the wall stay on the exact edge
+	FVector LeftWallLocation = FVector(0, -((FloorLength / 2) + (WallThickness / 2)), WallHeight / 2);  // we need to move of half the thickness of a wall to the left to not occupy space on the floor, and let the wall stay on the exact edge
 	FRotator LeftWallRotation = FRotator(0, 0, 0);
-	FVector LeftWallScale = FVector(FloorWidth / 100, 1.0f, WallHeight / 100); // we need to divide by 100 because the positins of the world are in cm and we need to convert it to m for the scale
+	FVector LeftWallScale = FVector(FloorWidth / 100, 1.0f, WallHeight / 100); // we need to divide by 100 because the positions of the world are in cm and we need to convert it to m for the scale
 	FTransform LeftWallTransform(LeftWallRotation, LeftWallLocation, LeftWallScale);
 	AActor* LeftWall = GetWorld()->SpawnActor<AActor>(BP_Wall, LeftWallTransform);
 	LeftWall->SetActorScale3D(LeftWallScale);
 	
 	// right wall
-	FVector RightWallLocation = FVector(0, (FloorWidth / 2) + (WallThickness / 2), WallHeight / 2);
+	FVector RightWallLocation = FVector(0, (FloorLength / 2) + (WallThickness / 2), WallHeight / 2);
 	FRotator RightWallRotation = FRotator(0, 0, 0);
 	FVector RightWallScale = FVector(FloorWidth / 100, 1.0f,  WallHeight / 100);
 	FTransform RightWallTransform(RightWallRotation, RightWallLocation, RightWallScale);
@@ -71,22 +77,26 @@ void AProceduralMap::PlaceWalls()
 	RightWall->SetActorScale3D(RightWallScale);
 	
 	// top wall
-	FVector TopWallLocation = FVector((FloorLength / 2) + (WallThickness / 2), 0, WallHeight / 2);
+	FVector TopWallLocation = FVector((FloorWidth / 2) + (WallThickness / 2), 0, WallHeight / 2);
 	FRotator TopWallRotation = FRotator(0, 0, 0);
-	FVector TopWallScale = FVector(1.0f, (FloorWidth / 100) + (WallThickness * 2 / 100), WallHeight / 100);  // we need to add the thickness of two edge's walls to the width of the top and bottom walls to close the gap between the left and right walls
+	FVector TopWallScale = FVector(1.0f, (FloorLength / 100) + (WallThickness * 2 / 100), WallHeight / 100);  // we need to add the thickness of two edge's walls to the width of the top and bottom walls to close the gap between the left and right walls
 	FTransform TopWallTransform(TopWallRotation, TopWallLocation, TopWallScale);
 	AActor* TopWall = GetWorld()->SpawnActor<AActor>(BP_Wall, TopWallTransform);
 	TopWall->SetActorScale3D(TopWallScale);
 	
 	// bottom wall
-	FVector BottomWallLocation = FVector(-((FloorLength / 2) + (WallThickness / 2)), 0, WallHeight / 2);
+	FVector BottomWallLocation = FVector(-((FloorWidth / 2) + (WallThickness / 2)), 0, WallHeight / 2);
 	FRotator BottomWallRotation = FRotator(0, 0, 0);
-	FVector BottomWallScale = FVector(1.0f, (FloorWidth / 100) + (WallThickness * 2 / 100), WallHeight / 100);
+	FVector BottomWallScale = FVector(1.0f, (FloorLength / 100) + (WallThickness * 2 / 100), WallHeight / 100);
 	FTransform BottomWallTransform(BottomWallRotation, BottomWallLocation, BottomWallScale);
 	AActor* BottomWall = GetWorld()->SpawnActor<AActor>(BP_Wall, BottomWallTransform);
 	BottomWall->SetActorScale3D(BottomWallScale);
 }
 
+/**
+ * Spawn all the objects in the map, each according to its amount
+ * Before spawning the objects it destroys all the objects of the same type in the scene
+ */
 void AProceduralMap::SpawnObjects() const
 {
 	CleanObject(BP_Archway);
@@ -101,9 +111,12 @@ void AProceduralMap::SpawnObjects() const
 	ProcedurallySpawnObjects(BP_Gem, GemAmount, true, 100);
 }
 
+/**
+ * destroy all the objects of the same type of the parameter in the scene
+ * @param BP_Object The class of the object to destroy
+ */
 void AProceduralMap::CleanObject(const TSubclassOf<AActor> BP_Object) const
 {
-	// destroy all the objects of the same type of the parameter in the scene
 	TArray<AActor*> Objects;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), BP_Object, Objects);
 	for (AActor* Object : Objects)
@@ -147,38 +160,50 @@ void AProceduralMap::ProcedurallySpawnObjects(UClass* ObjectClass, const int32 N
 			if (RandomSide == 0) /* | */
 			{
 				SpawnRotation = FRotator(0, 0, 0);
-				SpawnLocation = FVector(FMath::RandRange(-HalfFloorLength + (4 * DistanceFromWalls), HalfFloorLength - (4 * DistanceFromWalls)),
-										FMath::RandRange(-HalfFloorWidth + DistanceFromWalls, HalfFloorWidth - DistanceFromWalls), ZHeight);
+				SpawnLocation = FVector(FMath::RandRange(-HalfFloorWidth + (4 * DistanceFromWalls), HalfFloorWidth - (4 * DistanceFromWalls)),
+										FMath::RandRange(-HalfFloorLength + DistanceFromWalls, HalfFloorLength - DistanceFromWalls), ZHeight);
 			}
 			else if (RandomSide == 1) /* / */
 			{
 				SpawnRotation = FRotator(0, 45, 0);
-				SpawnLocation = FVector(FMath::RandRange( -HalfFloorLength + 3 * DistanceFromWalls, HalfFloorLength - (3 * DistanceFromWalls)),
-										FMath::RandRange(-HalfFloorWidth + 3 * DistanceFromWalls, HalfFloorWidth - (3 * DistanceFromWalls)), ZHeight);
+				SpawnLocation = FVector(FMath::RandRange( -HalfFloorWidth + 3 * DistanceFromWalls, HalfFloorWidth - (3 * DistanceFromWalls)),
+										FMath::RandRange(-HalfFloorLength + 3 * DistanceFromWalls, HalfFloorLength - (3 * DistanceFromWalls)), ZHeight);
 			}
 			else if (RandomSide == 2) /* - */
 			{
 				SpawnRotation = FRotator(0, 90, 0);
-				SpawnLocation = FVector(FMath::RandRange(-HalfFloorLength + DistanceFromWalls, HalfFloorLength - DistanceFromWalls),
-										FMath::RandRange(-HalfFloorLength + 4 * DistanceFromWalls, HalfFloorWidth - (4 * DistanceFromWalls)), ZHeight);
+				SpawnLocation = FVector(FMath::RandRange(-HalfFloorWidth + DistanceFromWalls, HalfFloorWidth - DistanceFromWalls),
+										FMath::RandRange(-HalfFloorLength + 4 * DistanceFromWalls, HalfFloorLength - (4 * DistanceFromWalls)), ZHeight);
 			}
 			else if (RandomSide == 3) /* \ */
 			{
 				SpawnRotation = FRotator(0, 135, 0);
-				SpawnLocation = FVector(FMath::RandRange(-HalfFloorLength + (3 * DistanceFromWalls), HalfFloorLength - 3 * DistanceFromWalls),
-										FMath::RandRange(-HalfFloorWidth + 3 * DistanceFromWalls, HalfFloorWidth - (3 * DistanceFromWalls)), ZHeight);
+				SpawnLocation = FVector(FMath::RandRange(-HalfFloorWidth + (3 * DistanceFromWalls), HalfFloorWidth - 3 * DistanceFromWalls),
+										FMath::RandRange(-HalfFloorLength + 3 * DistanceFromWalls, HalfFloorLength - (3 * DistanceFromWalls)), ZHeight);
 			}
 		}
 		else  // every other object
 		{
-			SpawnLocation = FVector(FMath::RandRange(-HalfFloorLength + DistanceFromWalls, HalfFloorLength - DistanceFromWalls),
-									FMath::RandRange(-HalfFloorWidth + DistanceFromWalls, HalfFloorWidth - DistanceFromWalls), ZHeight);
+			SpawnLocation = FVector(FMath::RandRange(-HalfFloorWidth + DistanceFromWalls, HalfFloorWidth - DistanceFromWalls),
+									FMath::RandRange(-HalfFloorLength + DistanceFromWalls, HalfFloorLength - DistanceFromWalls), ZHeight);
 			SpawnRotation = FRotator(0, FMath::RandRange(0.f, 360.f), 0);
+		}
+		if (IsActorCollidingWithPlayerStart(SpawnLocation))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Spawn location overlaps with Player Start!"));
+			Attempts++;
+			continue;
 		}
 		
 		FActorSpawnParameters SpawnInfo;
 		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(ObjectClass, SpawnLocation, SpawnRotation, SpawnInfo);
-		UE_LOG(LogTemp, Warning, TEXT("SpawnedActor: %s. Location: %s"), *SpawnedActor->GetName(), *SpawnedActor->GetActorLocation().ToString());
+		if (SpawnedActor == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("SpawnedActor is null!"));
+			Attempts++;
+			continue;
+		}
+		// UE_LOG(LogTemp, Warning, TEXT("SpawnedActor: %s. Location: %s"), *SpawnedActor->GetName(), *SpawnedActor->GetActorLocation().ToString());
 		
 		if (bCheckCollision)
 		{
@@ -186,8 +211,8 @@ void AProceduralMap::ProcedurallySpawnObjects(UClass* ObjectClass, const int32 N
 			FVector BoxHalfExtent = MeshComponent->GetStaticMesh()->GetBoundingBox().GetExtent();
 			if (IsActorColliding(SpawnedActor, SpawnLocation, BoxHalfExtent))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("BoxHalfExtent: %s"), *BoxHalfExtent.ToString());
-				UE_LOG(LogTemp, Warning, TEXT("Overlap detected!"));
+				// UE_LOG(LogTemp, Warning, TEXT("BoxHalfExtent: %s"), *BoxHalfExtent.ToString());
+				// UE_LOG(LogTemp, Warning, TEXT("Overlap detected!"));
 				SpawnedActor->Destroy();
 				Attempts++;
 				continue;
@@ -221,4 +246,14 @@ bool AProceduralMap::IsActorColliding(const AActor* ActorToCheck, const FVector&
 	);
 
 	return bHit;
+}
+
+bool AProceduralMap::IsActorCollidingWithPlayerStart(const FVector& ActorSpawnLocation)
+{
+	// 200 is 2m, within 2m from the player start, which is (0, 0, 0) in the world, we don't want to spawn objects
+	if (ActorSpawnLocation.X > -200 && ActorSpawnLocation.X < 200 && ActorSpawnLocation.Y > -200 && ActorSpawnLocation.Y < 200)
+	{
+		return true;
+	}
+	return false;
 }
