@@ -34,7 +34,7 @@ void UStartMenuWidget::NativeConstruct()
 
 void UStartMenuWidget::OnStartClicked()
 {
-	if (BP_3DWidgetController)
+	if (BP_WidgetController)
 	{
 		WidgetController->StartGame();
 	}

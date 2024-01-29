@@ -24,7 +24,7 @@ public:
 	class AWidgetController* WidgetController = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<AWidgetController> BP_3DWidgetController;
+	TSubclassOf<AWidgetController> BP_WidgetController;
 
 	virtual void NativeConstruct() override;
 
