@@ -19,6 +19,10 @@ class A3DPlayerController : public APlayerController
 public:
 	A3DPlayerController();
 
+	bool bIsControllerEnabled = false;
+
+	void SetPlayerControllerEnabled(const bool bEnable) {bIsControllerEnabled = bEnable;};
+
 	/** Time Threshold to know if it was a short press */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	float ShortPressThreshold;

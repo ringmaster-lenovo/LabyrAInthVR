@@ -34,7 +34,6 @@ void UStartMenuWidget::NativeConstruct()
 
 void UStartMenuWidget::OnStartClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("StartButtonClicked"));
 	if (BP_WidgetController)
 	{
 		WidgetController->StartGame();

@@ -9,6 +9,7 @@
 #include "PauseMenuWidget.h"
 #include "TimerWidget.h"
 #include "GameFramework/Actor.h"
+#include "../Character/3DPlayerController.h"
 #include "WidgetController.generated.h"
 
 
@@ -16,6 +17,11 @@ UCLASS()
 class PROGETTINOUNI_API AWidgetController : public AActor
 {
 	GENERATED_BODY()
+
+private:
+	FTimerHandle TimerHandle;
+
+	void UpdateTimer() const {if (BP_TimerWidget) TimerWidget->UpdateTimer();}
 	
 public:	
 	// Sets default values for this actor's properties
@@ -35,6 +41,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<UPauseMenuWidget> BP_PauseMenuWidget;
+
+	UPROPERTY()
+	A3DPlayerController* PlayerController3D;
 
 protected:
 	// Called when the game starts or when spawned
@@ -62,6 +71,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION()
+	void SetAvailableTimeAmount(const int32& AvailableTimeAmount) const;
+
 	void ShowGenMapUI() const;
 	
 	void ShowStartUI() const;
@@ -73,6 +85,8 @@ public:
 	void ResumeGame() const;
 
 	void QuitGame() const;
+
+	void ShowEndUI() const;
 
 	static void RestartGame();
 	

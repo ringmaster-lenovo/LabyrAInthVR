@@ -64,6 +64,8 @@ void A3DPlayerController::OnInputStarted()
 // Triggered every frame when the input is held down
 void A3DPlayerController::OnSetDestinationTriggered()
 {
+	if (!bIsControllerEnabled) return;
+	
 	// We flag that the input is being pressed
 	FollowTime += GetWorld()->GetDeltaSeconds();
 	
@@ -121,6 +123,8 @@ void A3DPlayerController::OnTouchReleased()
 
 void A3DPlayerController::OnKeyboardMovementTriggered(const FInputActionValue& Value)
 {
+	if (!bIsControllerEnabled) return;
+	
 	// We flag that the input is being pressed
 	FollowTime += GetWorld()->GetDeltaSeconds();
 
