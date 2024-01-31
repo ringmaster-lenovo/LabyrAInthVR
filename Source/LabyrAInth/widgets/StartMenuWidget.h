@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class PROGETTINOUNI_API UStartMenuWidget : public UUserWidget
+class LABYRAINTH_API UStartMenuWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

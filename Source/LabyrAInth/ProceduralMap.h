@@ -10,7 +10,7 @@
  * This class is used to generate a procedural map
  */
 UCLASS()
-class PROGETTINOUNI_API AProceduralMap : public AActor
+class LABYRAINTH_API AProceduralMap : public AActor
 {
 	GENERATED_BODY()
 	

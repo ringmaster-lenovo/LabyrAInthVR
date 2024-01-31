@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class PROGETTINOUNI_API A3DSinglePlayerGameStateBase : public AGameStateBase
+class LABYRAINTH_API A3DSinglePlayerGameStateBase : public AGameStateBase
 {
 	GENERATED_BODY()
 };

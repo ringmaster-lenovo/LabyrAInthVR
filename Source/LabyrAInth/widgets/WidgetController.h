@@ -14,7 +14,7 @@
 
 
 UCLASS()
-class PROGETTINOUNI_API AWidgetController : public AActor
+class LABYRAINTH_API AWidgetController : public AActor
 {
 	GENERATED_BODY()
 

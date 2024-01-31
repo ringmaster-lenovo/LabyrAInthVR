@@ -11,7 +11,7 @@ class USpinBox;
  * 
  */
 UCLASS()
-class PROGETTINOUNI_API UGenMapWidget : public UUserWidget
+class LABYRAINTH_API UGenMapWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

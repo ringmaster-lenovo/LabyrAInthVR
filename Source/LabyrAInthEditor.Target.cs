@@ -3,13 +3,13 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class progettinoUniTarget : TargetRules
+public class LabyrAInthEditorTarget : TargetRules
 {
-	public progettinoUniTarget(TargetInfo Target) : base(Target)
+	public LabyrAInthEditorTarget(TargetInfo Target) : base(Target)
 	{
-		Type = TargetType.Game;
+		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_1;
-		ExtraModuleNames.Add("progettinoUni");
+		ExtraModuleNames.Add("LabyrAInth");
 	}
 }

@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class PROGETTINOUNI_API UTimerWidget : public UUserWidget
+class LABYRAINTH_API UTimerWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

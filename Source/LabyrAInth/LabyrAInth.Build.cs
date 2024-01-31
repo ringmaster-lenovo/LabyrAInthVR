@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class progettinoUni : ModuleRules
+public class LabyrAInth : ModuleRules
 {
-	public progettinoUni(ReadOnlyTargetRules Target) : base(Target)
+	public LabyrAInth(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
