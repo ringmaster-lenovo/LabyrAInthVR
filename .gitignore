@@ -1,5 +1,6 @@
-# Visual Studio 2015 user specific files
+# Visual Studio user specific files
 .vs/
+.vsconfig
 
 # Rider user specific files
 .idea/
@@ -77,8 +78,10 @@ Plugins/*/RiderLink/*
 # Cache files for the editor to use
 DerivedDataCache/*
 
-# Content derived from the engine
-Content/StarterContent
+# Content folder
+Content/*
 
-# Content specific to the user
-Content/Developers
+# Whitelist of Content
+!Content/__ExternalActors__/*
+!Content/__ExternalObjects__/*
+!Content/TopDown/*
