@@ -84,4 +84,4 @@ Content/*
 # Whitelist of Content
 !Content/__ExternalActors__/*
 !Content/__ExternalObjects__/*
-!Content/TopDown/*
+!Content/Core/*
