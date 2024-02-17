@@ -37,6 +37,16 @@
 			"SupportedTargetPlatforms": [
 				"Win64"
 			]
+		},
+		{
+			"Name": "AutoFootstep",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/66cea07913a248bba0ada8dd73c809b9"
+		},
+		{
+			"Name": "PlayerStatistics",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/d7f729d535a04754b0c6b3e02f337d24"
 		}
 	],
 	"TargetPlatforms": [
