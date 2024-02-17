@@ -82,6 +82,7 @@ DerivedDataCache/*
 Content/*
 
 # Whitelist of Content
-!Content/__ExternalActors__/*
-!Content/__ExternalObjects__/*
-!Content/Core/*
+!Content/__ExternalActors__
+!Content/__ExternalObjects__
+!Content/VRCore
+!Content/VRTemplate
