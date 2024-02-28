@@ -3,6 +3,16 @@
 	"EngineAssociation": "5.3",
 	"Category": "",
 	"Description": "",
+	"Modules": [
+		{
+			"Name": "LabyrAInthVR",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"UMG"
+			]
+		}
+	],
 	"Plugins": [
 		{
 			"Name": "OpenXR",
@@ -29,13 +39,6 @@
 				"Win64",
 				"Linux",
 				"Android"
-			]
-		},
-		{
-			"Name": "HPMotionController",
-			"Enabled": true,
-			"SupportedTargetPlatforms": [
-				"Win64"
 			]
 		},
 		{
