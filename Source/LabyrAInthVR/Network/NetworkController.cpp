@@ -17,10 +17,3 @@ void ANetworkController::BeginPlay()
 	Super::BeginPlay();
 	
 }
-
-// Called every frame
-void ANetworkController::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
