@@ -22,4 +22,15 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(Category = "Scene")
+	bool SetupLevel(UObject* LabyrinthDTO)
+	{
+		// TODO: setup the scene and construct the labyrinth
+		OnSceneReady.Broadcast();
+		return true;  // return false if anything goes wrong
+	};
+
+	DECLARE_MULTICAST_DELEGATE(FSceneReadyEvent);
+	FSceneReadyEvent OnSceneReady;
 };

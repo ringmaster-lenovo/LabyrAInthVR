@@ -22,4 +22,21 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	DECLARE_MULTICAST_DELEGATE(FNewGameEvent);
+	FNewGameEvent OnNewGameButtonClicked;
+
+	UFUNCTION(Category = "Widgets")
+	void ShowMainMenu()
+	{
+		// TODO: show the main menu in the world
+		OnNewGameButtonClicked.Broadcast();
+	};
+
+	UFUNCTION(Category = "Widgets")
+	void ShowLoadingScreen();
+
+	UFUNCTION(Category = "Widgets")
+	void ShowGameUI();
+	
 };

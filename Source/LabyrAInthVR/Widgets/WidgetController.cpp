@@ -24,3 +24,11 @@ void AWidgetController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void AWidgetController::ShowLoadingScreen()
+{
+}
+
+void AWidgetController::ShowGameUI()
+{
+}
+

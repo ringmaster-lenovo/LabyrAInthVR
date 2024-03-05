@@ -28,22 +28,59 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-private:
+private:	
 	UPROPERTY()
-	AVRPlayerController* DefaultPlayerController;
+	AVRPlayerController* PlayerController;
 
 	UPROPERTY()
-	APawn* DefaultPawn;
+	APawn* Pawn;
 
 	UPROPERTY()
-	ANetworkController* NetworkController;
+	ANetworkController* NetworkController; 
 
 	UPROPERTY()
-	AVRGameState* VRGameStateClass;
+	AVRGameState* VRGameState;
 
 	UPROPERTY()
 	AWidgetController* WidgetController;
 
 	UPROPERTY()
 	ASceneController* SceneController;
+
+	UPROPERTY()
+	UObject* LabyrinthDTO;
+
+	UFUNCTION()
+	void MainMenuLogicHandler();
+
+	UFUNCTION()
+	void PrepareGame();
+	
+	UFUNCTION()
+	void StartGame();
+
+	UFUNCTION()
+	void PauseGame();
+	
+	UFUNCTION()
+	void EndGame();
+
+	UFUNCTION()
+	void RestartGame();
+
+	UFUNCTION()
+	void ProceedToNextLevel();
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void OnNewGameButtonClicked();
+
+	UFUNCTION(BlueprintCallable)
+	void OnPauseButtonClicked();
+
+	UFUNCTION(BlueprintCallable)
+	void OnEndGameButtonClicked();
+
+	UFUNCTION(BlueprintCallable)
+	void OnRestartGameButtonClicked();
 };

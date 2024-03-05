@@ -13,4 +13,11 @@ UCLASS()
 class LABYRAINTHVR_API AVRPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "Input")
+	void EnableInputs(const bool bEnable) { bIsInputsEnabled = bEnable; }
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivate))
+	bool bIsInputsEnabled = false;
 };

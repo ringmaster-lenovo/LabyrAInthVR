@@ -15,11 +15,18 @@ public:
 	// Sets default values for this actor's properties
 	ANetworkController();
 
+	UFUNCTION(Category = "Network")
+	bool GetLabyrinthFromGPT(UObject* LabyrinthDTO)
+	{
+		// TODO: get the labyrinth from ChatGPT and fill the LabyrinthDTO
+		OnLabyrinthReceived.Broadcast();
+		return true;  // return false if anything goes wrong
+	};
+	
+	DECLARE_MULTICAST_DELEGATE(FLabyrinthReceivedEvent);
+	FLabyrinthReceivedEvent OnLabyrinthReceived;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 };
