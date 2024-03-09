@@ -52,7 +52,7 @@ public:
 };
 
 UCLASS()
-class LABYRAINTH_API ALabyrinthParser : public AActor
+class LABYRAINTHVR_API ALabyrinthParser : public AActor
 {
 	GENERATED_BODY()
 	

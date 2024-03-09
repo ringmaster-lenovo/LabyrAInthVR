@@ -464,6 +464,6 @@ void ALabyrinthParser::BuildLabyrinthInternal()
 		ProceduralSplineWallPair->UpdateSplineMesh();
 
 	ASceneController* SceneController = Cast<ASceneController>(UGameplayStatics::GetActorOfClass(this, ASceneController::StaticClass()));
-	SceneController->OnLabyrinthParsedCompleteDelegate.Broadcast();
+	// SceneController->OnLabyrinthParsedCompleteDelegate.Broadcast();
 }
 
