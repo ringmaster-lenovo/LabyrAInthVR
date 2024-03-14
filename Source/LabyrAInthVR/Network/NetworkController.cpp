@@ -124,11 +124,12 @@ FString ANetworkController::SerializeLabyrinth(ULabyrinthDTO* LabyrinthDTO)
 	return JsonString;
 }
 
-ULabyrinthDTO ANetworkController::DeSerializeLabyrinth(FString LabyrinthString)
+ULabyrinthDTO* ANetworkController::DeSerializeLabyrinth(FString LabyrinthString)
 {
 	check(IsInGameThread());
-	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(LabyrintString);
+	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(LabyrinthString);
 	TSharedPtr<FJsonObject> OutLabyrinth;
+	ULabyrinthDTO* LabyrinthDTO;
 
 	if (FJsonSerializer::Deserialize(JsonReader, OutLabyrinth))
 	{
@@ -144,7 +145,7 @@ ULabyrinthDTO ANetworkController::DeSerializeLabyrinth(FString LabyrinthString)
 		if (!OutLabyrinth->TryGetNumberField(TEXT("level"), Level))
 		{
 			UE_LOG(LogTemp, Error, TEXT("Error during Level Deserialization: 'level' field not found or not a string."));
-			return;
+			return nullptr;
 		}
 
 		// Estrai il campo "labyrinthStructure" dall'oggetto "labyrinth"
@@ -152,13 +153,13 @@ ULabyrinthDTO ANetworkController::DeSerializeLabyrinth(FString LabyrinthString)
 		if (!OutLabyrinth->TryGetArrayField(TEXT("labyrinthStructure"), LabyrinthStructureArray))
 		{
 			UE_LOG(LogTemp, Error, TEXT("Error during Labyrinth Structure Deserialization: 'labyrinthStructure' field not found or not an array."));
-			return;
+			return nullptr;
 		}
 
 		// Estrai i valori dell'array e convertili in interi
 		for (const auto& LabyrinthRow : *LabyrinthStructureArray)
 		{
-			TArray<int32> Row;
+			std::vector<uint8> Row;
 			const TArray<TSharedPtr<FJsonValue>>& RowArray = LabyrinthRow->AsArray();
 			for (const auto& Value : RowArray)
 			{
@@ -170,11 +171,9 @@ ULabyrinthDTO ANetworkController::DeSerializeLabyrinth(FString LabyrinthString)
 			LabyrinthStructure.Add(Row);
 		}
 
-
 		// Imposta i dati della struttura LabyrinthDTO
-		LabyrinthDTO.Level = Level;
-		LabyrinthDTO.LabyrinthStructure = LabyrinthStructure;
-		}
+		LabyrinthDTO->Level = Level;
+		LabyrinthDTO->LabyrinthStructure = LabyrinthStructure;
 		return LabyrinthDTO;
-		
+	}
 }

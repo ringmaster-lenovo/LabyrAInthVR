@@ -31,5 +31,5 @@ private:
 
 	FString SerializeLabyrinth(ULabyrinthDTO* LabyrinthDTO);
 
-	ULabyrinthDTO DeSerializeLabyrinth(FString LabyrinthString);
+	ULabyrinthDTO* DeSerializeLabyrinth(FString LabyrinthString);
 };
