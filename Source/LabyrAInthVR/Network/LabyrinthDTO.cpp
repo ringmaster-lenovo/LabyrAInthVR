@@ -2,3 +2,7 @@
 
 
 #include "LabyrinthDTO.h"
+
+ULabyrinthDTO::ULabyrinthDTO()
+{
+}

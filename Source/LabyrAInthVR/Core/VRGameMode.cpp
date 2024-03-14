@@ -3,6 +3,7 @@
 
 #include "VRGameMode.h"
 #include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Network/LabyrinthDTO.h"
 
 AVRGameMode::AVRGameMode()
 {
@@ -71,7 +72,9 @@ void AVRGameMode::OnNewGameButtonClicked()
 void AVRGameMode::PrepareGame()
 {
 	SceneController->OnSceneReady.AddUObject(this, &AVRGameMode::StartGame);
-	const bool Result = SceneController->SetupLevel(LabyrinthDTO);
+	ULabyrinthDTO* LabyrinthDto = NewObject<ULabyrinthDTO>();
+	const bool Result = SceneController->SetupLevel(LabyrinthDto);
+	
 	if (!Result)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Error setting up level"));
