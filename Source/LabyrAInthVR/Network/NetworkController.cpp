@@ -35,14 +35,14 @@ void ANetworkController::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Could not take the Url from config file. Using default value: %s"), *BaseURL);	
 	}
-	
 }
 
 bool ANetworkController::GetLabyrinthFromGPT(ULabyrinthDTO* LabyrinthDTO)
 {
+	UE_LOG(LogTemp, Log, TEXT("Preparing Request"));
 	FHttpModule& HttpModule = FHttpModule::Get();
 
-	FString LabyrinthURL = BaseURL + "labyrinth";
+	FString LabyrinthURL = BaseURL + "/labyrinth";
 
 	// Create an http request. The request will execute asynchronously, and call us back on the Lambda below
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> pRequest = HttpModule.CreateRequest();
@@ -56,10 +56,10 @@ bool ANetworkController::GetLabyrinthFromGPT(ULabyrinthDTO* LabyrinthDTO)
 	// Set the Header for a json content-type
 	pRequest->SetHeader("Content-Type", TEXT("application/json"));
 
-	FString JsonString = SerializeLabyrinth(LabyrinthDTO);
+	const FString JsonString = SerializeLabyrinth(LabyrinthDTO);
 	
 	pRequest->SetContentAsString(JsonString);
-
+	
 	// Set the callback, which will execute when the HTTP call is complete
 	pRequest->OnProcessRequestComplete().BindLambda(
 		// Here, we "capture" the 'this' pointer (the "&"), so our lambda can call this
@@ -83,17 +83,19 @@ bool ANetworkController::GetLabyrinthFromGPT(ULabyrinthDTO* LabyrinthDTO)
 			   	UE_LOG(LogTemp, Error, TEXT("Connection failed."));
 			   default:
 			   	UE_LOG(LogTemp, Error, TEXT("Request failed. %s"));
-			   	}
+			   		}
 			   }
 		});
-	UE_LOG(LogTemp, Log, TEXT("Starting the request for the maze."));
+	UE_LOG(LogTemp, Log, TEXT("Starting the request for the labyrinth."));
 	// Finally, submit the request for processing
 	pRequest->ProcessRequest();
+	return true;
 }
 
 
 FString ANetworkController::SerializeLabyrinth(ULabyrinthDTO* LabyrinthDTO)
 {
+	UE_LOG(LogTemp, Log, TEXT("Serializing Request"));
 	// Creare un oggetto JSON per rappresentare LabyrinthDTO
 	TSharedPtr<FJsonObject> LabyrinthDTOJson = MakeShareable(new FJsonObject);
 	
@@ -101,14 +103,15 @@ FString ANetworkController::SerializeLabyrinth(ULabyrinthDTO* LabyrinthDTO)
 	LabyrinthDTOJson->SetNumberField(TEXT("level"), LabyrinthDTO->Level);
 
 	// Creare un array JSON per rappresentare LabyrinthStructure
-	TArray<TArray<uint8>>& LabyrinthStructure = LabyrinthDTO->LabyrinthStructure;
+	std::vector<std::vector<uint8>>& LabyrinthStructure = LabyrinthDTO->LabyrinthStructure;
 	TArray<TSharedPtr<FJsonValue>> LabyrinthStructureArray;
-	for (const auto& Row : LabyrinthStructure)
+
+	for (uint i = 0; i < LabyrinthStructure.size(); i++)
 	{
 		TArray<TSharedPtr<FJsonValue>> RowArray;
-		for (const auto& Value : Row)
+		for (uint j = 0; j < LabyrinthStructure[i].size(); j++)
 		{
-			RowArray.Add(MakeShareable(new FJsonValueNumber(Value)));
+			RowArray.Add(MakeShareable(new FJsonValueNumber(LabyrinthStructure[i][j])));
 		}
 		LabyrinthStructureArray.Add(MakeShareable(new FJsonValueArray(RowArray)));
 	}
@@ -125,18 +128,17 @@ FString ANetworkController::SerializeLabyrinth(ULabyrinthDTO* LabyrinthDTO)
 
 ULabyrinthDTO* ANetworkController::DeSerializeLabyrinth(FString LabyrinthString)
 {
+	UE_LOG(LogTemp, Log, TEXT("Deserializing Request "));
 	check(IsInGameThread());
-	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(LabyrinthString);
-	TSharedPtr<FJsonObject> OutLabyrinth;
-	ULabyrinthDTO* LabyrinthDTO;
+	ULabyrinthDTO* LabyrinthDTO = NewObject<ULabyrinthDTO>();
 
+	TSharedPtr<FJsonObject> OutLabyrinth;
+	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(LabyrinthString);
 	if (FJsonSerializer::Deserialize(JsonReader, OutLabyrinth))
 	{
-		int32 Level;
-		TArray<TArray<int32>> LabyrinthStructure;
-
 		// Estrai il campo "level" dall'oggetto "labyrinth"
-		if (!OutLabyrinth->TryGetNumberField(TEXT("level"), Level))
+		int32 Level;
+		if (!OutLabyrinth->TryGetNumberField(TEXT("level"), LabyrinthDTO->Level))
 		{
 			UE_LOG(LogTemp, Error, TEXT("Error during Level Deserialization: 'level' field not found or not a string."));
 			return nullptr;
@@ -151,23 +153,24 @@ ULabyrinthDTO* ANetworkController::DeSerializeLabyrinth(FString LabyrinthString)
 		}
 
 		// Estrai i valori dell'array e convertili in interi
+		uint8 i = 0;
+		uint8 LabyrinthRows = LabyrinthStructureArray->Num();
+		uint8 LabyrinthColumns = LabyrinthStructureArray->Top()->AsArray().Num();
+		LabyrinthDTO->LabyrinthStructure.resize(LabyrinthRows, std::vector<uint8>(LabyrinthColumns, 0));
 		for (const auto& LabyrinthRow : *LabyrinthStructureArray)
 		{
-			TArray<uint8> Row;
+			uint8 j = 0;
 			const TArray<TSharedPtr<FJsonValue>>& RowArray = LabyrinthRow->AsArray();
 			for (const auto& Value : RowArray)
 			{
 				if (Value.IsValid() && Value->Type == EJson::Number)
 				{
-					Row.Add(Value->AsNumber());
+					LabyrinthDTO->LabyrinthStructure[i][j] = Value->AsNumber();
+					j++;
 				}
 			}
-			LabyrinthStructure.Add(Row);
+			i++;
 		}
-
-		// Imposta i dati della struttura LabyrinthDTO
-		LabyrinthDTO->Level = Level;
-		LabyrinthDTO->LabyrinthStructure = LabyrinthStructure;
-		return LabyrinthDTO;
 	}
+	return LabyrinthDTO;
 }

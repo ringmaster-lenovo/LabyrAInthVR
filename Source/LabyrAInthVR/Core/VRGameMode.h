@@ -48,7 +48,7 @@ private:
 	ASceneController* SceneController;
 
 	UPROPERTY()
-	UObject* LabyrinthDTO;
+	ULabyrinthDTO* LabyrinthDTO;
 
 	UFUNCTION()
 	void MainMenuLogicHandler();
