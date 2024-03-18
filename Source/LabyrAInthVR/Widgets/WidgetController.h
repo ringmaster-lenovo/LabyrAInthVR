@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "WidgetController.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Widget_Log, Display, All);
+
 UCLASS()
 class LABYRAINTHVR_API AWidgetController : public AActor
 {

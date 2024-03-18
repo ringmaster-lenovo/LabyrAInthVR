@@ -6,6 +6,8 @@
 #include "Components/SplineComponent.h"
 #include "Kismet/GameplayStatics.h"
 
+DEFINE_LOG_CATEGORY(LabyrAInthVR_Scene_Log);
+
 ALabyrinthParser::ALabyrinthParser()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -26,7 +28,9 @@ bool ALabyrinthParser::BuildLabyrinth(const std::vector<std::vector<uint8>>& Mat
 	if (Matrix.capacity() <= 0) return false;
 
 	const uint8 Rows = std::size(Matrix);
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Rows: %d"), Rows);	
 	const uint8 Columns = std::size(Matrix[0]);
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Columns: %d"), Columns);
 
 	UnparsedLabyrinthMatrix.resize(Rows, std::vector<uint8>(Columns));
 
@@ -37,6 +41,8 @@ bool ALabyrinthParser::BuildLabyrinth(const std::vector<std::vector<uint8>>& Mat
 			UnparsedLabyrinthMatrix[i][j] = Matrix[i][j];
 		}
 	}
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("UnparsedLabyrinthMatrix Rows: %llu"), std::size(UnparsedLabyrinthMatrix));
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("UnparsedLabyrinthMatrix Columns: %llu"), std::size(UnparsedLabyrinthMatrix[0]));
 
 	BuildLabyrinthInternal();
 	return true;
