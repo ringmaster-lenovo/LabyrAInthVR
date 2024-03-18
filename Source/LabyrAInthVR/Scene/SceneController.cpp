@@ -1,8 +1,8 @@
 ﻿#include "SceneController.h"
 
 #include "LabyrinthParser.h"
+#include "NavigationSystem.h"
 #include "Kismet/GameplayStatics.h"
-#include "LabyrAInthVR/Network/LabyrinthDTO.h"
 
 ASceneController::ASceneController()
 {
@@ -19,20 +19,20 @@ void ASceneController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-bool ASceneController::SetupLevel(UObject* LabyrinthDTO) const
+FString ASceneController::SetupLevel(const ULabyrinthDTO* LabyrinthDTO) const
 {
-	if (!IsValid(LabyrinthDTO)) return false;
+	if (!IsValid(Cast<UObject>(LabyrinthDTO))) return "Invalid LabyrinthDTO";
 
 	ALabyrinthParser* LabyrinthParser = Cast<ALabyrinthParser>(
 		UGameplayStatics::GetActorOfClass(this, ALabyrinthParser::StaticClass()));
-	ULabyrinthDTO* Labyrinth = Cast<ULabyrinthDTO>(LabyrinthDTO);
 
-	if (!IsValid(Labyrinth) || !IsValid(LabyrinthParser)) return false;
+	if (!IsValid(LabyrinthParser)) return "Invalid LabyrinthParser";
 
-	if (LabyrinthParser->BuildLabyrinth(Labyrinth->LabyrinthStructure))
+	if (LabyrinthParser->BuildLabyrinth(LabyrinthDTO->LabyrinthStructure))
 	{
 		OnSceneReady.Broadcast();
-		return true;
+		return "";
 	}
-	return false;
+		
+	return "Cannot Build Labyrinth";
 }

@@ -2,7 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "LabyrAInthVR/Network/LabyrinthDTO.h"
 #include "SceneController.generated.h"
+
+
+DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Scene_Log, Display, All);
 
 UCLASS()
 class LABYRAINTHVR_API ASceneController : public AActor
@@ -19,7 +23,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(Category = "Scene")
-	bool SetupLevel(UObject* LabyrinthDTO) const;
+	FString SetupLevel(const ULabyrinthDTO* LabyrinthDTO) const;
 
 	DECLARE_MULTICAST_DELEGATE(FSceneReadyEvent);
 	FSceneReadyEvent OnSceneReady;

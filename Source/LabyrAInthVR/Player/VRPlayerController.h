@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "VRPlayerController.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Player_Log, Display, All);
+
 /**
  * 
  */
