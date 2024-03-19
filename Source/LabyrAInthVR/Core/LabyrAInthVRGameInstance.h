@@ -6,6 +6,8 @@
 #include "Engine/GameInstance.h"
 #include "LabyrAInthVRGameInstance.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Core_Log, Display, All);
+
 /**
  * 
  */

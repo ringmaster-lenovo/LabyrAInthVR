@@ -2,9 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "SceneController.h"
 #include "LabyrinthParser.generated.h"
 
-class ASceneController;
 class AProceduralSplineWall;
 
 UENUM(BlueprintType)

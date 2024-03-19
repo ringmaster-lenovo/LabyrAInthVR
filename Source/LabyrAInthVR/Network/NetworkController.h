@@ -6,6 +6,10 @@
 #include "GameFramework/GameNetworkManager.h"
 #include "NetworkController.generated.h"
 
+class ULabyrinthDTO;
+
+DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Network_Log, Display, All);
+
 UCLASS()
 class LABYRAINTHVR_API ANetworkController : public AGameNetworkManager
 {
@@ -16,7 +20,12 @@ public:
 	ANetworkController();
 
 	UFUNCTION(Category = "Network")
-	bool GetLabyrinthFromGPT(ULabyrinthDTO* LabyrinthDTO);
+	FString GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
+	{
+		// TODO: get the labyrinth from ChatGPT and fill the LabyrinthDTO
+		OnLabyrinthReceived.Broadcast();
+		return "";  // return false if anything goes wrong
+	};
 	
 	DECLARE_MULTICAST_DELEGATE(FLabyrinthReceivedEvent);
 	FLabyrinthReceivedEvent OnLabyrinthReceived;
