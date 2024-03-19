@@ -37,7 +37,7 @@ void ANetworkController::BeginPlay()
 	}
 }
 
-FString ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
+void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 {
 	UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("Preparing Request"));
 	FHttpModule& HttpModule = FHttpModule::Get();
@@ -77,19 +77,25 @@ FString ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 				if(DeSerializeLabyrinth(ResponseContent, LabyrinthDTO))
 				{
 					OnLabyrinthReceived.Broadcast();
-					return "";
+					// TODO: call success message from the GameMode
 				}
 				else
 				{
-					return "Could not deserialize Labyrinth received from the BackEnd";
+					// TODO: call unsucces message from the GameMode
 				}
 			} 
 			else {
 			   switch (pRequest->GetStatus()) {
-			   case EHttpRequestStatus::Failed_ConnectionError:
-			   	UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Connection failed."));
-			   default:
-			   	UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Request failed. %s"));
+					case EHttpRequestStatus::Failed_ConnectionError:
+						{
+							// TODO: call unsucces message from the GameMode
+			   				UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Connection failed."));
+						}
+					default:
+						{
+							// TODO: call unsucces message from the GameMode
+			   				UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Request failed. %s"));
+						}
 			   		}
 			   }
 		});
@@ -101,7 +107,7 @@ FString ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 
 FString ANetworkController::SerializeLabyrinth(ULabyrinthDTO* LabyrinthDTO)
 {
-	UE_LOG(LogTemp, Log, TEXT("Serializing Request"));
+	UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("Serializing Request"));
 	// Creare un oggetto JSON per rappresentare LabyrinthDTO
 	TSharedPtr<FJsonObject> LabyrinthDTOJson = MakeShareable(new FJsonObject);
 	
@@ -182,6 +188,7 @@ bool ANetworkController::DeSerializeLabyrinth(FString LabyrinthString, ULabyrint
 	}
 	catch (...)
 	{
+		// TODO: catch the exception if can't resize the LabyrinthStructure matrix
 		return false;
 	}
 	return true;

@@ -20,7 +20,7 @@ public:
 	ANetworkController();
 
 	UFUNCTION(Category = "Network")
-	FString GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO);
+	void GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO);
 	
 	DECLARE_MULTICAST_DELEGATE(FLabyrinthReceivedEvent);
 	FLabyrinthReceivedEvent OnLabyrinthReceived;
