@@ -6,6 +6,7 @@
 #include "LabyrinthDTO.h"
 #include "Interfaces/IHttpResponse.h"
 
+DEFINE_LOG_CATEGORY(LabyrAInthVR_Network_Log);
 
 // Sets default values
 ANetworkController::ANetworkController()
@@ -142,6 +143,11 @@ bool ANetworkController::DeSerializeLabyrinth(FString LabyrinthString, ULabyrint
 {
 	check(IsInGameThread());
 
+	if (LabyrinthDto == nullptr)
+	{
+		return false;
+	}
+
 	TSharedPtr<FJsonObject> OutLabyrinth;
 	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(LabyrinthString);
 	if (!FJsonSerializer::Deserialize(JsonReader, OutLabyrinth))
@@ -152,7 +158,7 @@ bool ANetworkController::DeSerializeLabyrinth(FString LabyrinthString, ULabyrint
 	int32 Level;
 	if (!OutLabyrinth->TryGetNumberField(TEXT("level"), LabyrinthDto->Level))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Error during Level Deserialization: 'level' field not found or not a string."));
+		UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Error during Level Deserialization: 'level' field not found or not a string."));
 		return false;
 	}
 
@@ -160,17 +166,18 @@ bool ANetworkController::DeSerializeLabyrinth(FString LabyrinthString, ULabyrint
 	const TArray<TSharedPtr<FJsonValue>>* LabyrinthStructureArray;
 	if (!OutLabyrinth->TryGetArrayField(TEXT("labyrinthStructure"), LabyrinthStructureArray))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Error during Labyrinth Structure Deserialization: 'labyrinthStructure' field not found or not an array."));
+		UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Error during Labyrinth Structure Deserialization: 'labyrinthStructure' field not found or not an array."));
 		return false;
 	}
 
-	// Estrai i valori dell'array e convertili in interi
-	uint8 LabyrinthRows = LabyrinthStructureArray->Num();
-	uint8 LabyrinthColumns = LabyrinthStructureArray->Top()->AsArray().Num();
 	try
 	{
+		// Estrai i valori dell'array e convertili in interi
+		int32 LabyrinthRows = LabyrinthStructureArray->Num();
+		int32 LabyrinthColumns = (LabyrinthRows > 0) ? (*LabyrinthStructureArray)[0]->AsArray().Num() : 0;
+		LabyrinthDto->LabyrinthStructure.resize(LabyrinthRows, std::vector<uint8>(LabyrinthColumns));
+		
 		uint8 i = 0;
-		LabyrinthDto->LabyrinthStructure.resize(LabyrinthRows, std::vector<uint8>(LabyrinthColumns, 0));
 		for (auto LabyrinthRow : *LabyrinthStructureArray)
 		{
 			uint8 j = 0;
@@ -186,10 +193,25 @@ bool ANetworkController::DeSerializeLabyrinth(FString LabyrinthString, ULabyrint
 			i++;
 		}
 	}
+	catch (const std::bad_alloc& e)
+	{
+		FString ErrorMessage = TEXT("Impossibile ridimensionare la matrice del labirinto. Memoria insufficiente.");
+		UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("%s"), *ErrorMessage);
+		return false; 
+	}
 	catch (...)
 	{
-		// TODO: catch the exception if can't resize the LabyrinthStructure matrix
+		FString ErrorMessage = TEXT("Si è verificato un errore durante il ridimensionamento della matrice del labirinto.");
+		UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("%s"), *ErrorMessage);
 		return false;
+	}
+
+	for(int i = 0; i < std::size(LabyrinthDto->LabyrinthStructure); i++)
+	{
+		for(int j = 0; j < 10; j++)
+		{
+			UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("%d "), LabyrinthDto->LabyrinthStructure[i][j]);
+		}
 	}
 	return true;
 }

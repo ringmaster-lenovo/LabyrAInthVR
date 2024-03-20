@@ -73,12 +73,12 @@ void AVRGameMode::OnNewGameButtonClicked()
 	
 	WidgetController->ShowLoadingScreen();
 	NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
-	const FString ErrorMessage = NetworkController->GetLabyrinthFromBE(LabyrinthDTO);
-	if (ErrorMessage != "")
+	NetworkController->GetLabyrinthFromBE(LabyrinthDTO);
+	/*if (ErrorMessage != "")
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Falat Network Error: %s"), *ErrorMessage);
 		throw ErrorMessage;
-	}
+	}*/
 }
 
 void AVRGameMode::PrepareGame()
