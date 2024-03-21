@@ -40,7 +40,7 @@ void ANetworkController::BeginPlay()
 
 void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 {
-	UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("Preparing Request"));
+	UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("Preparing Request for input labyrinth"));
 	FHttpModule& HttpModule = FHttpModule::Get();
 
 	FString LabyrinthURL = BaseURL + "/labyrinth";
@@ -65,7 +65,7 @@ void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 	pRequest->OnProcessRequestComplete().BindLambda(
 		// Here, we "capture" the 'this' pointer (the "&"), so our lambda can call this
 		// class's methods in the callback.
-		[&](
+		[this, LabyrinthDTO](
 			FHttpRequestPtr pRequest,
 			FHttpResponsePtr pResponse,
 			bool connectedSuccessfully) mutable
@@ -108,7 +108,7 @@ void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 
 FString ANetworkController::SerializeLabyrinth(ULabyrinthDTO* LabyrinthDTO)
 {
-	UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("Serializing Request"));
+	UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("Serializing Request for labyrinth"));
 	// Creare un oggetto JSON per rappresentare LabyrinthDTO
 	TSharedPtr<FJsonObject> LabyrinthDTOJson = MakeShareable(new FJsonObject);
 	
@@ -141,6 +141,7 @@ FString ANetworkController::SerializeLabyrinth(ULabyrinthDTO* LabyrinthDTO)
 
 bool ANetworkController::DeSerializeLabyrinth(FString LabyrinthString, ULabyrinthDTO* LabyrinthDto)
 {
+	UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("Deserializing labyrinth"));
 	check(IsInGameThread());
 
 	if (LabyrinthDto == nullptr)
@@ -155,7 +156,7 @@ bool ANetworkController::DeSerializeLabyrinth(FString LabyrinthString, ULabyrint
 		return false;
 	}
 	// Estrai il campo "level" dall'oggetto "labyrinth"
-	int32 Level;
+
 	if (!OutLabyrinth->TryGetNumberField(TEXT("level"), LabyrinthDto->Level))
 	{
 		UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Error during Level Deserialization: 'level' field not found or not a string."));
@@ -192,12 +193,6 @@ bool ANetworkController::DeSerializeLabyrinth(FString LabyrinthString, ULabyrint
 			}
 			i++;
 		}
-	}
-	catch (const std::bad_alloc& e)
-	{
-		FString ErrorMessage = TEXT("Impossibile ridimensionare la matrice del labirinto. Memoria insufficiente.");
-		UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("%s"), *ErrorMessage);
-		return false; 
 	}
 	catch (...)
 	{

@@ -54,6 +54,8 @@ void AVRGameMode::BeginPlay()
 
 	// create a LabyrinthDTO
 	LabyrinthDTO = NewObject<ULabyrinthDTO>();
+	LabyrinthDTO->Level = 1;
+	LabyrinthDTO->LabyrinthStructure.resize(10, std::vector<uint8>(10, 0));
 
 	MainMenuLogicHandler();
 }
