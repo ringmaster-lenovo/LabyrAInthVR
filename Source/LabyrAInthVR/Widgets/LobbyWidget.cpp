@@ -12,21 +12,52 @@
 void ULobbyWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-			
-	NewGame->OnClicked.AddUniqueDynamic(this, &ULobbyWidget::OnNewGameClicked);
-	LoadGame->OnClicked.AddUniqueDynamic(this, &ULobbyWidget::OnLoadGameClicked);
-	Rankings->OnClicked.AddUniqueDynamic(this, &ULobbyWidget::OnRankingsClicked);
-	Settings->OnClicked.AddUniqueDynamic(this, &ULobbyWidget::OnSettingsClicked);
-	Quit->OnClicked.AddUniqueDynamic(this, &ULobbyWidget::OnQuitClicked);
 
-	// TArray<AActor*> FoundActors;
-	// UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWidgetContainer::StaticClass(), FoundActors);
-    
-	// if (FoundActors.Num() > 0)
-	// {
-	// 	// Assumiamo che vogliamo la prima istanza trovata
-	// 	WidgetContainer = Cast<AWidgetContainer>(FoundActors[0]);
-	// }
+	// Collega gli eventi dei pulsanti
+	if (NewGameButton)
+	{
+		UButton* NewGameButtonWidget = Cast<UButton>(NewGameButton->GetWidgetFromName(TEXT("ButtonHit")));
+		if (NewGameButtonWidget)
+		{
+			NewGameButtonWidget->OnClicked.AddDynamic(this, &ULobbyWidget::OnNewGameClicked);
+		}
+	}
+
+	if (LoadGameButton)
+	{
+		UButton* LoadGameButtonWidget = Cast<UButton>(LoadGameButton->GetWidgetFromName(TEXT("ButtonHit")));
+		if (LoadGameButtonWidget)
+		{
+			LoadGameButtonWidget->OnClicked.AddDynamic(this, &ULobbyWidget::OnLoadGameClicked);
+		}
+	}
+
+	if (RankingsButton)
+	{
+		UButton* RankingsButtonWidget = Cast<UButton>(RankingsButton->GetWidgetFromName(TEXT("ButtonHit")));
+		if (RankingsButtonWidget)
+		{
+			RankingsButtonWidget->OnClicked.AddDynamic(this, &ULobbyWidget::OnRankingsClicked);
+		}
+	}
+
+	if (SettingsButton)
+	{
+		UButton* SettingsButtonWidget = Cast<UButton>(SettingsButton->GetWidgetFromName(TEXT("ButtonHit")));
+		if (SettingsButtonWidget)
+		{
+			SettingsButtonWidget->OnClicked.AddDynamic(this, &ULobbyWidget::OnSettingsClicked);
+		}
+	}
+
+	if (QuitButton)
+	{
+		UButton* QuitButtonWidget = Cast<UButton>(QuitButton->GetWidgetFromName(TEXT("ButtonHit")));
+		if (QuitButtonWidget)
+		{
+			QuitButtonWidget->OnClicked.AddDynamic(this, &ULobbyWidget::OnQuitClicked);
+		}
+	}
 }
 
 void ULobbyWidget::OnNewGameClicked()

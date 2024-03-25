@@ -17,21 +17,22 @@ class LABYRAINTHVR_API ULobbyWidget : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UButton* NewGame;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UButton* LoadGame;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UButton* Rankings;
+	class UUserWidget* NewGameButton;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UButton* Settings;
+	class UUserWidget* LoadGameButton;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UButton* Quit;
+	class UUserWidget* RankingsButton;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UUserWidget* SettingsButton;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UUserWidget* QuitButton;
+
 
 	// UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	// TSubclassOf<AWidgetContainer>* BP_WidgetContainer;
