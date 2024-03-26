@@ -2,25 +2,26 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "SceneController.h"
 #include "LabyrinthParser.generated.h"
 
+class ASpawnManager;
+class ULabyrinthDTO;
 class AProceduralSplineWall;
 
 UENUM(BlueprintType)
 enum class ETravellingDirection : uint8
 {
-	ETD_Vertical UMETA(DisplayName="Travelling Vertical"),
-	ETD_Horizontal UMETA(DisplayName="Travelling Horizontal"),
-	ETD_Flat UMETA(DisplayName="Flat")
+	Etd_Vertical UMETA(DisplayName="Travelling Vertical"),
+	Etd_Horizontal UMETA(DisplayName="Travelling Horizontal"),
+	Etd_Flat UMETA(DisplayName="Flat")
 };
 
 UENUM()
 enum EWallPalette
 {
-	EWP_Aqua UMETA(DisplayName="Blue Palette"),
+	Ewp_Aqua UMETA(DisplayName="Blue Palette"),
 	// Add custom palette here
-	EWP_Autumn UMETA(DisplayName="Red Palette"),
+	Ewp_Autumn UMETA(DisplayName="Red Palette"),
 };
 
 UCLASS()
@@ -33,9 +34,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
 
-	bool BuildLabyrinth(const std::vector<std::vector<uint8>>& Matrix);
+	FString BuildLabyrinth(ULabyrinthDTO* LabyrinthDTOReference, ASpawnManager* SpawnManagerReference);
 
 private:
+	void BuildLabyrinthInternal();
 	void TravelHorizontal(uint8 RowIndex, uint8 FinalColumnIndex, ETravellingDirection TravellingDirection,
 	                      float XOffset, float YOffset);
 	void TravelVertical(uint8 ColumnIndex, uint8 FinalRowIndex, ETravellingDirection TravellingDirection, float XOffset,
@@ -43,7 +45,6 @@ private:
 	void SpawnPillarAtIntersection(uint8 RowIndex, uint8 ColumnIndex, FVector& SpawnLocation,
 	                               ETravellingDirection TravellingDirection);
 	void SpawnFlatSurface(bool bFloor);
-	void BuildLabyrinthInternal();
 	void SetShortWallSettings(AProceduralSplineWall* & ProceduralSplineWall);
 	bool HasFrontNeighbor(uint8 Row, uint8 Column, ETravellingDirection TravellingDirection) const;
 	AProceduralSplineWall* SpawnWall(FVector& Location, ETravellingDirection TravellingDirection, uint8 WallType);
@@ -56,6 +57,12 @@ private:
 
 	std::vector<std::vector<uint8>> UnparsedLabyrinthMatrix;
 
+	UPROPERTY()
+	ULabyrinthDTO* LabyrinthDTO;
+
+	UPROPERTY()
+	ASpawnManager* SpawnManager;
+	
 	// Runtime instances
 	UPROPERTY()
 	TArray<AProceduralSplineWall*> ProceduralSplineWallInstancesVertical;
@@ -90,5 +97,5 @@ private:
 	UPROPERTY(EditAnywhere)
 	TArray<uint8> ShortWallMaterials;
 
-	EWallPalette ChosenPalette{EWP_Aqua};
+	EWallPalette ChosenPalette{Ewp_Aqua};
 };
