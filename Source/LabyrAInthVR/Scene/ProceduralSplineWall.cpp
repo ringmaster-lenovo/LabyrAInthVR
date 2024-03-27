@@ -77,10 +77,10 @@ bool AProceduralSplineWall::GetBackwardNeighbor(FVector& Location, ETravellingDi
 
 	switch (TravellingDirection)
 	{
-	case ETravellingDirection::ETD_Horizontal:
+	case ETravellingDirection::Etd_Horizontal:
 		BackwardOffset = FVector(-WallSettings::WallOffset, 0.f, 0.f);
 		break;
-	case ETravellingDirection::ETD_Vertical:
+	case ETravellingDirection::Etd_Vertical:
 		BackwardOffset = FVector(0.f, -WallSettings::WallOffset, 0.f);
 		break;
 	default:

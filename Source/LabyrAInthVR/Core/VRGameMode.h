@@ -45,6 +45,9 @@ private:
 	UPROPERTY()
 	AWidgetController* WidgetController;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Game Mode")
+	TSubclassOf<ASceneController> SceneController_BP;
+
 	UPROPERTY()
 	ASceneController* SceneController;
 

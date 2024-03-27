@@ -9,6 +9,8 @@
 ASceneController::ASceneController()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	// LabyrinthParser = nullptr;
+	// SpawnManager = nullptr;
 }
 
 void ASceneController::BeginPlay()
@@ -21,24 +23,35 @@ void ASceneController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-FString ASceneController::SetupLevel(const ULabyrinthDTO* LabyrinthDTO)
+FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 {
 	if (!IsValid(Cast<UObject>(LabyrinthDTO))) return "Invalid LabyrinthDTO";
 
-	ALabyrinthParser* LabyrinthParser = Cast<ALabyrinthParser>(
-		UGameplayStatics::GetActorOfClass(this, ALabyrinthParser::StaticClass()));
+	if (!IsValid(LabyrinthParser_BP) || !IsValid(SpawnManager_BP)) return "LabyrinthParser or SpawnManager not set in SceneController";
 
-	if (!IsValid(LabyrinthParser)) return "Invalid LabyrinthParser";
+	// Instantiate the LabyrinthParser and build the labyrinth
+	ALabyrinthParser* LabyrinthParser = GetWorld()->SpawnActor<ALabyrinthParser>(LabyrinthParser_BP);
+	if (!IsValid(LabyrinthParser)) return "Invalid LabyrinthParserActor";
 	
-	if (LabyrinthParser->BuildLabyrinth(LabyrinthDTO->LabyrinthStructure))
+	// Instantiate the SpawnManager and spawn the actors in the labyrinth
+	ASpawnManager* SpawnManager = GetWorld()->SpawnActor<ASpawnManager>(SpawnManager_BP);
+	if (!IsValid(SpawnManager)) return "Invalid SpawnManagerActor";
+	
+	FString ErrorMessage = LabyrinthParser->BuildLabyrinth(LabyrinthDTO, SpawnManager);
+	if (ErrorMessage != "")
 	{
-		// Adjust volume
-		UpdateNavMeshBoundsVolume(LabyrinthDTO);
-		OnSceneReady.Broadcast();
-		return "";
+		return ErrorMessage;
+	}
+
+	ErrorMessage = SpawnManager->SpawnActorsInLabyrinth(LabyrinthDTO);
+	if (ErrorMessage != "")
+	{
+		return ErrorMessage;
 	}
 	
-	return "Cannot Build Labyrinth";
+	UpdateNavMeshBoundsVolume(LabyrinthDTO);
+	OnSceneReady.Broadcast();
+	return "";
 }
 
 void ASceneController::UpdateNavMeshBoundsPosition()

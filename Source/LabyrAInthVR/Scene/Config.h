@@ -3,12 +3,13 @@
 namespace WallSettings
 {
 	// How close are the walls from each other (distance from a 1 to another value in the matrix)
-	inline constexpr float WallOffset{250.f};
+	inline constexpr float WallOffset{200.f};
 	inline constexpr float WallHeight{100.f};
 	inline constexpr int ShortWall{3};
 	inline constexpr float FloorOffset{500.f}; // Horizontal distance from floor start to labyrinth
 	inline constexpr float CeilingOffset{100.f}; // Horizontal distance from ceiling start to labyrinth
-
+	inline uint8 LabyrinthWidth{11}; // Default value, assigned by LabyrinthParser upon receiving the matrix
+	
 	// Add your palettes here (RGB Values), in LabyrinthParser.h & ALabyrinthParser::GetRandomHex switch case
 	inline std::vector<std::vector<float>> AquaPalette{
 		{5.0f, 1.0f, 74.0f},
