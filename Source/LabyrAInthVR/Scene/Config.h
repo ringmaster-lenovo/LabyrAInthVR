@@ -3,7 +3,7 @@
 namespace WallSettings
 {
 	// How close are the walls from each other (distance from a 1 to another value in the matrix)
-	inline constexpr float WallOffset{250.f};
+	inline constexpr float WallOffset{200.f};
 	inline constexpr float WallHeight{100.f};
 	inline constexpr int ShortWall{3};
 	inline constexpr float FloorOffset{500.f}; // Horizontal distance from floor start to labyrinth
