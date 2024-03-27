@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-// #include "WidgetContainer.h"
 #include "Blueprint/UserWidget.h"
 #include "LobbyWidget.generated.h"
 
@@ -32,13 +31,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* QuitButton;
-
-
-	// UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	// TSubclassOf<AWidgetContainer>* BP_WidgetContainer;
- 
-	// UPROPERTY()
-	// AWidgetContainer* WidgetContainer = nullptr;
 
 	UFUNCTION()
 	void OnNewGameClicked();

@@ -20,31 +20,20 @@ public:
 	// Sets default values for this actor's properties
 	AWidgetContainer();
 
-	/*FOnWantToSendMessage OnWantToSendMessage;*/
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<ULobbyWidget> LobbyWidgetClass;
 	//
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<USettingsWidget> SettingsWidgetClass;
-	//
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-	// TSubclassOf<UVRButtonsWidget> ButtonsWidgetClass;
-	//
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-	// TSubclassOf<UVRCountdownWidget> CountdownWidgetClass;
-	//
+	
 	UPROPERTY()
 	ULobbyWidget* LobbyWidget = nullptr;
-	//
+	
 	UPROPERTY()
 	USettingsWidget* SettingsWidget = nullptr;
-	//
+
 	// UPROPERTY()
-	// UVRButtonsWidget* VRButtonsWidget = nullptr;
-	//
-	// UPROPERTY()
-	// UVRCountdownWidget* VRCountdownWidget = nullptr;
+	// ULoadingWidget* LoadingWidget = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* Root;
@@ -56,11 +45,8 @@ public:
 	void ShowRankings();
 	UFUNCTION(BlueprintCallable)
 	void ShowSettings();
-	/*UFUNCTION()
-	void SpawnVRChooseTableUI(FString TableName, FString TableState, FString NumberOfPlayers);
-
-	UFUNCTION()
-	void SpawnButtonsUI(FString Balance);*/
+	UFUNCTION(BlueprintCallable)
+	void ShowLoadingUI();
 
 
 protected:

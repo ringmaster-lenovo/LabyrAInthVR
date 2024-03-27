@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "WidgetContainer.h"
 #include "WidgetController.generated.h"
 
 UCLASS()
@@ -20,6 +21,12 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<AWidgetContainer> WidgetContainerClass;
+
+	UPROPERTY()
+	AWidgetContainer* WidgetContainer = nullptr;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

@@ -55,7 +55,7 @@ void AVRGameMode::MainMenuLogicHandler()
 	// Set up the game to be in Main Menu
 	VRGameState->SetStateOfTheGame(EGameState::InMainMenu);
 	WidgetController->OnNewGameButtonClicked.AddUObject(this, &AVRGameMode::OnNewGameButtonClicked);
-	WidgetController->ShowMainMenu();
+	// WidgetController->ShowMainMenu();
 }
 
 void AVRGameMode::OnNewGameButtonClicked()

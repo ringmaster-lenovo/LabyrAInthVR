@@ -25,6 +25,9 @@ class LABYRAINTHVR_API AVRGameMode : public AGameModeBase
 public:
 	AVRGameMode();
 
+	UPROPERTY()
+	AWidgetController* WidgetController;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -40,9 +43,6 @@ private:
 
 	UPROPERTY()
 	AVRGameState* VRGameState;
-
-	UPROPERTY()
-	AWidgetController* WidgetController;
 
 	UPROPERTY()
 	ASceneController* SceneController;

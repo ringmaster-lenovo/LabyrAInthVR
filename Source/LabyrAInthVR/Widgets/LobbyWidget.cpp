@@ -3,10 +3,10 @@
 
 #include "LobbyWidget.h"
 
-// #include "WidgetContainer.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Core/VRGameMode.h"
 
 
 void ULobbyWidget::NativeConstruct()
@@ -62,7 +62,13 @@ void ULobbyWidget::NativeConstruct()
 
 void ULobbyWidget::OnNewGameClicked()
 {
-	
+
+	AVRGameMode* GameMode = Cast<AVRGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode && GameMode->WidgetController)
+	{
+		// Broadcast the event that the New Game button was clicked
+		GameMode->WidgetController->OnNewGameButtonClicked.Broadcast();
+	}
 }
 
 void ULobbyWidget::OnLoadGameClicked()

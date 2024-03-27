@@ -29,7 +29,8 @@ void AWidgetContainer::BeginPlay()
 	LobbyWidget = Cast<ULobbyWidget>(Widget->GetUserWidgetObject());
 	if(!LobbyWidget) return;
 	
-	// ChooseTableWidget->StartWidget("Poker", "ACTIVE", "1");
+	SettingsWidget = Cast<USettingsWidget>(Widget->GetUserWidgetObject());
+	if(!SettingsWidget) return;
 }
 
 
@@ -41,30 +42,16 @@ void AWidgetContainer::ShowSettings()
 		SettingsWidget = Cast<USettingsWidget>(Widget->GetUserWidgetObject());
 		if(!SettingsWidget) return;
 	
-		// SettingsWidget->StartTimer();
-		// Buttons->SetWidgetClass(nullptr);
-	
 	}
 }
 void AWidgetContainer::ShowRankings()
 {
-// 	if (RankingsWidgetClass)
-// 	{
-// 		Widget->SetWidgetClass(RankingsWidgetClass);
-// 		URankingsWidget* RankingsWidget = Cast<URankingsWidget>(Widget->GetUserWidgetObject());
-// 		if(!RankingsWidget) return;
-//
-// 		RankingsWidget->StartWidget();
-// 		Buttons->SetWidgetClass(nullptr);
-// 		
-// }
-// 	else
-// 	{
-// 		UE_LOG(LogTemp, Warning, TEXT("AWidgetController:BeginPlay -> RankingsWidgetClass NULL"));
-// 	}
-//
-//
-//
+
+}
+
+void AWidgetContainer::ShowLoadingUI()
+{
+
 }
 
 
