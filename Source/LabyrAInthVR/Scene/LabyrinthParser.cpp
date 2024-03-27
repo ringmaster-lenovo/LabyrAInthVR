@@ -19,19 +19,14 @@ void ALabyrinthParser::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ALabyrinthParser::Tick(float DeltaTime)
+FString ALabyrinthParser::BuildLabyrinth(ULabyrinthDTO* LabyrinthDTOReference, ASpawnManager* SpawnManagerReference)
 {
-	Super::Tick(DeltaTime);
-	Timer += DeltaTime;
-}
+	LabyrinthDTO = LabyrinthDTOReference;
+	if (LabyrinthDTO->LabyrinthStructure.capacity() <= 0) return "Matrix is empty";
 
-bool ALabyrinthParser::BuildLabyrinth(const std::vector<std::vector<uint8>>& Matrix)
-{
-	if (Matrix.capacity() <= 0) return false;
-
-	const uint8 Rows = std::size(Matrix);
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Rows: %d"), Rows);	
-	const uint8 Columns = std::size(Matrix[0]);
+	const uint8 Rows = std::size(LabyrinthDTO->LabyrinthStructure);
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Rows: %d"), Rows);
+	const uint8 Columns = std::size(LabyrinthDTO->LabyrinthStructure[0]);
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Columns: %d"), Columns);
 
 	UnparsedLabyrinthMatrix.resize(Rows, std::vector<uint8>(Columns));
@@ -40,15 +35,21 @@ bool ALabyrinthParser::BuildLabyrinth(const std::vector<std::vector<uint8>>& Mat
 	{
 		for (uint8 j = 0; j < Columns; j++)
 		{
-			UnparsedLabyrinthMatrix[i][j] = Matrix[i][j];
+			UnparsedLabyrinthMatrix[i][j] = LabyrinthDTO->LabyrinthStructure[i][j];
 		}
 	}
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("UnparsedLabyrinthMatrix Rows: %llu"), std::size(UnparsedLabyrinthMatrix));
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("UnparsedLabyrinthMatrix Columns: %llu"), std::size(UnparsedLabyrinthMatrix[0]));
 
+	WallSettings::LabyrinthWidth = Columns;
+
+	SpawnManager = SpawnManagerReference;
 	BuildLabyrinthInternal();
+	return "";
+}
 
-	return true;
+void ALabyrinthParser::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	Timer += DeltaTime;
 }
 
 FVector ALabyrinthParser::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirection& LastDirection)
@@ -290,7 +291,7 @@ void ALabyrinthParser::BuildLabyrinthInternal()
 	ChosenOuterWallMaterial = OuterWallMaterials[FMath::RandRange(0, OuterWallMaterials.Num() - 1)]; // Perimeter wall
 	ChosenFlatWallMaterial = FlatWallMaterials[FMath::RandRange(0, FlatWallMaterials.Num() - 1)]; // Floor & ceiling
 	ChosenPillarMaterial = PillarMaterials[FMath::RandRange(0, PillarMaterials.Num() - 1)]; // Pillars
-	ChosenPalette = static_cast<EWallPalette>(FMath::RandRange(EWallPalette::EWP_Aqua, EWallPalette::EWP_Autumn));
+	ChosenPalette = static_cast<EWallPalette>(FMath::RandRange(EWallPalette::Ewp_Aqua, EWallPalette::Ewp_Autumn));
 
 	// Create meshes
 	float Offset = 0.f;
@@ -298,7 +299,7 @@ void ALabyrinthParser::BuildLabyrinthInternal()
 	// Add horizontal splines
 	for (uint8 i = 0; i < std::size(UnparsedLabyrinthMatrix); i++)
 	{
-		TravelHorizontal(i, std::size(UnparsedLabyrinthMatrix[0]), ETravellingDirection::ETD_Horizontal, 0.f,
+		TravelHorizontal(i, std::size(UnparsedLabyrinthMatrix[0]), ETravellingDirection::Etd_Horizontal, 0.f,
 		                 0.f + Offset);
 		Offset += WallSettings::WallOffset;
 	}
@@ -308,7 +309,7 @@ void ALabyrinthParser::BuildLabyrinthInternal()
 	// Add vertical splines
 	for (uint8 i = 0; i < std::size(UnparsedLabyrinthMatrix[0]); i++)
 	{
-		TravelVertical(i, std::size(UnparsedLabyrinthMatrix), ETravellingDirection::ETD_Vertical, 0.f + Offset, 0.f);
+		TravelVertical(i, std::size(UnparsedLabyrinthMatrix), ETravellingDirection::Etd_Vertical, 0.f + Offset, 0.f);
 		Offset += WallSettings::WallOffset;
 	}
 
@@ -430,8 +431,13 @@ void ALabyrinthParser::TravelHorizontal(uint8 RowIndex, uint8 FinalColumnIndex,
 
 		AProceduralSplineWall* Neighbor = GetPossibleNeighborhood(SpawnLocation, TravellingDirection);
 
-		if (UnparsedLabyrinthMatrix[RowIndex][j] == 0 || (!HasFrontNeighbor(RowIndex, j, TravellingDirection) &&
-			Neighbor == nullptr))
+		if (UnparsedLabyrinthMatrix[RowIndex][j] == 0)
+		{
+			SpawnManager->FindPotentialSpawnLocations(LabyrinthDTO, RowIndex, j);
+			XOffset += WallSettings::WallOffset;
+			continue;
+		}
+		else if (!HasFrontNeighbor(RowIndex, j, TravellingDirection) && Neighbor == nullptr || (UnparsedLabyrinthMatrix[RowIndex][j] != 1))
 		{
 			XOffset += WallSettings::WallOffset;
 			continue;
@@ -440,8 +446,8 @@ void ALabyrinthParser::TravelHorizontal(uint8 RowIndex, uint8 FinalColumnIndex,
 		if (Neighbor == nullptr)
 		{
 			uint8 WallType = (RowIndex == 0 || RowIndex == std::size(UnparsedLabyrinthMatrix) - 1)
-				                 ? ChosenOuterWallMaterial
-				                 : InsideWallMaterials[FMath::RandRange(0, InsideWallMaterials.Num() - 1)];
+								 ? ChosenOuterWallMaterial
+								 : InsideWallMaterials[FMath::RandRange(0, InsideWallMaterials.Num() - 1)];
 
 			SpawnWall(SpawnLocation, TravellingDirection, WallType);
 		}
@@ -509,11 +515,11 @@ AProceduralSplineWall* ALabyrinthParser::SpawnWall(FVector& Location, ETravellin
 	ProceduralSplineWallInstance->ClearSplinePoints();
 	ProceduralSplineWallInstance->AddSplinePoint(Location);
 
-	if (TravellingDirection == ETravellingDirection::ETD_Horizontal)
+	if (TravellingDirection == ETravellingDirection::Etd_Horizontal)
 		ProceduralSplineWallInstancesHorizontal.Add(ProceduralSplineWallInstance);
-	else if (TravellingDirection == ETravellingDirection::ETD_Vertical)
+	else if (TravellingDirection == ETravellingDirection::Etd_Vertical)
 		ProceduralSplineWallInstancesVertical.Add(ProceduralSplineWallInstance);
-	else if (TravellingDirection == ETravellingDirection::ETD_Flat)
+	else if (TravellingDirection == ETravellingDirection::Etd_Flat)
 		ProceduralSplineWallInstancesFlats.Add(ProceduralSplineWallInstance);
 
 	return ProceduralSplineWallInstance;
@@ -522,7 +528,7 @@ AProceduralSplineWall* ALabyrinthParser::SpawnWall(FVector& Location, ETravellin
 AProceduralSplineWall* ALabyrinthParser::GetPossibleNeighborhood(FVector& Location,
                                                                  ETravellingDirection TravellingDirection) const
 {
-	for (auto& WallInstance : TravellingDirection == ETravellingDirection::ETD_Horizontal
+	for (auto& WallInstance : TravellingDirection == ETravellingDirection::Etd_Horizontal
 		                          ? ProceduralSplineWallInstancesHorizontal
 		                          : ProceduralSplineWallInstancesVertical)
 	{
@@ -539,10 +545,10 @@ FVector ALabyrinthParser::GetRandomHex(EWallPalette Palette)
 
 	switch (Palette)
 	{
-	case EWP_Aqua:
+	case Ewp_Aqua:
 		ColorVec = WallSettings::AquaPalette[FMath::RandRange(0, WallSettings::AquaPalette.capacity() - 1)];
 		return FVector{ColorVec[0], ColorVec[1], ColorVec[2]};
-	case EWP_Autumn:
+	case Ewp_Autumn:
 		ColorVec = WallSettings::AutumnPalette[FMath::RandRange(0, WallSettings::AutumnPalette.capacity() - 1)];
 		return FVector{ColorVec[0], ColorVec[1], ColorVec[2]};
 	default: ;
@@ -554,13 +560,13 @@ bool ALabyrinthParser::HasFrontNeighbor(uint8 Row, uint8 Column, ETravellingDire
 {
 	switch (TravellingDirection)
 	{
-	case ETravellingDirection::ETD_Vertical:
+	case ETravellingDirection::Etd_Vertical:
 		if (Row == std::size(UnparsedLabyrinthMatrix) - 1) return false;
 		return UnparsedLabyrinthMatrix[Row + 1][Column] != 0;
-	case ETravellingDirection::ETD_Horizontal:
+	case ETravellingDirection::Etd_Horizontal:
 		if (Column == (std::size(UnparsedLabyrinthMatrix[0]) - 1)) return false;
 		return UnparsedLabyrinthMatrix[Row][Column + 1] != 0;
-	case ETravellingDirection::ETD_Flat:
+	case ETravellingDirection::Etd_Flat:
 		break;
 	default: ;
 	}
@@ -817,9 +823,6 @@ void ALabyrinthParser::SpawnFlatSurface(bool bFloor)
 
 	Start -= FVector{bFloor ? WallSettings::FloorOffset : WallSettings::CeilingOffset, 0.f, 0.f};
 
-	/*FVector End = ProceduralSplineWallInstancesHorizontal[1]->GetSplineComponent()->GetLocationAtSplinePoint(
-		ProceduralSplineWallInstancesHorizontal[1]->GetSplineComponent()->GetNumberOfSplinePoints(),
-		ESplineCoordinateSpace::World);*/
 	FVector End{std::size(UnparsedLabyrinthMatrix[0]) * WallSettings::WallOffset, 0.f, 0.f};
 
 	End += FVector{bFloor ? WallSettings::FloorOffset : WallSettings::CeilingOffset, 0.f, 0.f};
@@ -828,7 +831,7 @@ void ALabyrinthParser::SpawnFlatSurface(bool bFloor)
 
 	VerticalEnd += FVector{0.f, (bFloor ? WallSettings::FloorOffset : WallSettings::CeilingOffset) * 2, 0.f};
 
-	AProceduralSplineWall* FlatWall = SpawnWall(Start, ETravellingDirection::ETD_Flat, ChosenOuterWallMaterial);
+	AProceduralSplineWall* FlatWall = SpawnWall(Start, ETravellingDirection::Etd_Flat, ChosenOuterWallMaterial);
 
 	float WallHeight = ProceduralSplineWallInstancesVertical[0]->GetActorScale3D().Z;
 
