@@ -12,6 +12,8 @@ DEFINE_LOG_CATEGORY(LabyrAInthVR_Scene_Log);
 ALabyrinthParser::ALabyrinthParser()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	LabyrinthDTO = nullptr;
+	SpawnManager = nullptr;
 }
 
 void ALabyrinthParser::BeginPlay()
@@ -54,58 +56,57 @@ void ALabyrinthParser::Tick(float DeltaTime)
 
 FVector ALabyrinthParser::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirection& LastDirection)
 {
-	EEnemyDirection ChosenDirection{EED_None};
+	EEnemyDirection ChosenDirection{Eed_None};
 	TArray<EEnemyDirection> FreeEnemyDirections{};
-	bool bIsInRoom{false};
 	// Get all free roaming directions
 	FillFreeDirections(Row, Column, FreeEnemyDirections);
-	bIsInRoom = IsInRoom(Row, Column, FreeEnemyDirections);
+	const bool bIsInRoom = IsInRoom(Row, Column, FreeEnemyDirections);
 	// Check if is in room
 	if (bIsInRoom)
 	{
-		FreeEnemyDirections.Remove(EED_Diagonal);
-		UE_LOG(LogTemp, Error, TEXT("The enemy is standing at the start of a room"))
+		FreeEnemyDirections.Remove(Eed_Diagonal);
+		UE_LOG(LabyrAInthVR_Scene_Log, Warning, TEXT("The enemy is standing at the start of a room"))
 	}
 
 	// Pick direction based on the last known direction
 	switch (LastDirection)
 	{
-	case EED_None:
+	case Eed_None:
 		ChosenDirection = FreeEnemyDirections.Num() > 0
 			                  ? FreeEnemyDirections[FMath::RandRange(0, FreeEnemyDirections.Num() - 1)]
-			                  : EED_None;
+			                  : Eed_None;
 		break;
-	case EED_Left:
-	case EED_Right:
+	case Eed_Left:
+	case Eed_Right:
 		ChooseNextDirection(FreeEnemyDirections, ChosenDirection, LastDirection, 2, FreeEnemyDirections.Num() - 1);
 		break;
-	case EED_Down:
-	case EED_Up:
+	case Eed_Down:
+	case Eed_Up:
 		ChooseNextDirection(FreeEnemyDirections, ChosenDirection, LastDirection, 0, 1);
 		break;
-	case EED_Diagonal:
+	case Eed_Diagonal:
 		ChooseNextDirection(FreeEnemyDirections, ChosenDirection, LastDirection, 0, FreeEnemyDirections.Num() - 1);
 	default: ;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Chosen direction: %s"), *UEnum::GetValueAsString(ChosenDirection))
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Chosen direction: %s"), *UEnum::GetValueAsString(ChosenDirection))
 
 	// Find the (X,Y) for the chosen direction, stop at intersections
 	uint8 TravellingRow{Row};
 	uint8 TravellingColumn{Column};
 
-	UE_LOG(LogTemp, Warning, TEXT("Current enemy indexes: %d %d"), TravellingRow, TravellingColumn)
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Current enemy indexes: %d %d"), TravellingRow, TravellingColumn)
 
 	switch (ChosenDirection)
 	{
-	case EED_None:
+	case Eed_None:
 		break;
-	case EED_Left:
+	case Eed_Left:
 		while (TravellingColumn - 1 >= 0 && UnparsedLabyrinthMatrix[TravellingRow][TravellingColumn - 1] == 0)
 		{
 			if (bIsInRoom && CheckForExit(TravellingRow, TravellingColumn, ChosenDirection))
 			{
-				UE_LOG(LogTemp, Error, TEXT("Found exit!"));
+				UE_LOG(LabyrAInthVR_Scene_Log, Warning, TEXT("Found exit!"));
 				FillExitIndexes(TravellingRow, TravellingColumn, ChosenDirection);
 				break;
 			}
@@ -113,13 +114,13 @@ FVector ALabyrinthParser::GetNextDestination(uint8& Row, uint8& Column, EEnemyDi
 			if (IsIntersection(TravellingRow, TravellingColumn) && !bIsInRoom) break;
 		}
 		break;
-	case EED_Right:
+	case Eed_Right:
 		while (TravellingColumn + 1 < std::size(UnparsedLabyrinthMatrix[TravellingRow]) && UnparsedLabyrinthMatrix[
 			TravellingRow][TravellingColumn + 1] == 0)
 		{
 			if (bIsInRoom && CheckForExit(TravellingRow, TravellingColumn, ChosenDirection))
 			{
-				UE_LOG(LogTemp, Error, TEXT("Found exit!"));
+				UE_LOG(LabyrAInthVR_Scene_Log, Warning, TEXT("Found exit!"));
 				FillExitIndexes(TravellingRow, TravellingColumn, ChosenDirection);
 				break;
 			}
@@ -127,12 +128,12 @@ FVector ALabyrinthParser::GetNextDestination(uint8& Row, uint8& Column, EEnemyDi
 			if (IsIntersection(TravellingRow, TravellingColumn) && !bIsInRoom) break;
 		}
 		break;
-	case EED_Up:
+	case Eed_Up:
 		while (TravellingRow - 1 >= 0 && UnparsedLabyrinthMatrix[TravellingRow - 1][TravellingColumn] == 0)
 		{
 			if (bIsInRoom && CheckForExit(TravellingRow, TravellingColumn, ChosenDirection))
 			{
-				UE_LOG(LogTemp, Error, TEXT("Found exit!"));
+				UE_LOG(LabyrAInthVR_Scene_Log, Warning, TEXT("Found exit!"));
 				FillExitIndexes(TravellingRow, TravellingColumn, ChosenDirection);
 				break;
 			}
@@ -140,13 +141,13 @@ FVector ALabyrinthParser::GetNextDestination(uint8& Row, uint8& Column, EEnemyDi
 			if (IsIntersection(TravellingRow, TravellingColumn) && !bIsInRoom) break;
 		}
 		break;
-	case EED_Down:
+	case Eed_Down:
 		while (TravellingRow + 1 < std::size(UnparsedLabyrinthMatrix) && UnparsedLabyrinthMatrix[TravellingRow + 1][
 			TravellingColumn] == 0)
 		{
 			if (bIsInRoom && CheckForExit(TravellingRow, TravellingColumn, ChosenDirection))
 			{
-				UE_LOG(LogTemp, Error, TEXT("Found exit!"));
+				UE_LOG(LabyrAInthVR_Scene_Log, Warning, TEXT("Found exit!"));
 				FillExitIndexes(TravellingRow, TravellingColumn, ChosenDirection);
 				break;
 			}
@@ -154,7 +155,7 @@ FVector ALabyrinthParser::GetNextDestination(uint8& Row, uint8& Column, EEnemyDi
 			if (IsIntersection(TravellingRow, TravellingColumn) && !bIsInRoom) break;
 		}
 		break;
-	case EED_Diagonal:
+	case Eed_Diagonal:
 		FillDiagonalIndexes(TravellingRow, TravellingColumn);
 		break;
 	default: ;
@@ -165,7 +166,7 @@ FVector ALabyrinthParser::GetNextDestination(uint8& Row, uint8& Column, EEnemyDi
 	};
 
 	DrawDebugSphere(GetWorld(), Destination, 20.f, 10, FColor::Red, true);
-	UE_LOG(LogTemp, Warning, TEXT("Post enemy indexes: %d %d"), TravellingRow, TravellingColumn)
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Post enemy indexes: %d %d"), TravellingRow, TravellingColumn)
 	// Update enemy values by ref
 	LastDirection = ChosenDirection;
 	Row = TravellingRow;
@@ -174,50 +175,49 @@ FVector ALabyrinthParser::GetNextDestination(uint8& Row, uint8& Column, EEnemyDi
 	return Destination;
 }
 
-void ALabyrinthParser::FillFreeDirections(uint8 Row, uint8 Column, TArray<EEnemyDirection>& FreeEnemyDirections)
+void ALabyrinthParser::FillFreeDirections(uint8 Row, uint8 Column, TArray<EEnemyDirection>& FreeEnemyDirections) const
 {
 	if (Column - 1 >= 0 && UnparsedLabyrinthMatrix[Row][Column - 1] == 0)
 		FreeEnemyDirections.Add(
-			EEnemyDirection::EED_Left);
+			EEnemyDirection::Eed_Left);
 	if (Column + 1 < std::size(UnparsedLabyrinthMatrix[Row]) && UnparsedLabyrinthMatrix[Row][Column + 1] == 0)
-		FreeEnemyDirections.Add(EEnemyDirection::EED_Right);
+		FreeEnemyDirections.Add(EEnemyDirection::Eed_Right);
 	if (Row + 1 < std::size(UnparsedLabyrinthMatrix) && UnparsedLabyrinthMatrix[Row + 1][Column] == 0)
-		FreeEnemyDirections.Add(EEnemyDirection::EED_Down);
-	if (Row - 1 >= 0 && UnparsedLabyrinthMatrix[Row - 1][Column] == 0) FreeEnemyDirections.Add(EEnemyDirection::EED_Up);
+		FreeEnemyDirections.Add(EEnemyDirection::Eed_Down);
+	if (Row - 1 >= 0 && UnparsedLabyrinthMatrix[Row - 1][Column] == 0) FreeEnemyDirections.Add(EEnemyDirection::Eed_Up);
 
 
 	const bool bDiagonal = IsDiagonal(Row, Column);
-	UE_LOG(LogTemp, Warning, TEXT("Diagonal presence: %s"), bDiagonal ? *FString("True") : *FString("False"))
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Diagonal presence: %s"), bDiagonal ? *FString("True") : *FString("False"))
 
-	if (bDiagonal) FreeEnemyDirections.Add(EEnemyDirection::EED_Diagonal);
+	if (bDiagonal) FreeEnemyDirections.Add(EEnemyDirection::Eed_Diagonal);
 }
 
 void ALabyrinthParser::ChooseNextDirection(TArray<EEnemyDirection>& EnemyDirections, EEnemyDirection& NextDirection,
                                            EEnemyDirection PreviousDirection, uint8 MinIndex, uint8 MaxIndex)
 {
-	const float SwitchAtIntersecValue = FMath::RandRange(0.f, 1.f);
+	const float SwitchAtIntersectValue = FMath::RandRange(0.f, 1.f);
 	const float SwitchToDiagonalValue = FMath::RandRange(0.f, 1.f);
 
 	for (const auto& RandomDirection : EnemyDirections)
-		UE_LOG(LogTemp, Warning, TEXT("Free direction: %s"), *UEnum::GetValueAsString(RandomDirection))
+		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Free direction: %s"), *UEnum::GetValueAsString(RandomDirection))
 
-	UE_LOG(LogTemp, Warning, TEXT("Previous direction: %s"), *UEnum::GetValueAsString(PreviousDirection))
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Previous direction: %s"), *UEnum::GetValueAsString(PreviousDirection))
 	// Pick diagonal first
-	if (EnemyDirections.Contains(EED_Diagonal) && SwitchToDiagonalValue < EnemySettings::TurnAtDiagonalProbability &&
-		PreviousDirection != EED_Diagonal)
+	if (EnemyDirections.Contains(Eed_Diagonal) && SwitchToDiagonalValue < EnemySettings::TurnAtDiagonalProbability && PreviousDirection != Eed_Diagonal)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Switching to diagonal: %f < %f"), SwitchToDiagonalValue,
+		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Switching to diagonal: %f < %f"), SwitchToDiagonalValue,
 		       EnemySettings::TurnAtDiagonalProbability)
-		NextDirection = EED_Diagonal;
+		NextDirection = Eed_Diagonal;
 		return;
 	}
 
-	if (EnemyDirections.Num() > 1) EnemyDirections.Remove(EED_Diagonal);
+	if (EnemyDirections.Num() > 1) EnemyDirections.Remove(Eed_Diagonal);
 
 	// No free directions, we're stuck 
 	if (EnemyDirections.Num() <= 0)
 	{
-		NextDirection = EED_None;
+		NextDirection = Eed_None;
 		return;
 	}
 
@@ -229,10 +229,10 @@ void ALabyrinthParser::ChooseNextDirection(TArray<EEnemyDirection>& EnemyDirecti
 	}
 
 	// It means that I stopped in a corner
-	if (EnemyDirections.Num() >= 2 || SwitchAtIntersecValue < EnemySettings::TurnAtIntersecProbability ||
-		PreviousDirection == EED_Diagonal)
+	if (EnemyDirections.Num() >= 2 || SwitchAtIntersectValue < EnemySettings::TurnAtIntersecProbability ||
+		PreviousDirection == Eed_Diagonal)
 	{
-		NextDirection = GetIntersecDirection(EnemyDirections, PreviousDirection);
+		NextDirection = GetIntersectDirection(EnemyDirections, PreviousDirection);
 		return;
 	}
 
@@ -243,46 +243,45 @@ EEnemyDirection ALabyrinthParser::GetOppositeDirection(EEnemyDirection EnemyDire
 {
 	switch (EnemyDirection)
 	{
-	case EED_None:
+	case Eed_None:
 		break;
-	case EED_Left:
-		return EED_Right;
-	case EED_Right:
-		return EED_Left;
-	case EED_Up:
-		return EED_Down;
-	case EED_Down:
-		return EED_Up;
-	case EED_Diagonal:
-		return EED_Diagonal;
+	case Eed_Left:
+		return Eed_Right;
+	case Eed_Right:
+		return Eed_Left;
+	case Eed_Up:
+		return Eed_Down;
+	case Eed_Down:
+		return Eed_Up;
+	case Eed_Diagonal:
+		return Eed_Diagonal;
 	default: ;
 	}
 
-	return EED_None;
+	return Eed_None;
 }
 
-EEnemyDirection ALabyrinthParser::GetIntersecDirection(TArray<EEnemyDirection>& EnemyDirections,
-                                                       EEnemyDirection EnemyDirection)
+EEnemyDirection ALabyrinthParser::GetIntersectDirection(TArray<EEnemyDirection>& EnemyDirections, EEnemyDirection EnemyDirection)
 {
 	switch (EnemyDirection)
 	{
-	case EED_None:
+	case Eed_None:
 		break;
-	case EED_Left:
-	case EED_Right:
-		if (EnemyDirections.Contains(EED_Up)) return EED_Up;
-		if (EnemyDirections.Contains(EED_Down)) return EED_Down;
+	case Eed_Left:
+	case Eed_Right:
+		if (EnemyDirections.Contains(Eed_Up)) return Eed_Up;
+		if (EnemyDirections.Contains(Eed_Down)) return Eed_Down;
 		break;
-	case EED_Up:
-	case EED_Down:
-		if (EnemyDirections.Contains(EED_Right)) return EED_Right;
-		if (EnemyDirections.Contains(EED_Left)) return EED_Left;
+	case Eed_Up:
+	case Eed_Down:
+		if (EnemyDirections.Contains(Eed_Right)) return Eed_Right;
+		if (EnemyDirections.Contains(Eed_Left)) return Eed_Left;
 		break;
-	case EED_Diagonal:
+	case Eed_Diagonal:
 		return EnemyDirections[FMath::RandRange(0, EnemyDirections.Num() - 1)];
 	default: ;
 	}
-	return EED_None;
+	return Eed_None;
 }
 
 void ALabyrinthParser::BuildLabyrinthInternal()
@@ -318,14 +317,14 @@ void ALabyrinthParser::BuildLabyrinthInternal()
 	SpawnFlatSurface(true);
 
 	// Remove overlapping pillars
-	for (auto& HorizontalSplineWall : ProceduralSplineWallInstancesHorizontal)
+	for (const auto& HorizontalSplineWall : ProceduralSplineWallInstancesHorizontal)
 	{
 		FVector HorizontalStartingPointLocation = HorizontalSplineWall->GetSplineComponent()->GetLocationAtSplinePoint(
 			0, ESplineCoordinateSpace::World);
 		FVector HorizontalEndingPointLocation = HorizontalSplineWall->GetSplineComponent()->GetLocationAtSplinePoint(
 			HorizontalSplineWall->GetSplineComponent()->GetNumberOfSplinePoints(), ESplineCoordinateSpace::World);
 
-		for (auto& VerticalSplineWall : ProceduralSplineWallInstancesVertical)
+		for (const auto& VerticalSplineWall : ProceduralSplineWallInstancesVertical)
 		{
 			FVector VerticalStartingPointLocation = VerticalSplineWall->GetSplineComponent()->GetLocationAtSplinePoint(
 				0, ESplineCoordinateSpace::World);
@@ -398,12 +397,6 @@ void ALabyrinthParser::BuildLabyrinthInternal()
 	EnemyInstance->SetOwner(this);
 	EnemyInstance->SetMatrixPosition(RowSelection, ColumnSelection);
 	SpawnedEnemies.Add(EnemyInstance);
-
-	// Broadcast scene complete
-	ASceneController* SceneController = Cast<ASceneController>(
-		UGameplayStatics::GetActorOfClass(this, ASceneController::StaticClass()));
-
-	SceneController->OnSceneReady.Broadcast();
 }
 
 void ALabyrinthParser::SetShortWallSettings(AProceduralSplineWall* & ProceduralSplineWall)
@@ -445,9 +438,9 @@ void ALabyrinthParser::TravelHorizontal(uint8 RowIndex, uint8 FinalColumnIndex,
 
 		if (Neighbor == nullptr)
 		{
-			uint8 WallType = (RowIndex == 0 || RowIndex == std::size(UnparsedLabyrinthMatrix) - 1)
-								 ? ChosenOuterWallMaterial
-								 : InsideWallMaterials[FMath::RandRange(0, InsideWallMaterials.Num() - 1)];
+			const uint8 WallType = (RowIndex == 0 || RowIndex == std::size(UnparsedLabyrinthMatrix) - 1)
+				                       ? ChosenOuterWallMaterial
+				                       : InsideWallMaterials[FMath::RandRange(0, InsideWallMaterials.Num() - 1)];
 
 			SpawnWall(SpawnLocation, TravellingDirection, WallType);
 		}
@@ -603,7 +596,7 @@ bool ALabyrinthParser::IsDiagonal(uint8 Row, uint8 Column) const
 	return false;
 }
 
-bool ALabyrinthParser::IsInRoom(uint8 Row, uint8 Column, const TArray<EEnemyDirection>& FreeEnemyDirections)
+bool ALabyrinthParser::IsInRoom(uint8 Row, uint8 Column, const TArray<EEnemyDirection>& FreeEnemyDirections) const
 {
 	TArray<EEnemyDiagonalDirection> EnemyDiagonalDirections;
 	FillDiagonalMatrix(Row, Column, EnemyDiagonalDirections);
@@ -612,17 +605,17 @@ bool ALabyrinthParser::IsInRoom(uint8 Row, uint8 Column, const TArray<EEnemyDire
 	{
 		switch (DiagonalDirection)
 		{
-		case EEDD_UpperRight:
-			if (FreeEnemyDirections.Contains(EED_Up) && FreeEnemyDirections.Contains(EED_Right)) return true;
+		case Eedd_UpperRight:
+			if (FreeEnemyDirections.Contains(Eed_Up) && FreeEnemyDirections.Contains(Eed_Right)) return true;
 			break;
-		case EEDD_UpperLeft:
-			if (FreeEnemyDirections.Contains(EED_Up) && FreeEnemyDirections.Contains(EED_Left)) return true;
+		case Eedd_UpperLeft:
+			if (FreeEnemyDirections.Contains(Eed_Up) && FreeEnemyDirections.Contains(Eed_Left)) return true;
 			break;
-		case EEDD_LowerRight:
-			if (FreeEnemyDirections.Contains(EED_Down) && FreeEnemyDirections.Contains(EED_Right)) return true;
+		case Eedd_LowerRight:
+			if (FreeEnemyDirections.Contains(Eed_Down) && FreeEnemyDirections.Contains(Eed_Right)) return true;
 			break;
-		case EEDD_LowerLeft:
-			if (FreeEnemyDirections.Contains(EED_Down) && FreeEnemyDirections.Contains(EED_Left)) return true;
+		case Eedd_LowerLeft:
+			if (FreeEnemyDirections.Contains(Eed_Down) && FreeEnemyDirections.Contains(Eed_Left)) return true;
 			break;
 		default: ;
 		}
@@ -631,15 +624,15 @@ bool ALabyrinthParser::IsInRoom(uint8 Row, uint8 Column, const TArray<EEnemyDire
 	return false;
 }
 
-bool ALabyrinthParser::CheckForExit(uint8 Row, uint8 Column, EEnemyDirection EnemyDirection)
+bool ALabyrinthParser::CheckForExit(uint8 Row, uint8 Column, EEnemyDirection EnemyDirection) const
 {
-	UE_LOG(LogTemp, Warning, TEXT("Checking for exit in: %s Row: %d Column: %d"),
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Checking for exit in: %s Row: %d Column: %d"),
 	       *UEnum::GetValueAsString(EnemyDirection), Row, Column);
 	switch (EnemyDirection)
 	{
-	case EED_None:
+	case Eed_None:
 		break;
-	case EED_Left:
+	case Eed_Left:
 		if (UnparsedLabyrinthMatrix[Row - 1][Column] == 1 && UnparsedLabyrinthMatrix[Row - 1][Column - 1] == 0)
 			return
 				true;
@@ -647,7 +640,7 @@ bool ALabyrinthParser::CheckForExit(uint8 Row, uint8 Column, EEnemyDirection Ene
 			return
 				true;
 		break;
-	case EED_Right:
+	case Eed_Right:
 		if (UnparsedLabyrinthMatrix[Row - 1][Column] == 1 && UnparsedLabyrinthMatrix[Row - 1][Column + 1] == 0)
 			return
 				true;
@@ -655,7 +648,7 @@ bool ALabyrinthParser::CheckForExit(uint8 Row, uint8 Column, EEnemyDirection Ene
 			return
 				true;
 		break;
-	case EED_Up:
+	case Eed_Up:
 		if (UnparsedLabyrinthMatrix[Row][Column + 1] == 1 && UnparsedLabyrinthMatrix[Row - 1][Column + 1] == 0)
 			return
 				true;
@@ -663,7 +656,7 @@ bool ALabyrinthParser::CheckForExit(uint8 Row, uint8 Column, EEnemyDirection Ene
 			return
 				true;
 		break;
-	case EED_Down:
+	case Eed_Down:
 		if (UnparsedLabyrinthMatrix[Row][Column + 1] == 1 && UnparsedLabyrinthMatrix[Row + 1][Column + 1] == 0)
 			return
 				true;
@@ -671,7 +664,7 @@ bool ALabyrinthParser::CheckForExit(uint8 Row, uint8 Column, EEnemyDirection Ene
 			return
 				true;
 		break;
-	case EED_Diagonal:
+	case Eed_Diagonal:
 		break;
 	default: ;
 	}
@@ -679,13 +672,13 @@ bool ALabyrinthParser::CheckForExit(uint8 Row, uint8 Column, EEnemyDirection Ene
 	return false;
 }
 
-void ALabyrinthParser::FillExitIndexes(uint8& Row, uint8& Column, EEnemyDirection EnemyDirection)
+void ALabyrinthParser::FillExitIndexes(uint8& Row, uint8& Column, EEnemyDirection EnemyDirection) const
 {
 	switch (EnemyDirection)
 	{
-	case EED_None:
+	case Eed_None:
 		break;
-	case EED_Left:
+	case Eed_Left:
 		if (UnparsedLabyrinthMatrix[Row - 1][Column] == 1 && UnparsedLabyrinthMatrix[Row - 1][Column - 1] == 0)
 		{
 			Row--;
@@ -699,7 +692,7 @@ void ALabyrinthParser::FillExitIndexes(uint8& Row, uint8& Column, EEnemyDirectio
 			break;
 		}
 		break;
-	case EED_Right:
+	case Eed_Right:
 		if (UnparsedLabyrinthMatrix[Row - 1][Column] == 1 && UnparsedLabyrinthMatrix[Row - 1][Column + 1] == 0)
 		{
 			Row--;
@@ -713,7 +706,7 @@ void ALabyrinthParser::FillExitIndexes(uint8& Row, uint8& Column, EEnemyDirectio
 			break;
 		}
 		break;
-	case EED_Up:
+	case Eed_Up:
 		if (UnparsedLabyrinthMatrix[Row][Column + 1] == 1 && UnparsedLabyrinthMatrix[Row - 1][Column + 1] == 0)
 		{
 			Row--;
@@ -727,7 +720,7 @@ void ALabyrinthParser::FillExitIndexes(uint8& Row, uint8& Column, EEnemyDirectio
 			break;
 		}
 		break;
-	case EED_Down:
+	case Eed_Down:
 		if (UnparsedLabyrinthMatrix[Row][Column + 1] == 1 && UnparsedLabyrinthMatrix[Row + 1][Column + 1] == 0)
 		{
 			Row++;
@@ -741,15 +734,15 @@ void ALabyrinthParser::FillExitIndexes(uint8& Row, uint8& Column, EEnemyDirectio
 			break;
 		}
 		break;
-	case EED_Diagonal:
+	case Eed_Diagonal:
 		break;
 	default: ;
 	}
 }
 
-void ALabyrinthParser::FillDiagonalIndexes(uint8& Row, uint8& Column)
+void ALabyrinthParser::FillDiagonalIndexes(uint8& Row, uint8& Column) const
 {
-	UE_LOG(LogTemp, Warning, TEXT("Filling diagonal indexes"))
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Filling diagonal indexes"))
 
 	TArray<EEnemyDiagonalDirection> DiagonalDirections;
 
@@ -757,19 +750,19 @@ void ALabyrinthParser::FillDiagonalIndexes(uint8& Row, uint8& Column)
 
 	switch (DiagonalDirections[FMath::RandRange(0, DiagonalDirections.Num() - 1)])
 	{
-	case EEDD_UpperRight:
+	case Eedd_UpperRight:
 		Row--;
 		Column++;
 		break;
-	case EEDD_UpperLeft:
+	case Eedd_UpperLeft:
 		Row--;
 		Column--;
 		break;
-	case EEDD_LowerRight:
+	case Eedd_LowerRight:
 		Row++;
 		Column++;
 		break;
-	case EEDD_LowerLeft:
+	case Eedd_LowerLeft:
 		Row++;
 		Column--;
 		break;
@@ -777,31 +770,30 @@ void ALabyrinthParser::FillDiagonalIndexes(uint8& Row, uint8& Column)
 	}
 }
 
-void ALabyrinthParser::FillDiagonalMatrix(uint8 Row, uint8 Column,
-                                          TArray<EEnemyDiagonalDirection>& EnemyDiagonalDirections)
+void ALabyrinthParser::FillDiagonalMatrix(uint8 Row, uint8 Column, TArray<EEnemyDiagonalDirection>& EnemyDiagonalDirections) const
 {
 	if (Column - 1 >= 0 && Row - 1 >= 0 && UnparsedLabyrinthMatrix[Row - 1][Column - 1] == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Upper left"))
-		EnemyDiagonalDirections.Add(EEDD_UpperLeft);
+		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Upper left"))
+		EnemyDiagonalDirections.Add(Eedd_UpperLeft);
 	}
 	if (Column + 1 < std::size(UnparsedLabyrinthMatrix[Row]) && Row - 1 >= 0 && UnparsedLabyrinthMatrix[Row - 1][Column
 		+ 1] == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Upper right"))
-		EnemyDiagonalDirections.Add(EEDD_UpperRight);
+		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Upper right"))
+		EnemyDiagonalDirections.Add(Eedd_UpperRight);
 	}
 	if (Column - 1 >= 0 && Row + 1 < std::size(UnparsedLabyrinthMatrix) && UnparsedLabyrinthMatrix[Row + 1][Column - 1]
 		== 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Bottom left"))
-		EnemyDiagonalDirections.Add(EEDD_LowerLeft);
+		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Bottom left"))
+		EnemyDiagonalDirections.Add(Eedd_LowerLeft);
 	}
 	if (Column + 1 < std::size(UnparsedLabyrinthMatrix[Row]) && Row + 1 < std::size(UnparsedLabyrinthMatrix) &&
 		UnparsedLabyrinthMatrix[Row + 1][Column + 1] == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Bottom right"))
-		EnemyDiagonalDirections.Add(EEDD_LowerRight);
+		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Bottom right"))
+		EnemyDiagonalDirections.Add(Eedd_LowerRight);
 	}
 }
 
@@ -833,7 +825,7 @@ void ALabyrinthParser::SpawnFlatSurface(bool bFloor)
 
 	AProceduralSplineWall* FlatWall = SpawnWall(Start, ETravellingDirection::Etd_Flat, ChosenOuterWallMaterial);
 
-	float WallHeight = ProceduralSplineWallInstancesVertical[0]->GetActorScale3D().Z;
+	const float WallHeight = ProceduralSplineWallInstancesVertical[0]->GetActorScale3D().Z;
 
 	if (!IsValid(FlatWall)) return;
 

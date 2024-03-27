@@ -13,7 +13,7 @@ void UEnemyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	if(BaseEnemy == nullptr) return;
+	if (BaseEnemy == nullptr) return;
 
 	Speed = BaseEnemy->GetSpeed();
 }

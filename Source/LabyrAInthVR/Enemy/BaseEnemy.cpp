@@ -12,6 +12,8 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "Perception/PawnSensingComponent.h"
 
+DEFINE_LOG_CATEGORY(LabyrAInthVR_Enemy_Log);
+
 ABaseEnemy::ABaseEnemy()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -61,23 +63,23 @@ void ABaseEnemy::Tick(float DeltaTime)
 
 	switch (EnemyState)
 	{
-	case EES_WaitingForNav:
+	case Ees_WaitingForNav:
 		break;
-	case EES_Idle:
+	case Ees_Idle:
 		StartPatrolling();
 		break;
-	case EES_Patrolling:
+	case Ees_Patrolling:
 		break;
-	case EES_Attacking:
+	case Ees_Attacking:
 		Attack();
 		break;
-	case EES_Chasing:
+	case Ees_Chasing:
 		CheckAttack();
 		break;
-	case EES_Hold:
+	case Ees_Hold:
 		HoldPosition();
 		break;
-	case EES_Dead:
+	case Ees_Dead:
 		break;
 	default: ;
 	}
@@ -89,7 +91,7 @@ void ABaseEnemy::SetMatrixPosition(uint8 Row, uint8 Column)
 	MatrixColumn = Column;
 }
 
-float ABaseEnemy::GetSpeed()
+float ABaseEnemy::GetSpeed() const
 {
 	if (!IsValid(GetCharacterMovement())) return 0.f;
 
@@ -98,18 +100,18 @@ float ABaseEnemy::GetSpeed()
 
 void ABaseEnemy::NavMeshFinishedBuilding(ANavigationData* NavigationData)
 {
-	EnemyState = EES_Idle;
+	EnemyState = Ees_Idle;
 }
 
 void ABaseEnemy::PatrollingTimerFinished()
 {
 	LabyrinthParser = LabyrinthParser == nullptr ? Cast<ALabyrinthParser>(GetOwner()) : LabyrinthParser;
 
-	if (EnemyState == EES_Attacking || !IsValid(LabyrinthParser) || !IsValid(AIController)) return;
+	if (EnemyState == Ees_Attacking || !IsValid(LabyrinthParser) || !IsValid(AIController)) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("Patrolling timer finished"))
+	UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("Patrolling timer finished"))
 
-	EnemyState = EES_Patrolling;
+	EnemyState = Ees_Patrolling;
 
 	End = LabyrinthParser->GetNextDestination(MatrixRow, MatrixColumn, LastKnownDirection);
 	FAIMoveRequest MoveRequest;
@@ -127,14 +129,14 @@ void ABaseEnemy::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponen
                                          UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                          const FHitResult& SweepResult)
 {
-	ACharacter* HitCharacter = Cast<ACharacter>(OtherActor);
+	const ACharacter* HitCharacter = Cast<ACharacter>(OtherActor);
 	if (!IsValid(HitCharacter) || OtherActor == this) return;
-	UE_LOG(LogTemp, Warning, TEXT("Enemy attacked: %s"), *OtherActor->GetName())
+	UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("Enemy attacked: %s"), *OtherActor->GetName())
 }
 
 void ABaseEnemy::OnSeePawn(APawn* Pawn)
 {
-	if (EnemyState > EES_Patrolling) return;
+	if (EnemyState > Ees_Patrolling) return;
 
 	SeenCharacter = SeenCharacter == nullptr ? Cast<ACharacter>(Pawn) : SeenCharacter;
 
@@ -144,12 +146,12 @@ void ABaseEnemy::OnSeePawn(APawn* Pawn)
 void ABaseEnemy::OnHearNoise(APawn* NoiseInstigator, const FVector& Location, float Volume)
 {
 	// Only go to the location if we were roaming
-	if (EnemyState > EES_Patrolling || !IsValid(AIController)) return;
+	if (EnemyState > Ees_Patrolling || !IsValid(AIController)) return;
 
 	AIController->StopMovement();
 	GetWorldTimerManager().ClearTimer(PatrollingTimerHandle);
 
-	EnemyState = EES_Patrolling;
+	EnemyState = Ees_Patrolling;
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalLocation(Location);
 	MoveRequest.SetAcceptanceRadius(0.f);
@@ -159,30 +161,30 @@ void ABaseEnemy::OnHearNoise(APawn* NoiseInstigator, const FVector& Location, fl
 void ABaseEnemy::OnMoveFinished(FAIRequestID RequestID, const FPathFollowingResult& PathFollowingResult)
 {
 	// For some reason this always gets triggered so I have to clear the timer
-	if (EnemyState != EES_Patrolling)
+	if (EnemyState != Ees_Patrolling)
 	{
 		GetWorldTimerManager().ClearTimer(PatrollingTimerHandle);
 		return;
 	}
 
-	EnemyState = EES_Idle;
-	UE_LOG(LogTemp, Warning, TEXT("Move finished"));
+	EnemyState = Ees_Idle;
+	UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("Move finished"));
 }
 
 // Whenever we chased we have to update the matrix position and we do it based on the X Y coordinates
 void ABaseEnemy::UpdateMatrixPosition()
 {
-	LastKnownDirection = EED_None;
-	UE_LOG(LogTemp, Warning, TEXT("Previous position: %d %d"), MatrixRow, MatrixColumn);
-	float XPos = GetActorLocation().X;
-	float YPos = GetActorLocation().Y;
+	LastKnownDirection = Eed_None;
+	UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("Previous position: %d %d"), MatrixRow, MatrixColumn);
+	const float XPos = GetActorLocation().X;
+	const float YPos = GetActorLocation().Y;
 
 	MatrixColumn = XPos / WallSettings::WallOffset;
 	MatrixRow = YPos / WallSettings::WallOffset;
 
-	UE_LOG(LogTemp, Warning, TEXT("X Position: %f - Modulus: %f - Index: %d"), XPos,
+	UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("X Position: %f - Modulus: %f - Index: %d"), XPos,
 	       FMath::Fmod(XPos, WallSettings::WallOffset), MatrixColumn);
-	UE_LOG(LogTemp, Warning, TEXT("Y Position: %f - Modulus: %f - Index: %d"), YPos,
+	UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("Y Position: %f - Modulus: %f - Index: %d"), YPos,
 	       FMath::Fmod(YPos, WallSettings::WallOffset), MatrixRow);
 
 	if (FMath::Fmod(XPos, WallSettings::WallOffset) > WallSettings::WallOffset / 2)
@@ -195,19 +197,19 @@ void ABaseEnemy::UpdateMatrixPosition()
 		MatrixRow++;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("New position: %d %d"), MatrixRow, MatrixColumn);
+	UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("New position: %d %d"), MatrixRow, MatrixColumn);
 
-	FVector NewPos{MatrixColumn * WallSettings::WallOffset, MatrixRow * WallSettings::WallOffset, 0.f};
+	const FVector NewPos{MatrixColumn * WallSettings::WallOffset, MatrixRow * WallSettings::WallOffset, 0.f};
 	DrawDebugSphere(GetWorld(), NewPos, 20.f, 15, FColor::Green, true);
 }
 
 void ABaseEnemy::StartPatrolling()
 {
-	if (EnemyState != EES_Idle || GetWorldTimerManager().TimerExists(PatrollingTimerHandle) || AIController == nullptr)
+	if (EnemyState != Ees_Idle || GetWorldTimerManager().TimerExists(PatrollingTimerHandle) || AIController == nullptr)
 		return;
 
 	const float RandomWaitTime = FMath::FRandRange(MinPatrolTimer, MaxPatrolTimer);
-	UE_LOG(LogTemp, Warning, TEXT("Random wait time: %f"), RandomWaitTime);
+	UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("Random wait time: %f"), RandomWaitTime);
 	GetWorldTimerManager().SetTimer(PatrollingTimerHandle, this, &ThisClass::PatrollingTimerFinished, RandomWaitTime,
 	                                false);
 }
@@ -217,8 +219,8 @@ void ABaseEnemy::Chase()
 	if (!IsValid(AIController) || !IsValid(SeenCharacter)) return;
 
 	GetWorldTimerManager().ClearTimer(PatrollingTimerHandle);
-	EnemyState = EES_Chasing;
-	UE_LOG(LogTemp, Warning, TEXT("Initiating chase action to: %s"), *SeenCharacter->GetName());
+	EnemyState = Ees_Chasing;
+	UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("Initiating chase action to: %s"), *SeenCharacter->GetName());
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalActor(SeenCharacter);
 	MoveRequest.SetAcceptanceRadius(0.f);
@@ -253,13 +255,13 @@ void ABaseEnemy::HoldPosition()
 	// If lost sight of character, go back to idle and patrolling
 	if (!AIController->LineOfSightTo(SeenCharacter))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Lost sight of character, going back to idle"))
+		UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("Lost sight of character, going back to idle"))
 		UpdateMatrixPosition();
-		EnemyState = EES_Idle;
+		EnemyState = Ees_Idle;
 	}
 	else if (GetDistanceToCharacter() <= ChaseDistance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Character regained eligible distance for chasing, going back to chase"))
+		UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("Character regained eligible distance for chasing, going back to chase"))
 		Chase();
 	}
 	else if (GetDistanceToCharacter() > ChaseDistance)
@@ -275,18 +277,18 @@ void ABaseEnemy::CheckAttack()
 	// Stop chasing if distance greater than ChasingDistance
 	if (GetDistanceToCharacter() > ChaseDistance && IsFacing())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Entering into hold phase"))
+		UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("Entering into hold phase"))
 		AIController->StopMovement();
-		EnemyState = EES_Hold;
+		EnemyState = Ees_Hold;
 	}
 
 	// Initiate attack phase if closer to character than attack distance
 	if (GetDistanceToCharacter() < AttackDistance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Entering into attacking phase"))
+		UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("Entering into attacking phase"))
 		AIController->StopMovement();
 		bCanAttack = true;
-		EnemyState = EES_Attacking;
+		EnemyState = Ees_Attacking;
 	}
 }
 
@@ -309,7 +311,7 @@ float ABaseEnemy::GetDistanceToCharacter()
 
 bool ABaseEnemy::IsAttacking()
 {
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	const UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 	if (!IsValid(AnimInstance) || !IsValid(AttackMontage)) return false;
 
@@ -330,8 +332,8 @@ void ABaseEnemy::PlayMontage(UAnimMontage* MontageToPlay)
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 	if (!IsValid(AnimInstance) || !IsValid(MontageToPlay)) return;
-	UE_LOG(LogTemp, Warning, TEXT("Playing montage"))
-	FName SectionName{*FString::Printf(TEXT("%d"), FMath::RandRange(1, MontageToPlay->GetNumSections()))};
+	UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("Playing montage"))
+	const FName SectionName{*FString::Printf(TEXT("%d"), FMath::RandRange(1, MontageToPlay->GetNumSections()))};
 	AnimInstance->Montage_Play(MontageToPlay);
 	AnimInstance->Montage_JumpToSection(SectionName);
 }
@@ -348,12 +350,12 @@ void ABaseEnemy::SetWeaponCollision(bool bEnabled)
 void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
                                AController* InstigatedBy, AActor* DamageCauser)
 {
-	if (EnemyState == EES_Dead) return;
-	UE_LOG(LogTemp, Warning, TEXT("Received damage"))
+	if (EnemyState == Ees_Dead) return;
+	UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("Received damage"))
 	Health -= Damage;
 
 	if (BloodEffect == nullptr) return;
-	FVector EffectSpawn{
+	const FVector EffectSpawn {
 		GetActorLocation() + FVector{0.f, GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 0.75, 0.f}
 	};
 	UGameplayStatics::SpawnEmitterAtLocation(this, BloodEffect, EffectSpawn);
@@ -366,6 +368,6 @@ void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamage
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AIController->StopMovement();
 	SetWeaponCollision(false);
-	EnemyState = EES_Dead;
+	EnemyState = Ees_Dead;
 	PlayMontage(DeathMontage);
 }

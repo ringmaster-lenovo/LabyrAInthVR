@@ -9,8 +9,7 @@
 ASceneController::ASceneController()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	// LabyrinthParser = nullptr;
-	// SpawnManager = nullptr;
+	NavMeshBoundsVolume = nullptr;
 }
 
 void ASceneController::BeginPlay()
@@ -50,6 +49,7 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 	}
 	
 	UpdateNavMeshBoundsVolume(LabyrinthDTO);
+	
 	OnSceneReady.Broadcast();
 	return "";
 }
@@ -70,9 +70,9 @@ void ASceneController::UpdateNavMeshBoundsVolume(const ULabyrinthDTO* LabyrinthD
 {
 	NavMeshBoundsVolume = Cast<ANavMeshBoundsVolume>(UGameplayStatics::GetActorOfClass(this, ANavMeshBoundsVolume::StaticClass()));
 	
-	if(!IsValid(NavMeshBoundsVolume)) return;
-		
-	FVector NewScale {std::size(LabyrinthDto->LabyrinthStructure[0])*WallSettings::WallOffset,
+	if (!IsValid(NavMeshBoundsVolume)) return;
+
+	const FVector NewScale {std::size(LabyrinthDto->LabyrinthStructure[0])*WallSettings::WallOffset,
 	std::size(LabyrinthDto->LabyrinthStructure)*WallSettings::WallOffset,
 	100.f};
 	NavMeshBoundsVolume->SetActorScale3D(NewScale);

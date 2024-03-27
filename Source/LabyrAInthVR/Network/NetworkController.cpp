@@ -28,9 +28,9 @@ void ANetworkController::BeginPlay()
 	
 	NetworkConfigFilePath = FConfigCacheIni::NormalizeConfigIniPath(NetworkConfigFilePath);
 
-	if(GConfig->GetString(TEXT("BackendSettings"), TEXT("BaseUrl"), BaseURL, NetworkConfigFilePath))
+	if (GConfig->GetString(TEXT("BackendSettings"), TEXT("BaseUrl"), BaseURL, NetworkConfigFilePath))
 	{
-		UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("Url from the config file: %s"), *BaseURL);
+		UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Url from the config file: %s"), *BaseURL);
 	}
 	else
 	{
@@ -40,7 +40,7 @@ void ANetworkController::BeginPlay()
 
 void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 {
-	UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("Preparing Request for input labyrinth"));
+	UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Preparing Request for input labyrinth"));
 	FHttpModule& HttpModule = FHttpModule::Get();
 
 	FString LabyrinthURL = BaseURL + "/labyrinth";
@@ -71,31 +71,32 @@ void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 			bool connectedSuccessfully) mutable
 			{
 			if (connectedSuccessfully) {
-				UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("Connection SUCCESSFULL."));
+				UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Connection SUCCESSFULL."));
 				// We should have a JSON response - attempt to process it.
 				// Validate http called us back on the Game Thread...
 				FString ResponseContent = pResponse->GetContentAsString();
-				if(DeSerializeLabyrinth(ResponseContent, LabyrinthDTO))
+				if (DeSerializeLabyrinth(ResponseContent, LabyrinthDTO))
 				{
 					OnLabyrinthReceived.Broadcast();
 					// TODO: call success message from the GameMode
 				}
 				else
 				{
-					// TODO: call unsucces message from the GameMode
+					UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Cannot Deserialize Json Response"));
+					// TODO: call unsuccessful message from the GameMode
 				}
 			} 
 			else {
 			   switch (pRequest->GetStatus()) {
 					case EHttpRequestStatus::Failed_ConnectionError:
 						{
-							// TODO: call unsucces message from the GameMode
+							// TODO: call unsuccessful message from the GameMode
 			   				UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Connection failed."));
 						}
 					default:
 						{
-							// TODO: call unsucces message from the GameMode
-			   				UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Request failed. %s"));
+							// TODO: call unsuccessful message from the GameMode
+			   				UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Request failed. "));
 						}
 			   		}
 			   }
@@ -109,30 +110,30 @@ void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 FString ANetworkController::SerializeLabyrinth(ULabyrinthDTO* LabyrinthDTO)
 {
 	UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("Serializing Request for labyrinth"));
-	// Creare un oggetto JSON per rappresentare LabyrinthDTO
+	// Create a Json object to hold the LabyrinthDTO
 	TSharedPtr<FJsonObject> LabyrinthDTOJson = MakeShareable(new FJsonObject);
 	
-	// Aggiungere il campo "level" all'oggetto JSON
+	// Set the level field
 	LabyrinthDTOJson->SetNumberField(TEXT("level"), LabyrinthDTO->Level);
 
-	// Creare un array JSON per rappresentare LabyrinthStructure
+	// Create a 2D array to hold the labyrinth structure
 	std::vector<std::vector<uint8>>& LabyrinthStructure = LabyrinthDTO->LabyrinthStructure;
 	TArray<TSharedPtr<FJsonValue>> LabyrinthStructureArray;
 
-	for (uint i = 0; i < LabyrinthStructure.size(); i++)
+	for (int i = 0; i < LabyrinthStructure.size(); i++)
 	{
 		TArray<TSharedPtr<FJsonValue>> RowArray;
-		for (uint j = 0; j < LabyrinthStructure[i].size(); j++)
+		for (int j = 0; j < LabyrinthStructure[i].size(); j++)
 		{
 			RowArray.Add(MakeShareable(new FJsonValueNumber(LabyrinthStructure[i][j])));
 		}
 		LabyrinthStructureArray.Add(MakeShareable(new FJsonValueArray(RowArray)));
 	}
 	
-	// Aggiungere il campo "labyrinthStructure" all'oggetto JSON
+	// Add the level field to the Json object
 	LabyrinthDTOJson->SetArrayField(TEXT("labyrinthStructure"), LabyrinthStructureArray);
 	
-	// Serializzare l'oggetto JSON in una stringa
+	// Serialize the Json object to a string
 	FString JsonString;
 	TSharedRef<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&JsonString);
 	FJsonSerializer::Serialize(LabyrinthDTOJson.ToSharedRef(), JsonWriter);
@@ -141,7 +142,7 @@ FString ANetworkController::SerializeLabyrinth(ULabyrinthDTO* LabyrinthDTO)
 
 bool ANetworkController::DeSerializeLabyrinth(FString LabyrinthString, ULabyrinthDTO* LabyrinthDto)
 {
-	UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("Deserializing labyrinth"));
+	UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Deserializing labyrinth"));
 	check(IsInGameThread());
 
 	if (LabyrinthDto == nullptr)
@@ -155,15 +156,15 @@ bool ANetworkController::DeSerializeLabyrinth(FString LabyrinthString, ULabyrint
 	{
 		return false;
 	}
-	// Estrai il campo "level" dall'oggetto "labyrinth"
-
+	
+	// Get the level field from the Json object
 	if (!OutLabyrinth->TryGetNumberField(TEXT("level"), LabyrinthDto->Level))
 	{
 		UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Error during Level Deserialization: 'level' field not found or not a string."));
 		return false;
 	}
 
-	// Estrai il campo "labyrinthStructure" dall'oggetto "labyrinth"
+	// Get the labyrinthStructure field from the Json object
 	const TArray<TSharedPtr<FJsonValue>>* LabyrinthStructureArray;
 	if (!OutLabyrinth->TryGetArrayField(TEXT("labyrinthStructure"), LabyrinthStructureArray))
 	{
@@ -173,7 +174,7 @@ bool ANetworkController::DeSerializeLabyrinth(FString LabyrinthString, ULabyrint
 
 	try
 	{
-		// Estrai i valori dell'array e convertili in interi
+		// Extract the values from the Json array and store them in the LabyrinthDto
 		int32 LabyrinthRows = LabyrinthStructureArray->Num();
 		int32 LabyrinthColumns = (LabyrinthRows > 0) ? (*LabyrinthStructureArray)[0]->AsArray().Num() : 0;
 		LabyrinthDto->LabyrinthStructure.resize(LabyrinthRows, std::vector<uint8>(LabyrinthColumns));
@@ -201,12 +202,13 @@ bool ANetworkController::DeSerializeLabyrinth(FString LabyrinthString, ULabyrint
 		return false;
 	}
 
-	for(int i = 0; i < std::size(LabyrinthDto->LabyrinthStructure); i++)
+	for (int i = 0; i < std::size(LabyrinthDto->LabyrinthStructure); i++)
 	{
-		for(int j = 0; j < 10; j++)
+		for (int j = 0; j < std::size(LabyrinthDto->LabyrinthStructure[0]); j++)
 		{
-			UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("%d "), LabyrinthDto->LabyrinthStructure[i][j]);
+			UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("%d "), LabyrinthDto->LabyrinthStructure[i][j]);
 		}
+		UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("\n "));
 	}
 	return true;
 }

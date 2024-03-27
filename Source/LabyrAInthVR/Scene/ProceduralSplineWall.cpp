@@ -72,7 +72,7 @@ void AProceduralSplineWall::ClearSplinePoints()
 bool AProceduralSplineWall::GetBackwardNeighbor(FVector& Location, ETravellingDirection TravellingDirection)
 {
 	if (SplineComponent == nullptr) return false;
-	int32 TotalPoints = SplineComponent->GetNumberOfSplinePoints();
+	const int32 TotalPoints = SplineComponent->GetNumberOfSplinePoints();
 	FVector BackwardOffset;
 
 	switch (TravellingDirection)
@@ -89,9 +89,9 @@ bool AProceduralSplineWall::GetBackwardNeighbor(FVector& Location, ETravellingDi
 
 	for (int i = 0; i < TotalPoints; i++)
 	{
-		FTransform SplinePointTrasform = SplineComponent->GetTransformAtSplinePoint(i, ESplineCoordinateSpace::World);
+		FTransform SplinePointTransform = SplineComponent->GetTransformAtSplinePoint(i, ESplineCoordinateSpace::World);
 		FVector OffsetLocation = Location + BackwardOffset;
-		if (SplinePointTrasform.GetLocation() == OffsetLocation) return true;
+		if (SplinePointTransform.GetLocation() == OffsetLocation) return true;
 	}
 	return false;
 }
