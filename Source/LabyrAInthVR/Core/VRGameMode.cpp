@@ -84,6 +84,8 @@ void AVRGameMode::BeginPlay()
 
 	// create a LabyrinthDTO
 	LabyrinthDTO = NewObject<ULabyrinthDTO>();
+	LabyrinthDTO->Level = 1;
+	LabyrinthDTO->LabyrinthStructure.resize(10, std::vector<uint8>(10, 0));
 	if (!IsValid(LabyrinthDTO))
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of LabyrinthDTO"));
