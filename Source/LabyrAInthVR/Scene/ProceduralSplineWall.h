@@ -35,6 +35,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "SplineMesh")
 	void EditPillarLook(uint8 PillarType, FVector RGB, float PillarAge);
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "SplineMesh")
+	void SetCollision(bool bCollisionEnabled);
+
 	void AddSplinePoint(FVector& Location);
 	void AddSplinePointAtIndex(FVector& Location, int32 Index);
 	void ClearSplinePoints();

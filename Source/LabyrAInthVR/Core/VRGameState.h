@@ -9,12 +9,12 @@
 UENUM(BlueprintType)
 enum class EGameState : uint8
 {
-	InMainMenu          = 0 UMETA(DisplayName = "In Main Menu"),
-	WaitingForLabyrinth = 1 UMETA(DisplayName = "Waiting For Labyrinth"),
-	Playing             = 2 UMETA(DisplayName = "Playing"),
-	Pausing             = 3 UMETA(DisplayName = "Pausing"),
-	Restarting          = 4 UMETA(DisplayName = "Restarting"),
-	Closing             = 5 UMETA(DisplayName = "Closing")
+	Egs_InMainMenu           = 0 UMETA(DisplayName = "In Main Menu"),
+	Egs_WaitingForLabyrinth  = 1 UMETA(DisplayName = "Waiting For Labyrinth"),
+	Egs_Playing              = 2 UMETA(DisplayName = "Playing"),
+	Egs_Pausing              = 3 UMETA(DisplayName = "Pausing"),
+	Egs_Restarting           = 4 UMETA(DisplayName = "Restarting"),
+	Egs_Closing              = 5 UMETA(DisplayName = "Closing")
 };
 
 /**
