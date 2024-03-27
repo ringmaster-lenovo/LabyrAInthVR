@@ -101,7 +101,7 @@ public:
 
 	FString ChooseEnemiesSpawnPoints(const int NumOfEnemiesToSpawn);
 	
-	FString ChooseRandomSpawnLocation(int NumOfActorsToSpawn, TSet<int>& ActorsSpawnLocations,  TArray<int>& PotentialLocations, uint8 ConventionalValueInTheMatrix);
+	FString ChooseRandomSpawnLocation(int NumOfActorsToSpawn, TSet<int>& ActorsSpawnLocations,  TArray<int>& PotentialLocations, uint8 ConventionalValueInTheMatrix) const;
 
 	FString SpawnActors(const TSet<int>& SpawnLocations, const TMap<TSubclassOf<AActor>, int>& ActorsToSpawn);
 };

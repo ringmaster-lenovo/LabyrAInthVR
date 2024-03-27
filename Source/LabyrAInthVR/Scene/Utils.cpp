@@ -2,7 +2,6 @@
 
 #include "Utils.h"
 #include "Config.h"
-#include "SceneController.h"
 
 /**
  * Convert the row and column to an index

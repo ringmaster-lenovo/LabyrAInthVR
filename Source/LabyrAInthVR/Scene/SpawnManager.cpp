@@ -11,6 +11,7 @@ ASpawnManager::ASpawnManager()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	LabyrinthDTO = nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -167,7 +168,7 @@ FString ASpawnManager::ChooseEnemiesSpawnPoints(const int NumOfeEnemiesToSpawn)
 	return "";
 }
 
-FString ASpawnManager::ChooseRandomSpawnLocation(const int NumOfActorsToSpawn, TSet<int>& ActorsSpawnLocations, TArray<int>& PotentialLocations, const uint8 ConventionalValueInTheMatrix)
+FString ASpawnManager::ChooseRandomSpawnLocation(const int NumOfActorsToSpawn, TSet<int>& ActorsSpawnLocations, TArray<int>& PotentialLocations, const uint8 ConventionalValueInTheMatrix) const
 {
 	if (NumOfActorsToSpawn > PotentialLocations.Num()) return "No free location to spawn actors";
 	if (ConventionalValueInTheMatrix <= 3) return "Invalid conventional value in the matrix";

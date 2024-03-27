@@ -10,36 +10,38 @@ class ALabyrinthParser;
 class UPawnSensingComponent;
 class AAIController;
 
+DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Enemy_Log, Display, All);
+
 UENUM()
 enum EEnemyState : uint8
 {
-	EES_WaitingForNav UMETA(DisplayName = "Waiting for Nav Mesh"),
-	EES_Idle UMETA(DisplayName = "Idle"),
-	EES_Patrolling UMETA(DisplayName = "Patrolling"),
-	EES_Chasing UMETA(DisplayName = "Chasing"),
-	EES_Hold UMETA(DisplayName = "Hold"),
-	EES_Attacking UMETA(DisplayName = "Attacking"),
-	EES_Dead UMETA(DisplayName = "Dead")
+	Ees_WaitingForNav UMETA(DisplayName = "Waiting for Nav Mesh"),
+	Ees_Idle UMETA(DisplayName = "Idle"),
+	Ees_Patrolling UMETA(DisplayName = "Patrolling"),
+	Ees_Chasing UMETA(DisplayName = "Chasing"),
+	Ees_Hold UMETA(DisplayName = "Hold"),
+	Ees_Attacking UMETA(DisplayName = "Attacking"),
+	Ees_Dead UMETA(DisplayName = "Dead")
 };
 
 UENUM()
 enum EEnemyDirection
 {
-	EED_None UMETA(DisplayName = "None"),
-	EED_Left UMETA(DisplayName = "Left"),
-	EED_Right UMETA(DisplayName = "Right"),
-	EED_Up UMETA(DisplayName = "Up"),
-	EED_Down UMETA(DisplayName = "Down"),
-	EED_Diagonal UMETA(DisplayName = "Diagonal")
+	Eed_None UMETA(DisplayName = "None"),
+	Eed_Left UMETA(DisplayName = "Left"),
+	Eed_Right UMETA(DisplayName = "Right"),
+	Eed_Up UMETA(DisplayName = "Up"),
+	Eed_Down UMETA(DisplayName = "Down"),
+	Eed_Diagonal UMETA(DisplayName = "Diagonal")
 };
 
 UENUM()
 enum EEnemyDiagonalDirection
 {
-	EEDD_UpperRight UMETA(DisplayName = "Upper right"),
-	EEDD_UpperLeft UMETA(DisplayName = "Upper left"),
-	EEDD_LowerRight UMETA(DisplayName = "Lower right"),
-	EEDD_LowerLeft UMETA(DisplayName = "Lower left"),
+	Eedd_UpperRight UMETA(DisplayName = "Upper right"),
+	Eedd_UpperLeft UMETA(DisplayName = "Upper left"),
+	Eedd_LowerRight UMETA(DisplayName = "Lower right"),
+	Eedd_LowerLeft UMETA(DisplayName = "Lower left"),
 };
 
 USTRUCT()
@@ -64,7 +66,7 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	void SetMatrixPosition(uint8 Row, uint8 Column);
-	float GetSpeed();
+	float GetSpeed() const;
 
 private:
 	UPROPERTY()
@@ -121,7 +123,7 @@ private:
 	bool bRotated{false};
 	bool bCanAttack{true};
 	FVector End{};
-	EEnemyState EnemyState{EEnemyState::EES_WaitingForNav};
+	EEnemyState EnemyState{EEnemyState::Ees_WaitingForNav};
 	FTimerHandle PatrollingTimerHandle;
 	FTimerHandle AttackingTimerHandle;
 
@@ -180,5 +182,5 @@ private:
 
 	void PlayMontage(UAnimMontage* MontageToPlay);
 	
-	EEnemyDirection LastKnownDirection{EED_None};
+	EEnemyDirection LastKnownDirection{Eed_None};
 };
