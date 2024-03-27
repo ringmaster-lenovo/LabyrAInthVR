@@ -437,7 +437,8 @@ void ALabyrinthParser::TravelHorizontal(uint8 RowIndex, uint8 FinalColumnIndex,
 			XOffset += WallSettings::WallOffset;
 			continue;
 		}
-		else if (!HasFrontNeighbor(RowIndex, j, TravellingDirection) && Neighbor == nullptr || (UnparsedLabyrinthMatrix[RowIndex][j] != 1))
+
+		if (!HasFrontNeighbor(RowIndex, j, TravellingDirection) && Neighbor == nullptr || (UnparsedLabyrinthMatrix[RowIndex][j] != 1))
 		{
 			XOffset += WallSettings::WallOffset;
 			continue;
@@ -562,10 +563,10 @@ bool ALabyrinthParser::HasFrontNeighbor(uint8 Row, uint8 Column, ETravellingDire
 	{
 	case ETravellingDirection::Etd_Vertical:
 		if (Row == std::size(UnparsedLabyrinthMatrix) - 1) return false;
-		return UnparsedLabyrinthMatrix[Row + 1][Column] != 0;
+		return UnparsedLabyrinthMatrix[Row + 1][Column] == 1;
 	case ETravellingDirection::Etd_Horizontal:
 		if (Column == (std::size(UnparsedLabyrinthMatrix[0]) - 1)) return false;
-		return UnparsedLabyrinthMatrix[Row][Column + 1] != 0;
+		return UnparsedLabyrinthMatrix[Row][Column + 1] == 1;
 	case ETravellingDirection::Etd_Flat:
 		break;
 	default: ;
@@ -811,9 +812,9 @@ void ALabyrinthParser::SpawnPillarAtIntersection(uint8 RowIndex, uint8 ColumnInd
 	// If there is a 1 in each direction then we should spawn a pillar
 	if (RowIndex > 0 && RowIndex < (std::size(UnparsedLabyrinthMatrix) - 1)
 		&& ColumnIndex > 0 && ColumnIndex < (std::size(UnparsedLabyrinthMatrix[RowIndex]) - 1) &&
-		UnparsedLabyrinthMatrix[RowIndex - 1][ColumnIndex] && UnparsedLabyrinthMatrix[RowIndex + 1][ColumnIndex] &&
-		UnparsedLabyrinthMatrix[RowIndex][ColumnIndex + 1]
-		&& UnparsedLabyrinthMatrix[RowIndex][ColumnIndex - 1])
+		UnparsedLabyrinthMatrix[RowIndex - 1][ColumnIndex] == 1 && UnparsedLabyrinthMatrix[RowIndex + 1][ColumnIndex] == 1 &&
+		UnparsedLabyrinthMatrix[RowIndex][ColumnIndex + 1] == 1
+		&& UnparsedLabyrinthMatrix[RowIndex][ColumnIndex - 1] == 1)
 		SpawnWall(SpawnLocation, TravellingDirection, UnparsedLabyrinthMatrix[RowIndex][ColumnIndex]);
 }
 
@@ -825,11 +826,11 @@ void ALabyrinthParser::SpawnFlatSurface(bool bFloor)
 
 	FVector End{std::size(UnparsedLabyrinthMatrix[0]) * WallSettings::WallOffset, 0.f, 0.f};
 
-	End += FVector{bFloor ? WallSettings::FloorOffset : WallSettings::CeilingOffset, 0.f, 0.f};
+	End += FVector{(bFloor ? WallSettings::FloorOffset : WallSettings::CeilingOffset) - WallSettings::WallOffset, 0.f, 0.f};
 
 	FVector VerticalEnd = {0.f, std::size(UnparsedLabyrinthMatrix) * WallSettings::WallOffset, 0.f};
 
-	VerticalEnd += FVector{0.f, (bFloor ? WallSettings::FloorOffset : WallSettings::CeilingOffset) * 2, 0.f};
+	VerticalEnd += FVector{0.f, (bFloor ? WallSettings::FloorOffset : WallSettings::CeilingOffset) * 2 - WallSettings::WallOffset, 0.f};
 
 	AProceduralSplineWall* FlatWall = SpawnWall(Start, ETravellingDirection::Etd_Flat, ChosenOuterWallMaterial);
 
