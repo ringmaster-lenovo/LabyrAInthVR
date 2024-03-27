@@ -7,7 +7,10 @@
 		{
 			"Name": "LabyrAInth",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
 		}
 	],
 	"Plugins": [
@@ -22,6 +25,11 @@
 			"Name": "FPSCore",
 			"Enabled": true,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/1e2dd9aadb6f46db9a42a201177d4cdd"
+		},
+		{
+			"Name": "PlayerStatistics",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/d7f729d535a04754b0c6b3e02f337d24"
 		}
 	]
 }
