@@ -44,3 +44,16 @@ namespace WallSettings
 		{249.f, 220.f, 196.f}
 	};
 }
+
+namespace EnemySettings
+{
+	constexpr inline float SpawnHeight {125.f};
+	constexpr inline float TraceLength {50'000.f};
+	constexpr inline float TurnAtIntersecProbability {0.4f };
+	constexpr inline float TurnAtDiagonalProbability {0.4f };
+}
+
+namespace Misc
+{
+	constexpr inline float FacingEnemyDegrees {90.f };
+}

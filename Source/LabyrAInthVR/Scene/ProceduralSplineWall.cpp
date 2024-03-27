@@ -45,6 +45,10 @@ void AProceduralSplineWall::EditPillarLook_Implementation(uint8 PillarType, FVec
 {
 }
 
+void AProceduralSplineWall::SetCollision_Implementation(bool bCollisionEnabled)
+{
+}
+
 void AProceduralSplineWall::AddSplinePoint(FVector& Location)
 {
 	if (SplineComponent == nullptr) return;

@@ -32,23 +32,23 @@ AVRGameMode::AVRGameMode()
 void AVRGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	// Store references to the default player controller and pawn
 	PlayerController = Cast<AVRPlayerController>(GetWorld()->GetFirstPlayerController());
-	
+
 	Pawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 
 	// Spawn and set up network manager
 	NetworkController = GetWorld()->SpawnActor<ANetworkController>();
-    
+
 	// Spawn and set up game state
 	// VRGameStateClass = GetWorld()->SpawnActor<AVRGameState>();
 	VRGameState = GetWorld()->GetGameState<AVRGameState>();
 	GameState = VRGameState;
-    
+
 	// Spawn and set up widget controller
 	WidgetController = GetWorld()->SpawnActor<AWidgetController>();
-	
+
 	// Spawn and set up scene controller
 	SceneController = GetWorld()->SpawnActor<ASceneController>();
 
@@ -70,7 +70,7 @@ void AVRGameMode::OnNewGameButtonClicked()
 {
 	// Set up the game to be in Waiting For Labyrinth state
 	VRGameState->SetStateOfTheGame(EGameState::WaitingForLabyrinth);
-	
+
 	WidgetController->ShowLoadingScreen();
 	NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
 	const FString ErrorMessage = NetworkController->GetLabyrinthFromBE(LabyrinthDTO);
@@ -84,7 +84,8 @@ void AVRGameMode::OnNewGameButtonClicked()
 void AVRGameMode::PrepareGame()
 {
 	SceneController->OnSceneReady.AddUObject(this, &AVRGameMode::StartGame);
-	const FString ErrorMessage = SceneController->SetupLevel(LabyrinthDTO);
+	FString ErrorMessage = SceneController->SetupLevel(LabyrinthDTO);
+
 	if (ErrorMessage != "")
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Scene error: %s"), *ErrorMessage);

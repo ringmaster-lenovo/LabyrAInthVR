@@ -6,6 +6,7 @@
 #include "SceneController.generated.h"
 
 
+class ANavMeshBoundsVolume;
 DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Scene_Log, Display, All);
 
 UCLASS()
@@ -23,7 +24,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(Category = "Scene")
-	FString SetupLevel(const ULabyrinthDTO* LabyrinthDTO) const;
+	FString SetupLevel(const ULabyrinthDTO* LabyrinthDTO);
 
 	DECLARE_MULTICAST_DELEGATE(FSceneReadyEvent);
 	FSceneReadyEvent OnSceneReady;
@@ -73,4 +74,17 @@ private:
 		{1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1},
 		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1}
 	};
+
+	UPROPERTY()
+	ANavMeshBoundsVolume* NavMeshBoundsVolume;
+	
+	UFUNCTION()
+	void UpdateNavMeshBoundsPosition();
+
+	UPROPERTY(EditAnywhere)
+	float NavMeshDelayTimer{0.25f};
+	
+	FTimerHandle NavMeshBoundsTimerHandle;
+
+	void UpdateNavMeshBoundsVolume(const ULabyrinthDTO* LabyrinthDto);
 };
