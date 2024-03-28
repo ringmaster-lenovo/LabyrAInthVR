@@ -1,26 +1,38 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "SceneController.h"
 
+#include "LabyrinthParser.h"
+#include "NavigationSystem.h"
+#include "Kismet/GameplayStatics.h"
 
-#include "SceneController.h"
-
-
-// Sets default values
 ASceneController::ASceneController()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 }
 
-// Called when the game starts or when spawned
 void ASceneController::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-// Called every frame
 void ASceneController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
+FString ASceneController::SetupLevel(const ULabyrinthDTO* LabyrinthDTO) const
+{
+	if (!IsValid(Cast<UObject>(LabyrinthDTO))) return "Invalid LabyrinthDTO";
+
+	ALabyrinthParser* LabyrinthParser = Cast<ALabyrinthParser>(
+		UGameplayStatics::GetActorOfClass(this, ALabyrinthParser::StaticClass()));
+
+	if (!IsValid(LabyrinthParser)) return "Invalid LabyrinthParser";
+
+	if (LabyrinthParser->BuildLabyrinth(LabyrinthDTO->LabyrinthStructure))
+	{
+		OnSceneReady.Broadcast();
+		return "";
+	}
+		
+	return "Cannot Build Labyrinth";
+}

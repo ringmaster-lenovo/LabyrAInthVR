@@ -2,7 +2,12 @@
 
 
 #include "VRGameMode.h"
+
+#include "LabyrAInthVRGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Network/LabyrinthDTO.h"
+
+DEFINE_LOG_CATEGORY(LabyrAInthVR_Core_Log);
 
 AVRGameMode::AVRGameMode()
 {
@@ -47,6 +52,9 @@ void AVRGameMode::BeginPlay()
 	// Spawn and set up scene controller
 	SceneController = GetWorld()->SpawnActor<ASceneController>();
 
+	// create a LabyrinthDTO
+	LabyrinthDTO = NewObject<ULabyrinthDTO>();
+
 	MainMenuLogicHandler();
 }
 
@@ -65,17 +73,22 @@ void AVRGameMode::OnNewGameButtonClicked()
 	
 	WidgetController->ShowLoadingScreen();
 	NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
-	NetworkController->GetLabyrinthFromGPT(LabyrinthDTO);
+	const FString ErrorMessage = NetworkController->GetLabyrinthFromBE(LabyrinthDTO);
+	if (ErrorMessage != "")
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Falat Network Error: %s"), *ErrorMessage);
+		throw ErrorMessage;
+	}
 }
 
 void AVRGameMode::PrepareGame()
 {
 	SceneController->OnSceneReady.AddUObject(this, &AVRGameMode::StartGame);
-	const bool Result = SceneController->SetupLevel(LabyrinthDTO);
-	if (!Result)
+	const FString ErrorMessage = SceneController->SetupLevel(LabyrinthDTO);
+	if (ErrorMessage != "")
 	{
-		UE_LOG(LogTemp, Error, TEXT("Error setting up level"));
-		throw "Error setting up level";
+		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Scene error: %s"), *ErrorMessage);
+		throw ErrorMessage;
 	}
 }
 
