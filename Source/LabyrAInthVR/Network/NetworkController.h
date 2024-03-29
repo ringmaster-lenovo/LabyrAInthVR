@@ -20,12 +20,7 @@ public:
 	ANetworkController();
 
 	UFUNCTION(Category = "Network")
-	FString GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
-	{
-		// TODO: get the labyrinth from ChatGPT and fill the LabyrinthDTO
-		OnLabyrinthReceived.Broadcast();
-		return "";  // return false if anything goes wrong
-	};
+	void GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO);
 	
 	DECLARE_MULTICAST_DELEGATE(FLabyrinthReceivedEvent);
 	FLabyrinthReceivedEvent OnLabyrinthReceived;
@@ -33,4 +28,12 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+private:
+
+	FString BaseURL = "https://localhost:8080";
+
+	FString SerializeLabyrinth(ULabyrinthDTO* LabyrinthDTO);
+
+	bool DeSerializeLabyrinth(FString LabyrinthString, ULabyrinthDTO* LabyrinthDto);
 };

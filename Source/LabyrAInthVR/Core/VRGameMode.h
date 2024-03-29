@@ -45,6 +45,9 @@ private:
 	UPROPERTY()
 	AVRGameState* VRGameState;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Game Mode")
+	TSubclassOf<ASceneController> SceneController_BP;
+
 	UPROPERTY()
 	ASceneController* SceneController;
 
