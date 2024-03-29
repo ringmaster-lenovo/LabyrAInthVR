@@ -5,6 +5,7 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "BaseEnemy.generated.h"
 
+class ULabyrinthDTO;
 class UBoxComponent;
 class ALabyrinthParser;
 class UPawnSensingComponent;
@@ -71,7 +72,7 @@ private:
 	AAIController* AIController;
 
 	UPROPERTY()
-	ALabyrinthParser* LabyrinthParser;
+	ULabyrinthDTO* LabyrinthDTO;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true), Category=PawnSensing)
 	UPawnSensingComponent* PawnSensingComponent;
@@ -181,4 +182,23 @@ private:
 	void PlayMontage(UAnimMontage* MontageToPlay);
 	
 	EEnemyDirection LastKnownDirection{EED_None};
+
+	EEnemyDirection GetIntersecDirection(TArray<EEnemyDirection>& EnemyDirections,
+													   EEnemyDirection EnemyDirection);
+	EEnemyDirection GetOppositeDirection(EEnemyDirection EnemyDirection);
+	void ChooseNextDirection(TArray<EEnemyDirection>& EnemyDirections, EEnemyDirection& NextDirection,
+										   EEnemyDirection PreviousDirection, uint8 MinIndex, uint8 MaxIndex);
+	void FillFreeDirections(uint8 Row, uint8 Column, TArray<EEnemyDirection>& FreeEnemyDirections);
+	FVector GetNextDestination(uint8& Row, uint8& Column, EEnemyDirection& LastDirection);
+	void FillDiagonalMatrix(uint8 Row, uint8 Column,
+										  TArray<EEnemyDiagonalDirection>& EnemyDiagonalDirections);
+	void FillDiagonalIndexes(uint8& Row, uint8& Column);
+	void FillExitIndexes(uint8& Row, uint8& Column, EEnemyDirection EnemyDirection);
+	bool CheckForExit(uint8 Row, uint8 Column, EEnemyDirection EnemyDirection);
+	bool IsInRoom(uint8 Row, uint8 Column, const TArray<EEnemyDirection>& FreeEnemyDirections);
+	bool IsDiagonal(uint8 Row, uint8 Column) const;
+	bool IsIntersection(uint8 Row, uint8 Column) const;
+	
+public:
+	FORCEINLINE void SetLabyrinthMatrix(ULabyrinthDTO* LabyrinthDTOReference) {LabyrinthDTO = LabyrinthDTOReference; }
 };

@@ -29,16 +29,6 @@ FString ALabyrinthParser::BuildLabyrinth(ULabyrinthDTO* LabyrinthDTOReference, A
 	const uint8 Columns = std::size(LabyrinthDTO->LabyrinthStructure[0]);
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Columns: %d"), Columns);
 
-	UnparsedLabyrinthMatrix.resize(Rows, std::vector<uint8>(Columns));
-
-	for (uint8 i = 0; i < Rows; i++)
-	{
-		for (uint8 j = 0; j < Columns; j++)
-		{
-			UnparsedLabyrinthMatrix[i][j] = LabyrinthDTO->LabyrinthStructure[i][j];
-		}
-	}
-
 	WallSettings::LabyrinthWidth = Columns;
 
 	SpawnManager = SpawnManagerReference;
@@ -50,239 +40,6 @@ void ALabyrinthParser::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	Timer += DeltaTime;
-}
-
-FVector ALabyrinthParser::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirection& LastDirection)
-{
-	EEnemyDirection ChosenDirection{EED_None};
-	TArray<EEnemyDirection> FreeEnemyDirections{};
-	bool bIsInRoom{false};
-	// Get all free roaming directions
-	FillFreeDirections(Row, Column, FreeEnemyDirections);
-	bIsInRoom = IsInRoom(Row, Column, FreeEnemyDirections);
-	// Check if is in room
-	if (bIsInRoom)
-	{
-		FreeEnemyDirections.Remove(EED_Diagonal);
-		UE_LOG(LogTemp, Error, TEXT("The enemy is standing at the start of a room"))
-	}
-
-	// Pick direction based on the last known direction
-	switch (LastDirection)
-	{
-	case EED_None:
-		ChosenDirection = FreeEnemyDirections.Num() > 0
-			                  ? FreeEnemyDirections[FMath::RandRange(0, FreeEnemyDirections.Num() - 1)]
-			                  : EED_None;
-		break;
-	case EED_Left:
-	case EED_Right:
-		ChooseNextDirection(FreeEnemyDirections, ChosenDirection, LastDirection, 2, FreeEnemyDirections.Num() - 1);
-		break;
-	case EED_Down:
-	case EED_Up:
-		ChooseNextDirection(FreeEnemyDirections, ChosenDirection, LastDirection, 0, 1);
-		break;
-	case EED_Diagonal:
-		ChooseNextDirection(FreeEnemyDirections, ChosenDirection, LastDirection, 0, FreeEnemyDirections.Num() - 1);
-	default: ;
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Chosen direction: %s"), *UEnum::GetValueAsString(ChosenDirection))
-
-	// Find the (X,Y) for the chosen direction, stop at intersections
-	uint8 TravellingRow{Row};
-	uint8 TravellingColumn{Column};
-
-	UE_LOG(LogTemp, Warning, TEXT("Current enemy indexes: %d %d"), TravellingRow, TravellingColumn)
-
-	switch (ChosenDirection)
-	{
-	case EED_None:
-		break;
-	case EED_Left:
-		while (TravellingColumn - 1 >= 0 && UnparsedLabyrinthMatrix[TravellingRow][TravellingColumn - 1] == 0)
-		{
-			if (bIsInRoom && CheckForExit(TravellingRow, TravellingColumn, ChosenDirection))
-			{
-				UE_LOG(LogTemp, Error, TEXT("Found exit!"));
-				FillExitIndexes(TravellingRow, TravellingColumn, ChosenDirection);
-				break;
-			}
-			--TravellingColumn;
-			if (IsIntersection(TravellingRow, TravellingColumn) && !bIsInRoom) break;
-		}
-		break;
-	case EED_Right:
-		while (TravellingColumn + 1 < std::size(UnparsedLabyrinthMatrix[TravellingRow]) && UnparsedLabyrinthMatrix[
-			TravellingRow][TravellingColumn + 1] == 0)
-		{
-			if (bIsInRoom && CheckForExit(TravellingRow, TravellingColumn, ChosenDirection))
-			{
-				UE_LOG(LogTemp, Error, TEXT("Found exit!"));
-				FillExitIndexes(TravellingRow, TravellingColumn, ChosenDirection);
-				break;
-			}
-			++TravellingColumn;
-			if (IsIntersection(TravellingRow, TravellingColumn) && !bIsInRoom) break;
-		}
-		break;
-	case EED_Up:
-		while (TravellingRow - 1 >= 0 && UnparsedLabyrinthMatrix[TravellingRow - 1][TravellingColumn] == 0)
-		{
-			if (bIsInRoom && CheckForExit(TravellingRow, TravellingColumn, ChosenDirection))
-			{
-				UE_LOG(LogTemp, Error, TEXT("Found exit!"));
-				FillExitIndexes(TravellingRow, TravellingColumn, ChosenDirection);
-				break;
-			}
-			--TravellingRow;
-			if (IsIntersection(TravellingRow, TravellingColumn) && !bIsInRoom) break;
-		}
-		break;
-	case EED_Down:
-		while (TravellingRow + 1 < std::size(UnparsedLabyrinthMatrix) && UnparsedLabyrinthMatrix[TravellingRow + 1][
-			TravellingColumn] == 0)
-		{
-			if (bIsInRoom && CheckForExit(TravellingRow, TravellingColumn, ChosenDirection))
-			{
-				UE_LOG(LogTemp, Error, TEXT("Found exit!"));
-				FillExitIndexes(TravellingRow, TravellingColumn, ChosenDirection);
-				break;
-			}
-			++TravellingRow;
-			if (IsIntersection(TravellingRow, TravellingColumn) && !bIsInRoom) break;
-		}
-		break;
-	case EED_Diagonal:
-		FillDiagonalIndexes(TravellingRow, TravellingColumn);
-		break;
-	default: ;
-	}
-
-	const FVector Destination{
-		WallSettings::WallOffset * TravellingColumn, WallSettings::WallOffset * TravellingRow, 0.f
-	};
-
-	DrawDebugSphere(GetWorld(), Destination, 20.f, 10, FColor::Red, true);
-	UE_LOG(LogTemp, Warning, TEXT("Post enemy indexes: %d %d"), TravellingRow, TravellingColumn)
-	// Update enemy values by ref
-	LastDirection = ChosenDirection;
-	Row = TravellingRow;
-	Column = TravellingColumn;
-
-	return Destination;
-}
-
-void ALabyrinthParser::FillFreeDirections(uint8 Row, uint8 Column, TArray<EEnemyDirection>& FreeEnemyDirections)
-{
-	if (Column - 1 >= 0 && UnparsedLabyrinthMatrix[Row][Column - 1] == 0)
-		FreeEnemyDirections.Add(
-			EEnemyDirection::EED_Left);
-	if (Column + 1 < std::size(UnparsedLabyrinthMatrix[Row]) && UnparsedLabyrinthMatrix[Row][Column + 1] == 0)
-		FreeEnemyDirections.Add(EEnemyDirection::EED_Right);
-	if (Row + 1 < std::size(UnparsedLabyrinthMatrix) && UnparsedLabyrinthMatrix[Row + 1][Column] == 0)
-		FreeEnemyDirections.Add(EEnemyDirection::EED_Down);
-	if (Row - 1 >= 0 && UnparsedLabyrinthMatrix[Row - 1][Column] == 0) FreeEnemyDirections.Add(EEnemyDirection::EED_Up);
-
-
-	const bool bDiagonal = IsDiagonal(Row, Column);
-	UE_LOG(LogTemp, Warning, TEXT("Diagonal presence: %s"), bDiagonal ? *FString("True") : *FString("False"))
-
-	if (bDiagonal) FreeEnemyDirections.Add(EEnemyDirection::EED_Diagonal);
-}
-
-void ALabyrinthParser::ChooseNextDirection(TArray<EEnemyDirection>& EnemyDirections, EEnemyDirection& NextDirection,
-                                           EEnemyDirection PreviousDirection, uint8 MinIndex, uint8 MaxIndex)
-{
-	const float SwitchAtIntersecValue = FMath::RandRange(0.f, 1.f);
-	const float SwitchToDiagonalValue = FMath::RandRange(0.f, 1.f);
-
-	for (const auto& RandomDirection : EnemyDirections)
-		UE_LOG(LogTemp, Warning, TEXT("Free direction: %s"), *UEnum::GetValueAsString(RandomDirection))
-
-	UE_LOG(LogTemp, Warning, TEXT("Previous direction: %s"), *UEnum::GetValueAsString(PreviousDirection))
-	// Pick diagonal first
-	if (EnemyDirections.Contains(EED_Diagonal) && SwitchToDiagonalValue < EnemySettings::TurnAtDiagonalProbability &&
-		PreviousDirection != EED_Diagonal)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Switching to diagonal: %f < %f"), SwitchToDiagonalValue,
-		       EnemySettings::TurnAtDiagonalProbability)
-		NextDirection = EED_Diagonal;
-		return;
-	}
-
-	if (EnemyDirections.Num() > 1) EnemyDirections.Remove(EED_Diagonal);
-
-	// No free directions, we're stuck 
-	if (EnemyDirections.Num() <= 0)
-	{
-		NextDirection = EED_None;
-		return;
-	}
-
-	// Blind spot, only way is to go back
-	if (EnemyDirections.Num() == 1)
-	{
-		NextDirection = EnemyDirections[0];
-		return;
-	}
-
-	// It means that I stopped in a corner
-	if (EnemyDirections.Num() >= 2 || SwitchAtIntersecValue < EnemySettings::TurnAtIntersecProbability ||
-		PreviousDirection == EED_Diagonal)
-	{
-		NextDirection = GetIntersecDirection(EnemyDirections, PreviousDirection);
-		return;
-	}
-
-	NextDirection = PreviousDirection;
-}
-
-EEnemyDirection ALabyrinthParser::GetOppositeDirection(EEnemyDirection EnemyDirection)
-{
-	switch (EnemyDirection)
-	{
-	case EED_None:
-		break;
-	case EED_Left:
-		return EED_Right;
-	case EED_Right:
-		return EED_Left;
-	case EED_Up:
-		return EED_Down;
-	case EED_Down:
-		return EED_Up;
-	case EED_Diagonal:
-		return EED_Diagonal;
-	default: ;
-	}
-
-	return EED_None;
-}
-
-EEnemyDirection ALabyrinthParser::GetIntersecDirection(TArray<EEnemyDirection>& EnemyDirections,
-                                                       EEnemyDirection EnemyDirection)
-{
-	switch (EnemyDirection)
-	{
-	case EED_None:
-		break;
-	case EED_Left:
-	case EED_Right:
-		if (EnemyDirections.Contains(EED_Up)) return EED_Up;
-		if (EnemyDirections.Contains(EED_Down)) return EED_Down;
-		break;
-	case EED_Up:
-	case EED_Down:
-		if (EnemyDirections.Contains(EED_Right)) return EED_Right;
-		if (EnemyDirections.Contains(EED_Left)) return EED_Left;
-		break;
-	case EED_Diagonal:
-		return EnemyDirections[FMath::RandRange(0, EnemyDirections.Num() - 1)];
-	default: ;
-	}
-	return EED_None;
 }
 
 void ALabyrinthParser::BuildLabyrinthInternal()
@@ -297,9 +54,9 @@ void ALabyrinthParser::BuildLabyrinthInternal()
 	float Offset = 0.f;
 
 	// Add horizontal splines
-	for (uint8 i = 0; i < std::size(UnparsedLabyrinthMatrix); i++)
+	for (uint8 i = 0; i < std::size(LabyrinthDTO->LabyrinthStructure); i++)
 	{
-		TravelHorizontal(i, std::size(UnparsedLabyrinthMatrix[0]), ETravellingDirection::Etd_Horizontal, 0.f,
+		TravelHorizontal(i, std::size(LabyrinthDTO->LabyrinthStructure[0]), ETravellingDirection::Etd_Horizontal, 0.f,
 		                 0.f + Offset);
 		Offset += WallSettings::WallOffset;
 	}
@@ -307,9 +64,9 @@ void ALabyrinthParser::BuildLabyrinthInternal()
 	Offset = 0.f;
 
 	// Add vertical splines
-	for (uint8 i = 0; i < std::size(UnparsedLabyrinthMatrix[0]); i++)
+	for (uint8 i = 0; i < std::size(LabyrinthDTO->LabyrinthStructure[0]); i++)
 	{
-		TravelVertical(i, std::size(UnparsedLabyrinthMatrix), ETravellingDirection::Etd_Vertical, 0.f + Offset, 0.f);
+		TravelVertical(i, std::size(LabyrinthDTO->LabyrinthStructure), ETravellingDirection::Etd_Vertical, 0.f + Offset, 0.f);
 		Offset += WallSettings::WallOffset;
 	}
 
@@ -375,10 +132,10 @@ void ALabyrinthParser::BuildLabyrinthInternal()
 	uint8 ColumnSelection{0};
 	while (!bEnemySpawnPointFound)
 	{
-		RowSelection = FMath::RandRange(0, std::size(UnparsedLabyrinthMatrix) - 1);
-		ColumnSelection = FMath::RandRange(0, std::size(UnparsedLabyrinthMatrix[0]) - 1);
+		RowSelection = FMath::RandRange(0, std::size(LabyrinthDTO->LabyrinthStructure) - 1);
+		ColumnSelection = FMath::RandRange(0, std::size(LabyrinthDTO->LabyrinthStructure[0]) - 1);
 
-		if (!UnparsedLabyrinthMatrix[RowSelection][ColumnSelection])
+		if (!LabyrinthDTO->LabyrinthStructure[RowSelection][ColumnSelection])
 		{
 			bEnemySpawnPointFound = true;
 			SpawnPoint = FVector{
@@ -395,6 +152,7 @@ void ALabyrinthParser::BuildLabyrinthInternal()
 
 	if (EnemyInstance == nullptr) return;
 
+	EnemyInstance->SetLabyrinthMatrix(LabyrinthDTO);
 	EnemyInstance->SetOwner(this);
 	EnemyInstance->SetMatrixPosition(RowSelection, ColumnSelection);
 	SpawnedEnemies.Add(EnemyInstance);
@@ -431,14 +189,14 @@ void ALabyrinthParser::TravelHorizontal(uint8 RowIndex, uint8 FinalColumnIndex,
 
 		AProceduralSplineWall* Neighbor = GetPossibleNeighborhood(SpawnLocation, TravellingDirection);
 
-		if (UnparsedLabyrinthMatrix[RowIndex][j] == 0)
+		if (LabyrinthDTO->LabyrinthStructure[RowIndex][j] == 0)
 		{
 			SpawnManager->FindPotentialSpawnLocations(LabyrinthDTO, RowIndex, j);
 			XOffset += WallSettings::WallOffset;
 			continue;
 		}
 
-		if (!HasFrontNeighbor(RowIndex, j, TravellingDirection) && Neighbor == nullptr || (UnparsedLabyrinthMatrix[RowIndex][j] != 1))
+		if (!HasFrontNeighbor(RowIndex, j, TravellingDirection) && Neighbor == nullptr || (LabyrinthDTO->LabyrinthStructure[RowIndex][j] != 1))
 		{
 			XOffset += WallSettings::WallOffset;
 			continue;
@@ -446,7 +204,7 @@ void ALabyrinthParser::TravelHorizontal(uint8 RowIndex, uint8 FinalColumnIndex,
 
 		if (Neighbor == nullptr)
 		{
-			uint8 WallType = (RowIndex == 0 || RowIndex == std::size(UnparsedLabyrinthMatrix) - 1)
+			uint8 WallType = (RowIndex == 0 || RowIndex == std::size(LabyrinthDTO->LabyrinthStructure) - 1)
 								 ? ChosenOuterWallMaterial
 								 : InsideWallMaterials[FMath::RandRange(0, InsideWallMaterials.Num() - 1)];
 
@@ -470,7 +228,7 @@ void ALabyrinthParser::TravelVertical(uint8 ColumnIndex, uint8 FinalRowIndex, ET
 
 		AProceduralSplineWall* Neighbor = GetPossibleNeighborhood(SpawnLocation, TravellingDirection);
 
-		if (UnparsedLabyrinthMatrix[i][ColumnIndex] == 0 || (!HasFrontNeighbor(i, ColumnIndex, TravellingDirection) &&
+		if (LabyrinthDTO->LabyrinthStructure[i][ColumnIndex] != 1 || (!HasFrontNeighbor(i, ColumnIndex, TravellingDirection) &&
 			Neighbor == nullptr))
 		{
 			YOffset += WallSettings::WallOffset;
@@ -479,7 +237,7 @@ void ALabyrinthParser::TravelVertical(uint8 ColumnIndex, uint8 FinalRowIndex, ET
 
 		if (Neighbor == nullptr)
 		{
-			uint8 WallType = WallType = (ColumnIndex == 0 || ColumnIndex == std::size(UnparsedLabyrinthMatrix[0]) - 1)
+			uint8 WallType = WallType = (ColumnIndex == 0 || ColumnIndex == std::size(LabyrinthDTO->LabyrinthStructure[0]) - 1)
 				                            ? ChosenOuterWallMaterial
 				                            : InsideWallMaterials[FMath::RandRange(0, InsideWallMaterials.Num() - 1)];
 
@@ -562,11 +320,11 @@ bool ALabyrinthParser::HasFrontNeighbor(uint8 Row, uint8 Column, ETravellingDire
 	switch (TravellingDirection)
 	{
 	case ETravellingDirection::Etd_Vertical:
-		if (Row == std::size(UnparsedLabyrinthMatrix) - 1) return false;
-		return UnparsedLabyrinthMatrix[Row + 1][Column] == 1;
+		if (Row == std::size(LabyrinthDTO->LabyrinthStructure) - 1) return false;
+		return LabyrinthDTO->LabyrinthStructure[Row + 1][Column] == 1;
 	case ETravellingDirection::Etd_Horizontal:
-		if (Column == (std::size(UnparsedLabyrinthMatrix[0]) - 1)) return false;
-		return UnparsedLabyrinthMatrix[Row][Column + 1] == 1;
+		if (Column == (std::size(LabyrinthDTO->LabyrinthStructure[0]) - 1)) return false;
+		return LabyrinthDTO->LabyrinthStructure[Row][Column + 1] == 1;
 	case ETravellingDirection::Etd_Flat:
 		break;
 	default: ;
@@ -575,247 +333,16 @@ bool ALabyrinthParser::HasFrontNeighbor(uint8 Row, uint8 Column, ETravellingDire
 	return false;
 }
 
-bool ALabyrinthParser::IsIntersection(uint8 Row, uint8 Column) const
-{
-	uint8 Counter{0};
-	if (Column + 1 < std::size(UnparsedLabyrinthMatrix[Row]) && UnparsedLabyrinthMatrix[Row][Column + 1] == 0)
-		Counter
-			++;
-	if (Column - 1 >= 0 && UnparsedLabyrinthMatrix[Row][Column - 1] == 0) Counter++;
-	if (Row + 1 < std::size(UnparsedLabyrinthMatrix) && UnparsedLabyrinthMatrix[Row + 1][Column] == 0) Counter++;
-	if (Row - 1 >= 0 && UnparsedLabyrinthMatrix[Row - 1][Column] == 0) Counter++;
-
-	return Counter > 2;
-}
-
-bool ALabyrinthParser::IsDiagonal(uint8 Row, uint8 Column) const
-{
-	if (Column - 1 >= 0 && Row - 1 >= 0 && UnparsedLabyrinthMatrix[Row - 1][Column - 1] == 0) return true;
-	if (Column + 1 < std::size(UnparsedLabyrinthMatrix[Row]) && Row - 1 >= 0 && UnparsedLabyrinthMatrix[Row - 1][Column
-		+ 1] == 0)
-		return true;
-	if (Column - 1 >= 0 && Row + 1 < std::size(UnparsedLabyrinthMatrix) && UnparsedLabyrinthMatrix[Row + 1][Column - 1]
-		== 0)
-		return true;
-	if (Column + 1 < std::size(UnparsedLabyrinthMatrix[Row]) && Row + 1 < std::size(UnparsedLabyrinthMatrix) &&
-		UnparsedLabyrinthMatrix[Row + 1][Column + 1] == 0)
-		return true;
-
-	return false;
-}
-
-bool ALabyrinthParser::IsInRoom(uint8 Row, uint8 Column, const TArray<EEnemyDirection>& FreeEnemyDirections)
-{
-	TArray<EEnemyDiagonalDirection> EnemyDiagonalDirections;
-	FillDiagonalMatrix(Row, Column, EnemyDiagonalDirections);
-
-	for (const auto& DiagonalDirection : EnemyDiagonalDirections)
-	{
-		switch (DiagonalDirection)
-		{
-		case EEDD_UpperRight:
-			if (FreeEnemyDirections.Contains(EED_Up) && FreeEnemyDirections.Contains(EED_Right)) return true;
-			break;
-		case EEDD_UpperLeft:
-			if (FreeEnemyDirections.Contains(EED_Up) && FreeEnemyDirections.Contains(EED_Left)) return true;
-			break;
-		case EEDD_LowerRight:
-			if (FreeEnemyDirections.Contains(EED_Down) && FreeEnemyDirections.Contains(EED_Right)) return true;
-			break;
-		case EEDD_LowerLeft:
-			if (FreeEnemyDirections.Contains(EED_Down) && FreeEnemyDirections.Contains(EED_Left)) return true;
-			break;
-		default: ;
-		}
-	}
-
-	return false;
-}
-
-bool ALabyrinthParser::CheckForExit(uint8 Row, uint8 Column, EEnemyDirection EnemyDirection)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Checking for exit in: %s Row: %d Column: %d"),
-	       *UEnum::GetValueAsString(EnemyDirection), Row, Column);
-	switch (EnemyDirection)
-	{
-	case EED_None:
-		break;
-	case EED_Left:
-		if (UnparsedLabyrinthMatrix[Row - 1][Column] == 1 && UnparsedLabyrinthMatrix[Row - 1][Column - 1] == 0)
-			return
-				true;
-		if (UnparsedLabyrinthMatrix[Row + 1][Column] == 1 && UnparsedLabyrinthMatrix[Row + 1][Column - 1] == 0)
-			return
-				true;
-		break;
-	case EED_Right:
-		if (UnparsedLabyrinthMatrix[Row - 1][Column] == 1 && UnparsedLabyrinthMatrix[Row - 1][Column + 1] == 0)
-			return
-				true;
-		if (UnparsedLabyrinthMatrix[Row + 1][Column] == 1 && UnparsedLabyrinthMatrix[Row + 1][Column + 1] == 0)
-			return
-				true;
-		break;
-	case EED_Up:
-		if (UnparsedLabyrinthMatrix[Row][Column + 1] == 1 && UnparsedLabyrinthMatrix[Row - 1][Column + 1] == 0)
-			return
-				true;
-		if (UnparsedLabyrinthMatrix[Row][Column - 1] == 1 && UnparsedLabyrinthMatrix[Row - 1][Column - 1] == 0)
-			return
-				true;
-		break;
-	case EED_Down:
-		if (UnparsedLabyrinthMatrix[Row][Column + 1] == 1 && UnparsedLabyrinthMatrix[Row + 1][Column + 1] == 0)
-			return
-				true;
-		if (UnparsedLabyrinthMatrix[Row][Column - 1] == 1 && UnparsedLabyrinthMatrix[Row + 1][Column - 1] == 0)
-			return
-				true;
-		break;
-	case EED_Diagonal:
-		break;
-	default: ;
-	}
-
-	return false;
-}
-
-void ALabyrinthParser::FillExitIndexes(uint8& Row, uint8& Column, EEnemyDirection EnemyDirection)
-{
-	switch (EnemyDirection)
-	{
-	case EED_None:
-		break;
-	case EED_Left:
-		if (UnparsedLabyrinthMatrix[Row - 1][Column] == 1 && UnparsedLabyrinthMatrix[Row - 1][Column - 1] == 0)
-		{
-			Row--;
-			Column--;
-			break;
-		}
-		if (UnparsedLabyrinthMatrix[Row + 1][Column] == 1 && UnparsedLabyrinthMatrix[Row + 1][Column - 1] == 0)
-		{
-			Row++;
-			Column--;
-			break;
-		}
-		break;
-	case EED_Right:
-		if (UnparsedLabyrinthMatrix[Row - 1][Column] == 1 && UnparsedLabyrinthMatrix[Row - 1][Column + 1] == 0)
-		{
-			Row--;
-			Column++;
-			break;
-		}
-		if (UnparsedLabyrinthMatrix[Row + 1][Column] == 1 && UnparsedLabyrinthMatrix[Row + 1][Column + 1] == 0)
-		{
-			Row++;
-			Column++;
-			break;
-		}
-		break;
-	case EED_Up:
-		if (UnparsedLabyrinthMatrix[Row][Column + 1] == 1 && UnparsedLabyrinthMatrix[Row - 1][Column + 1] == 0)
-		{
-			Row--;
-			Column++;
-			break;
-		}
-		if (UnparsedLabyrinthMatrix[Row][Column - 1] == 1 && UnparsedLabyrinthMatrix[Row - 1][Column - 1] == 0)
-		{
-			Row--;
-			Column--;
-			break;
-		}
-		break;
-	case EED_Down:
-		if (UnparsedLabyrinthMatrix[Row][Column + 1] == 1 && UnparsedLabyrinthMatrix[Row + 1][Column + 1] == 0)
-		{
-			Row++;
-			Column++;
-			break;
-		}
-		if (UnparsedLabyrinthMatrix[Row][Column - 1] == 1 && UnparsedLabyrinthMatrix[Row + 1][Column - 1] == 0)
-		{
-			Row++;
-			Column--;
-			break;
-		}
-		break;
-	case EED_Diagonal:
-		break;
-	default: ;
-	}
-}
-
-void ALabyrinthParser::FillDiagonalIndexes(uint8& Row, uint8& Column)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Filling diagonal indexes"))
-
-	TArray<EEnemyDiagonalDirection> DiagonalDirections;
-
-	FillDiagonalMatrix(Row, Column, DiagonalDirections);
-
-	switch (DiagonalDirections[FMath::RandRange(0, DiagonalDirections.Num() - 1)])
-	{
-	case EEDD_UpperRight:
-		Row--;
-		Column++;
-		break;
-	case EEDD_UpperLeft:
-		Row--;
-		Column--;
-		break;
-	case EEDD_LowerRight:
-		Row++;
-		Column++;
-		break;
-	case EEDD_LowerLeft:
-		Row++;
-		Column--;
-		break;
-	default: ;
-	}
-}
-
-void ALabyrinthParser::FillDiagonalMatrix(uint8 Row, uint8 Column,
-                                          TArray<EEnemyDiagonalDirection>& EnemyDiagonalDirections)
-{
-	if (Column - 1 >= 0 && Row - 1 >= 0 && UnparsedLabyrinthMatrix[Row - 1][Column - 1] == 0)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Upper left"))
-		EnemyDiagonalDirections.Add(EEDD_UpperLeft);
-	}
-	if (Column + 1 < std::size(UnparsedLabyrinthMatrix[Row]) && Row - 1 >= 0 && UnparsedLabyrinthMatrix[Row - 1][Column
-		+ 1] == 0)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Upper right"))
-		EnemyDiagonalDirections.Add(EEDD_UpperRight);
-	}
-	if (Column - 1 >= 0 && Row + 1 < std::size(UnparsedLabyrinthMatrix) && UnparsedLabyrinthMatrix[Row + 1][Column - 1]
-		== 0)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Bottom left"))
-		EnemyDiagonalDirections.Add(EEDD_LowerLeft);
-	}
-	if (Column + 1 < std::size(UnparsedLabyrinthMatrix[Row]) && Row + 1 < std::size(UnparsedLabyrinthMatrix) &&
-		UnparsedLabyrinthMatrix[Row + 1][Column + 1] == 0)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Bottom right"))
-		EnemyDiagonalDirections.Add(EEDD_LowerRight);
-	}
-}
-
 void ALabyrinthParser::SpawnPillarAtIntersection(uint8 RowIndex, uint8 ColumnIndex, FVector& SpawnLocation,
                                                  ETravellingDirection TravellingDirection)
 {
 	// If there is a 1 in each direction then we should spawn a pillar
-	if (RowIndex > 0 && RowIndex < (std::size(UnparsedLabyrinthMatrix) - 1)
-		&& ColumnIndex > 0 && ColumnIndex < (std::size(UnparsedLabyrinthMatrix[RowIndex]) - 1) &&
-		UnparsedLabyrinthMatrix[RowIndex - 1][ColumnIndex] == 1 && UnparsedLabyrinthMatrix[RowIndex + 1][ColumnIndex] == 1 &&
-		UnparsedLabyrinthMatrix[RowIndex][ColumnIndex + 1] == 1
-		&& UnparsedLabyrinthMatrix[RowIndex][ColumnIndex - 1] == 1)
-		SpawnWall(SpawnLocation, TravellingDirection, UnparsedLabyrinthMatrix[RowIndex][ColumnIndex]);
+	if (RowIndex > 0 && RowIndex < (std::size(LabyrinthDTO->LabyrinthStructure) - 1)
+		&& ColumnIndex > 0 && ColumnIndex < (std::size(LabyrinthDTO->LabyrinthStructure[RowIndex]) - 1) &&
+		LabyrinthDTO->LabyrinthStructure[RowIndex - 1][ColumnIndex] == 1 && LabyrinthDTO->LabyrinthStructure[RowIndex + 1][ColumnIndex] == 1 &&
+		LabyrinthDTO->LabyrinthStructure[RowIndex][ColumnIndex + 1] == 1
+		&& LabyrinthDTO->LabyrinthStructure[RowIndex][ColumnIndex - 1] == 1)
+		SpawnWall(SpawnLocation, TravellingDirection, LabyrinthDTO->LabyrinthStructure[RowIndex][ColumnIndex]);
 }
 
 void ALabyrinthParser::SpawnFlatSurface(bool bFloor)
@@ -824,11 +351,11 @@ void ALabyrinthParser::SpawnFlatSurface(bool bFloor)
 
 	Start -= FVector{bFloor ? WallSettings::FloorOffset : WallSettings::CeilingOffset, 0.f, 0.f};
 
-	FVector End{std::size(UnparsedLabyrinthMatrix[0]) * WallSettings::WallOffset, 0.f, 0.f};
+	FVector End{std::size(LabyrinthDTO->LabyrinthStructure[0]) * WallSettings::WallOffset, 0.f, 0.f};
 
 	End += FVector{(bFloor ? WallSettings::FloorOffset : WallSettings::CeilingOffset) - WallSettings::WallOffset, 0.f, 0.f};
 
-	FVector VerticalEnd = {0.f, std::size(UnparsedLabyrinthMatrix) * WallSettings::WallOffset, 0.f};
+	FVector VerticalEnd = {0.f, std::size(LabyrinthDTO->LabyrinthStructure) * WallSettings::WallOffset, 0.f};
 
 	VerticalEnd += FVector{0.f, (bFloor ? WallSettings::FloorOffset : WallSettings::CeilingOffset) * 2 - WallSettings::WallOffset, 0.f};
 
