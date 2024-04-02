@@ -5,6 +5,7 @@
 
 #include "LabyrAInthVRGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Network/DefaultLabyrinthDTO.h"
 #include "LabyrAInthVR/Network/LabyrinthDTO.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Core_Log);
@@ -110,14 +111,18 @@ void AVRGameMode::OnNewGameButtonClicked()
 	
 	WidgetController->ShowLoadingScreen();
 	NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
+	NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
 	NetworkController->GetLabyrinthFromBE(LabyrinthDTO);
-	// const FString ErrorMessage = 
-	// if (ErrorMessage != "")
-	// {
-		// UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Network Error: %s"), *ErrorMessage);
-		// throw ErrorMessage;
-	// }
 }
+
+void AVRGameMode::MockNetwork()
+{
+	LabyrinthDTO->Level = LabyrinthDTO->GetDefaultLevel();
+	LabyrinthDTO->LabyrinthStructure = LabyrinthDTO->GetDefaultLabyrinthStructure();
+	UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("NetworkError, using mocked Labyinth "));
+	PrepareGame();
+}
+
 
 void AVRGameMode::PrepareGame()
 {

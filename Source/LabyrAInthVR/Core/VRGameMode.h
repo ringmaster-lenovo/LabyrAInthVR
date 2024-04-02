@@ -75,6 +75,9 @@ private:
 	UFUNCTION()
 	void ProceedToNextLevel();
 
+	UFUNCTION()
+	void MockNetwork();
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void OnNewGameButtonClicked();

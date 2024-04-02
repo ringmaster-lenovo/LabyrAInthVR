@@ -25,6 +25,9 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FLabyrinthReceivedEvent);
 	FLabyrinthReceivedEvent OnLabyrinthReceived;
 
+	DECLARE_MULTICAST_DELEGATE(FNetworkErrorEvent);
+	FNetworkErrorEvent OnNetworkError;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
