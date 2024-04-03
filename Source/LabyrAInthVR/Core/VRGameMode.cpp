@@ -15,9 +15,9 @@ AVRGameMode::AVRGameMode()
 	PlayerControllerClass = AVRPlayerController::StaticClass();
 	PlayerController = nullptr;
 
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRTemplate/Blueprints/VRPawn"));
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRCore/Blueprint/VR/VRCharacter"));
 	DefaultPawnClass = PlayerPawnBPClass.Class;
-	Pawn = nullptr;
+	VRCharacter = nullptr;
 
 	GameStateClass = AVRGameState::StaticClass();
 	VRGameState = nullptr;
@@ -41,8 +41,8 @@ void AVRGameMode::BeginPlay()
 		throw "Invalid creation of PlayerController";
 	}
 	
-	Pawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	if (!IsValid(Pawn))
+	VRCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	if (!IsValid(VRCharacter))
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn"));
 		throw "Invalid creation of Pawn";
@@ -85,7 +85,7 @@ void AVRGameMode::BeginPlay()
 	// create a LabyrinthDTO
 	LabyrinthDTO = NewObject<ULabyrinthDTO>();
 	LabyrinthDTO->Level = 1;
-	LabyrinthDTO->LabyrinthStructure.resize(10, std::vector<uint8>(10, 0));
+	LabyrinthDTO->LabyrinthStructure.resize(11, std::vector<uint8>(11, 0));
 	if (!IsValid(LabyrinthDTO))
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of LabyrinthDTO"));
@@ -109,14 +109,15 @@ void AVRGameMode::OnNewGameButtonClicked()
 	VRGameState->SetStateOfTheGame(EGameState::Egs_WaitingForLabyrinth);
 	
 	WidgetController->ShowLoadingScreen();
-	NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
-	NetworkController->GetLabyrinthFromBE(LabyrinthDTO);
+	// NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
+	// NetworkController->GetLabyrinthFromBE(LabyrinthDTO);
 	// const FString ErrorMessage = 
 	// if (ErrorMessage != "")
 	// {
 		// UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Network Error: %s"), *ErrorMessage);
 		// throw ErrorMessage;
 	// }
+	PrepareGame();
 }
 
 void AVRGameMode::PrepareGame()

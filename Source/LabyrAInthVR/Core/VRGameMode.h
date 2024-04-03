@@ -37,7 +37,7 @@ private:
 	AVRPlayerController* PlayerController;
 
 	UPROPERTY()
-	APawn* Pawn;
+	ACharacter* VRCharacter;
 
 	UPROPERTY()
 	ANetworkController* NetworkController; 

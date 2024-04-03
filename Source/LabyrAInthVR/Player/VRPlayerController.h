@@ -21,5 +21,5 @@ public:
 	void EnableInputs(const bool bEnable) { bIsInputsEnabled = bEnable; }
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivate))
-	bool bIsInputsEnabled = false;
+	bool bIsInputsEnabled = true;
 };

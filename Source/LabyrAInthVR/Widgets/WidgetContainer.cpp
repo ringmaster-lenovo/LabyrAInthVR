@@ -27,10 +27,10 @@ void AWidgetContainer::BeginPlay()
 	Super::BeginPlay();
 
 	LobbyWidget = Cast<ULobbyWidget>(Widget->GetUserWidgetObject());
-	if(!LobbyWidget) return;
+	if (!LobbyWidget) return;
 	
 	SettingsWidget = Cast<USettingsWidget>(Widget->GetUserWidgetObject());
-	if(!SettingsWidget) return;
+	if (!SettingsWidget) return;
 }
 
 
@@ -40,7 +40,7 @@ void AWidgetContainer::ShowSettings()
 	{
 		Widget->SetWidgetClass(SettingsWidgetClass);
 		SettingsWidget = Cast<USettingsWidget>(Widget->GetUserWidgetObject());
-		if(!SettingsWidget) return;
+		if (!SettingsWidget) return;
 	
 	}
 }
