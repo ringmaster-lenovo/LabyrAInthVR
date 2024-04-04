@@ -26,6 +26,9 @@ class LABYRAINTHVR_API AVRGameMode : public AGameModeBase
 public:
 	AVRGameMode();
 
+	UPROPERTY()
+	AWidgetController* WidgetController;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -34,16 +37,13 @@ private:
 	AVRPlayerController* PlayerController;
 
 	UPROPERTY()
-	APawn* Pawn;
+	ACharacter* VRCharacter;
 
 	UPROPERTY()
 	ANetworkController* NetworkController; 
 
 	UPROPERTY()
 	AVRGameState* VRGameState;
-
-	UPROPERTY()
-	AWidgetController* WidgetController;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Game Mode")
 	TSubclassOf<ASceneController> SceneController_BP;

@@ -3,6 +3,10 @@
 
 #include "WidgetController.h"
 
+#include "WidgetContainer.h"
+#include "Kismet/GameplayStatics.h"
+
+
 
 // Sets default values
 AWidgetController::AWidgetController()
@@ -26,6 +30,20 @@ void AWidgetController::Tick(float DeltaTime)
 
 void AWidgetController::ShowLoadingScreen()
 {
+	
+	TArray<AActor*> FoundWidgetContainers;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWidgetContainer::StaticClass(), FoundWidgetContainers);
+
+	if (FoundWidgetContainers.Num() > 0)
+	{
+		// Assuming you want the first found instance
+		WidgetContainer = Cast<AWidgetContainer>(FoundWidgetContainers[0]);
+		if (WidgetContainer)
+		{
+			// TODO: Change it with ShowLoadingUI
+			WidgetContainer->ShowSettings();
+		}
+	}
 }
 
 void AWidgetController::ShowGameUI()

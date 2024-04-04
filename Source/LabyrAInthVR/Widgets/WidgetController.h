@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "WidgetContainer.h"
 #include "WidgetController.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Widget_Log, Display, All);
@@ -22,6 +23,12 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<AWidgetContainer> WidgetContainerClass;
+
+	UPROPERTY()
+	AWidgetContainer* WidgetContainer = nullptr;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
