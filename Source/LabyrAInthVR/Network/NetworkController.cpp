@@ -77,26 +77,23 @@ void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 				FString ResponseContent = pResponse->GetContentAsString();
 				if (DeSerializeLabyrinth(ResponseContent, LabyrinthDTO))
 				{
-					OnLabyrinthReceived.Broadcast();
-					// TODO: call success message from the GameMode
-				}
+					OnLabyrinthReceived.Broadcast();}
 				else
 				{
 					UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Cannot Deserialize Json Response"));
-					// TODO: call unsuccessful message from the GameMode
 				}
 			} 
 			else {
 			   switch (pRequest->GetStatus()) {
 					case EHttpRequestStatus::Failed_ConnectionError:
 						{
-							// TODO: call unsuccessful message from the GameMode
+							OnNetworkError.Broadcast();
 			   				UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Connection failed."));
 						}
 					default:
 						{
-							// TODO: call unsuccessful message from the GameMode
-			   				UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Request failed. "));
+							OnNetworkError.Broadcast();
+							UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Request failed. "));
 						}
 			   		}
 			   }

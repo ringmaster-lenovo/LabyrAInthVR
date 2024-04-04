@@ -109,16 +109,19 @@ void AVRGameMode::OnNewGameButtonClicked()
 	VRGameState->SetStateOfTheGame(EGameState::Egs_WaitingForLabyrinth);
 	
 	WidgetController->ShowLoadingScreen();
-	// NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
-	// NetworkController->GetLabyrinthFromBE(LabyrinthDTO);
-	// const FString ErrorMessage = 
-	// if (ErrorMessage != "")
-	// {
-		// UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Network Error: %s"), *ErrorMessage);
-		// throw ErrorMessage;
-	// }
+	NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
+	NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
+	NetworkController->GetLabyrinthFromBE(LabyrinthDTO);
+}
+
+void AVRGameMode::MockNetwork()
+{
+	LabyrinthDTO->Level = LabyrinthDTO->GetDefaultLevel();
+	LabyrinthDTO->LabyrinthStructure = LabyrinthDTO->GetDefaultLabyrinthStructure();
+	UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("NetworkError, using mocked Labyinth "));
 	PrepareGame();
 }
+
 
 void AVRGameMode::PrepareGame()
 {

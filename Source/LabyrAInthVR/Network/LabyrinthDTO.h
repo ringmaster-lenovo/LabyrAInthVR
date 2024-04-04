@@ -12,8 +12,30 @@ public:
 	ULabyrinthDTO(){}
 
 	uint8 Level;
-
+	
 	std::vector<std::vector<uint8>> LabyrinthStructure;
+
+	uint8 GetDefaultLevel()
+	{
+		return 1;
+	}
+
+	std::vector<std::vector<uint8>> GetDefaultLabyrinthStructure()
+	{
+		return {
+			{1,1,1,1,1,1,1,1,1,1},
+			{1,2,1,0,0,0,1,0,0,1},
+			{1,0,1,0,1,0,1,0,1,1},
+			{1,0,0,0,1,0,1,0,1,1},
+			{1,0,1,1,1,0,1,0,1,1},
+			{1,0,0,0,0,0,0,0,0,1},
+			{1,0,1,1,1,1,0,1,0,1},
+			{1,0,1,0,1,1,0,1,0,1},
+			{1,0,0,0,1,0,0,1,3,1},
+			{1,1,1,1,1,1,1,1,1,1}
+		};
+	}
+
 	// lev 1
 	// std::vector<std::vector<uint8>> LabyrinthStructure{
 	// 		{1,1,1,1,1,1,1,1,1,1},
