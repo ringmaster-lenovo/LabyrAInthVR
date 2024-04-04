@@ -28,7 +28,7 @@ public:
 	};*/
 
 	// lev 1 variant
-	/*std::vector<std::vector<uint8>> LabyrinthStructure{
+	std::vector<std::vector<uint8>> LabyrinthStructure{
 		{1,1,1,1,1,2,1,1,1,1,1},
 		{1,0,0,0,0,0,1,0,0,0,1},
 		{1,0,1,1,1,1,1,0,1,0,1},
@@ -40,7 +40,7 @@ public:
 		{1,0,1,0,1,0,1,1,1,0,1},
 		{1,0,0,0,1,0,1,0,0,0,1},
 		{1,1,1,1,1,3,1,1,1,1,1}
-	};*/
+	};
 	/*  // lev 52: 42+30 (col+row) - 20 (10+10 col+row del liv1) = 52
 		std::vector<std::vector<uint8>> LabyrinthStructure {
 			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -88,17 +88,17 @@ public:
 		};
 		*/
 
-	std::vector<std::vector<uint8>> LabyrinthStructure{
+	/*std::vector<std::vector<uint8>> LabyrinthStructure{
 			{1,1,1},
-			{1,2,1},
 			{1,0,1},
 			{1,0,1},
 			{1,0,1},
-			{1,3,1},
 			{1,0,1},
 			{1,0,1},
 			{1,0,1},
-			{1,2,1},
+			{1,0,1},
+			{1,0,1},
+			{1,0,1},
 			{1,1,1}
-	};
+	};*/
 };

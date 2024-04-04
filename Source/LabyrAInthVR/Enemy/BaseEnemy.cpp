@@ -7,9 +7,12 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "LabyrAInthVR/MockedCharacter/MockedCharacter.h"
 #include "LabyrAInthVR/Network/LabyrinthDTO.h"
 #include "LabyrAInthVR/Scene/Config.h"
 #include "Navigation/PathFollowingComponent.h"
+#include "NavMesh/NavMeshBoundsVolume.h"
+#include "NavMesh/RecastNavMesh.h"
 #include "Perception/PawnSensingComponent.h"
 
 ABaseEnemy::ABaseEnemy()
@@ -17,8 +20,18 @@ ABaseEnemy::ABaseEnemy()
 	PrimaryActorTick.bCanEverTick = true;
 
 	PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComponent"));
-	WeaponBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponBoxComponent"));
-	WeaponBoxComponent->SetupAttachment(GetMesh(), FName("weapon_r"));
+
+	if(!IsValid(PawnSensingComponent)) return;
+	
+	PawnSensingComponent->HearingThreshold = 1500.f;
+	PawnSensingComponent->SetPeripheralVisionAngle(60.f);
+	PawnSensingComponent->SightRadius = 5000.f;
+	PawnSensingComponent->bOnlySensePlayers = false;
+	
+	if(!IsValid(GetCharacterMovement())) return;
+
+	GetCharacterMovement()->MaxAcceleration = 450.f;
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 }
 
 void ABaseEnemy::BeginPlay()
@@ -35,19 +48,15 @@ void ABaseEnemy::BeginPlay()
 
 	OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
 
-	if (!IsValid(WeaponBoxComponent)) return;
-
-	WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	WeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::ABaseEnemy::OnComponentBeginOverlap);
-
 	if (!IsValid(PawnSensingComponent)) return;
 
 	PawnSensingComponent->Activate();
 	PawnSensingComponent->SetSensingUpdatesEnabled(true);
+	
 	PawnSensingComponent->OnSeePawn.AddDynamic(this, &ThisClass::OnSeePawn);
 	PawnSensingComponent->OnHearNoise.AddDynamic(this, &ThisClass::OnHearNoise);
 
-	UNavigationSystemV1* NavigationSystemV1 = UNavigationSystemV1::GetNavigationSystem(this);
+	NavigationSystemV1 = UNavigationSystemV1::GetNavigationSystem(this);
 
 	if (!IsValid(NavigationSystemV1)) return;
 
@@ -121,21 +130,14 @@ void ABaseEnemy::AttackingTimerFinished()
 	bCanAttack = true;
 }
 
-void ABaseEnemy::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                                         UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-                                         const FHitResult& SweepResult)
-{
-	ACharacter* HitCharacter = Cast<ACharacter>(OtherActor);
-	if (!IsValid(HitCharacter) || OtherActor == this) return;
-	UE_LOG(LogTemp, Warning, TEXT("Enemy attacked: %s"), *OtherActor->GetName())
-}
-
 void ABaseEnemy::OnSeePawn(APawn* Pawn)
 {
 	if (EnemyState > EES_Patrolling) return;
 
-	SeenCharacter = SeenCharacter == nullptr ? Cast<ACharacter>(Pawn) : SeenCharacter;
+	SeenCharacter = SeenCharacter == nullptr ? Cast<AMockedCharacter>(Pawn) : SeenCharacter;
 
+	if(!IsCharacterOnNavMesh() || !SeenCharacter->IsAlive()) return;
+	
 	Chase();
 }
 
@@ -212,8 +214,8 @@ void ABaseEnemy::StartPatrolling()
 
 void ABaseEnemy::Chase()
 {
-	if (!IsValid(AIController) || !IsValid(SeenCharacter)) return;
-
+	if (!IsValid(AIController)) return;
+	
 	GetWorldTimerManager().ClearTimer(PatrollingTimerHandle);
 	EnemyState = EES_Chasing;
 	UE_LOG(LogTemp, Warning, TEXT("Initiating chase action to: %s"), *SeenCharacter->GetName());
@@ -225,8 +227,8 @@ void ABaseEnemy::Chase()
 
 void ABaseEnemy::Attack()
 {
-	if (!IsValid(AIController)) return;
-
+	if (!IsValid(AIController) || !IsValid(NavigationSystemV1) || !CanExecuteAction()) return;
+	
 	RotateToCharacter();
 
 	// If distance is greater than attack distance, it means we go back chasing
@@ -246,7 +248,7 @@ void ABaseEnemy::Attack()
 
 void ABaseEnemy::HoldPosition()
 {
-	if (!IsValid(AIController) || !IsValid(SeenCharacter)) return;
+	if (!IsValid(AIController) || !CanExecuteAction()) return;
 
 	// If lost sight of character, go back to idle and patrolling
 	if (!AIController->LineOfSightTo(SeenCharacter))
@@ -270,6 +272,8 @@ void ABaseEnemy::HoldPosition()
 
 void ABaseEnemy::CheckAttack()
 {
+	if (!CanExecuteAction()) return;
+	
 	// Stop chasing if distance greater than ChasingDistance
 	if (GetDistanceToCharacter() > ChaseDistance && IsFacing())
 	{
@@ -299,6 +303,20 @@ void ABaseEnemy::RotateToCharacter()
 	SetActorRotation(TargetRotation);
 }
 
+bool ABaseEnemy::CanExecuteAction()
+{
+	if(!IsValid(AIController)) return false;
+	if (!IsValid(SeenCharacter) || !IsCharacterOnNavMesh() || !SeenCharacter->IsAlive())
+	{
+		GetWorldTimerManager().ClearTimer(AttackingTimerHandle);
+		AIController->StopMovement();
+		UpdateMatrixPosition();
+		EnemyState = EES_Idle;
+		return false;	
+	}
+	return true;
+}
+
 float ABaseEnemy::GetDistanceToCharacter()
 {
 	if (!IsValid(SeenCharacter)) return 0.f;
@@ -323,6 +341,13 @@ bool ABaseEnemy::IsFacing()
 		Misc::FacingEnemyDegrees;
 }
 
+bool ABaseEnemy::IsCharacterOnNavMesh()
+{
+	if(!IsValid(NavigationSystemV1)) return false;
+	FNavLocation NavLocation;
+	return NavigationSystemV1->ProjectPointToNavigation(SeenCharacter->GetActorLocation(), NavLocation);
+}
+
 void ABaseEnemy::PlayMontage(UAnimMontage* MontageToPlay)
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -330,23 +355,24 @@ void ABaseEnemy::PlayMontage(UAnimMontage* MontageToPlay)
 	if (!IsValid(AnimInstance) || !IsValid(MontageToPlay)) return;
 	UE_LOG(LogTemp, Warning, TEXT("Playing montage"))
 	FName SectionName{*FString::Printf(TEXT("%d"), FMath::RandRange(1, MontageToPlay->GetNumSections()))};
+	
 	AnimInstance->Montage_Play(MontageToPlay);
 	AnimInstance->Montage_JumpToSection(SectionName);
-}
-
-void ABaseEnemy::SetWeaponCollision(bool bEnabled)
-{
-	if (!IsValid(WeaponBoxComponent)) return;
-
-	WeaponBoxComponent->SetCollisionEnabled(bEnabled
-		                                        ? ECollisionEnabled::QueryAndPhysics
-		                                        : ECollisionEnabled::NoCollision);
+	if(MontageToPlay == AttackMontage) AnimInstance->Montage_SetPlayRate(AttackMontage, AttackSpeed);
 }
 
 void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
                                AController* InstigatedBy, AActor* DamageCauser)
 {
 	if (EnemyState == EES_Dead) return;
+
+	if(bHasShield)
+	{
+		DectivateShield();
+		UE_LOG(LogTemp, Warning, TEXT("Received damage but has shield, shield is destroyed"))
+		return;
+	}
+	
 	UE_LOG(LogTemp, Warning, TEXT("Received damage"))
 	Health -= Damage;
 
@@ -363,7 +389,6 @@ void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamage
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AIController->StopMovement();
-	SetWeaponCollision(false);
 	EnemyState = EES_Dead;
 	PlayMontage(DeathMontage);
 }

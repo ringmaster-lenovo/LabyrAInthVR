@@ -5,6 +5,8 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "BaseEnemy.generated.h"
 
+class AMockedCharacter;
+class UNavigationSystemV1;
 class ULabyrinthDTO;
 class UBoxComponent;
 class ALabyrinthParser;
@@ -61,6 +63,10 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	
+	UFUNCTION()
+	virtual void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+							 AController* InstigatedBy, AActor* DamageCauser);
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -76,9 +82,6 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true), Category=PawnSensing)
 	UPawnSensingComponent* PawnSensingComponent;
-
-	UPROPERTY(EditAnywhere, Category=Weapon)
-	UBoxComponent* WeaponBoxComponent;
 
 	UPROPERTY(EditAnywhere, Category=Weapon)
 	FName WeaponSocketName{};
@@ -97,7 +100,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="Settings|Attack")
 	float AttackDistance{500.f};
-
+	
+	UPROPERTY(EditAnywhere, Category="Settings|Attack")
+	float AttackSpeed{1.f};
+	
 	UPROPERTY(EditAnywhere, Category="Settings|Attack")
 	float AttackDamage{50.f};
 
@@ -107,6 +113,12 @@ private:
 	UPROPERTY(EditAnywhere, Category="Settings|Health")
 	float MaxHealth{100.f};
 
+	UPROPERTY(EditAnywhere, Category="Settings|Shield")
+	float Shield{100.f};
+
+	UPROPERTY(EditAnywhere, Category="Settings|Shield")
+	float MaxShield{100.f};
+	
 	UPROPERTY(EditAnywhere, Category="Settings|Health")
 	UParticleSystem* BloodEffect;
 
@@ -117,10 +129,14 @@ private:
 	UAnimMontage* DeathMontage;
 
 	UPROPERTY()
-	ACharacter* SeenCharacter;
+	AMockedCharacter* SeenCharacter;
+
+	UPROPERTY()
+	UNavigationSystemV1* NavigationSystemV1;
 
 	bool bRotated{false};
 	bool bCanAttack{true};
+	bool bHasShield{true};
 	FVector End{};
 	EEnemyState EnemyState{EEnemyState::EES_WaitingForNav};
 	FTimerHandle PatrollingTimerHandle;
@@ -140,22 +156,10 @@ private:
 	void AttackingTimerFinished();
 
 	UFUNCTION()
-	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	                             UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-	                             const FHitResult& SweepResult);
-
-	UFUNCTION()
 	void OnSeePawn(APawn* Pawn);
 
 	UFUNCTION()
 	void OnHearNoise(APawn* NoiseInstigator, const FVector& Location, float Volume);
-
-	UFUNCTION(BlueprintCallable)
-	void SetWeaponCollision(bool bEnabled);
-
-	UFUNCTION()
-	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
-							 AController* InstigatedBy, AActor* DamageCauser);
 
 	void OnMoveFinished(FAIRequestID RequestID, const FPathFollowingResult& PathFollowingResult);
 
@@ -173,11 +177,15 @@ private:
 
 	void RotateToCharacter();
 
+	bool CanExecuteAction();
+
 	float GetDistanceToCharacter();
 
 	bool IsAttacking();
 
 	bool IsFacing();
+
+	bool IsCharacterOnNavMesh();
 
 	void PlayMontage(UAnimMontage* MontageToPlay);
 	
@@ -201,4 +209,6 @@ private:
 	
 public:
 	FORCEINLINE void SetLabyrinthMatrix(ULabyrinthDTO* LabyrinthDTOReference) {LabyrinthDTO = LabyrinthDTOReference; }
+	FORCEINLINE void ActivateShield() { bHasShield = true; }
+	FORCEINLINE void DectivateShield() { bHasShield = false; }
 };
