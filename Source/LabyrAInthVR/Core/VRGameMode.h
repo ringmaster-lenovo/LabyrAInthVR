@@ -32,7 +32,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-private:	
+private:
+	bool bIsVRHMDConnected;
+	
 	UPROPERTY()
 	AVRPlayerController* PlayerController;
 
@@ -78,6 +80,9 @@ private:
 	UFUNCTION()
 	void MockNetwork();
 
+	UFUNCTION()
+	bool IsVRHMDConnected();
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void OnNewGameButtonClicked();
@@ -90,4 +95,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnRestartGameButtonClicked();
+
+	UFUNCTION(BlueprintCallable)
+	bool IsInVR() { return bIsVRHMDConnected; }
 };

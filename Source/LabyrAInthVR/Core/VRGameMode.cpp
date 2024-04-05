@@ -5,6 +5,7 @@
 
 #include "LabyrAInthVRGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
 #include "LabyrAInthVR/Network/LabyrinthDTO.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Core_Log);
@@ -14,9 +15,7 @@ AVRGameMode::AVRGameMode()
 	// Set default classes for player controller
 	PlayerControllerClass = AVRPlayerController::StaticClass();
 	PlayerController = nullptr;
-
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRCore/Blueprint/VR/VRCharacter"));
-	DefaultPawnClass = PlayerPawnBPClass.Class;
+	
 	VRCharacter = nullptr;
 
 	GameStateClass = AVRGameState::StaticClass();
@@ -32,22 +31,51 @@ AVRGameMode::AVRGameMode()
 void AVRGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	// Store references to the default player controller and pawn
-	PlayerController = Cast<AVRPlayerController>(GetWorld()->GetFirstPlayerController());
-	if (!IsValid(PlayerController))
-	{
-		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of PlayerController"));
-		throw "Invalid creation of PlayerController";
-	}
-	
-	VRCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	if (!IsValid(VRCharacter))
-	{
-		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn"));
-		throw "Invalid creation of Pawn";
-	}
 
+	bIsVRHMDConnected = IsVRHMDConnected();
+	if (!bIsVRHMDConnected)
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("No VR HMD connected: Switching to non-VR mode"));
+		
+		// Store references to the default player controller and pawn
+		// PlayerController = Cast<AVRPlayerController>(GetWorld()->GetFirstPlayerController());
+		// if (!IsValid(PlayerController))
+		// {
+		// 	UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of PlayerController"));
+		// 	throw "Invalid creation of PlayerController";
+		// }
+		//
+		// static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRCore/Blueprint/VR/VRCharacter"));
+		// DefaultPawnClass = PlayerPawnBPClass.Class;
+		// VRCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+		// if (!IsValid(VRCharacter))
+		// {
+		// 	UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn"));
+		// 	throw "Invalid creation of Pawn";
+		// }
+	}
+	else
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("VR HMD connected: Starting VR mode"));
+		
+		// Store references to the default player controller and pawn
+		PlayerController = Cast<AVRPlayerController>(GetWorld()->GetFirstPlayerController());
+		if (!IsValid(PlayerController))
+		{
+			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of PlayerController"));
+			throw "Invalid creation of PlayerController";
+		}
+
+		static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRCore/Blueprint/VR/VRCharacter"));
+		DefaultPawnClass = PlayerPawnBPClass.Class;
+		VRCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+		if (!IsValid(VRCharacter))
+		{
+			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn"));
+			throw "Invalid creation of Pawn";
+		}
+	}
+	
 	// Spawn and set up network manager
 	NetworkController = GetWorld()->SpawnActor<ANetworkController>();
 	if (!IsValid(NetworkController))
@@ -122,7 +150,6 @@ void AVRGameMode::MockNetwork()
 	PrepareGame();
 }
 
-
 void AVRGameMode::PrepareGame()
 {
 	SceneController->OnSceneReady.AddUObject(this, &AVRGameMode::StartGame);
@@ -168,4 +195,24 @@ void AVRGameMode::RestartGame()
 
 void AVRGameMode::ProceedToNextLevel()
 {
+}
+
+bool AVRGameMode::IsVRHMDConnected()
+{
+	// get the HMD information
+	const FName HMDName = UHeadMountedDisplayFunctionLibrary::GetHMDDeviceName();
+	FXRHMDData HMDData;
+	UHeadMountedDisplayFunctionLibrary::GetHMDData(this, HMDData);
+	const FString HMDVersion = UHeadMountedDisplayFunctionLibrary::GetVersionString();
+	const bool HMDIsConnected = UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayConnected();
+	const bool HMDIsEnabled = UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled();
+
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("HMD Name: %s"), *HMDName.ToString());
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("HMD Device Name: %s"), *HMDData.DeviceName.ToString());
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("HMD ApplicationInstanceID: %s"), *HMDData.ApplicationInstanceID.ToString());
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("HMDVersion: %s"), *HMDVersion);
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("HMDIsConnected: %s"), HMDIsConnected ? TEXT("true") : TEXT("false") );
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("HMDIsEnabled: %s"), HMDIsEnabled ? TEXT("true") : TEXT("false") );
+	
+	return (HMDIsConnected && HMDIsEnabled);
 }
