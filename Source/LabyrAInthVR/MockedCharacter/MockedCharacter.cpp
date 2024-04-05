@@ -10,6 +10,7 @@ void AMockedCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
 }
 
 void AMockedCharacter::Tick(float DeltaTime)
@@ -22,5 +23,11 @@ void AMockedCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void AMockedCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+	AController* InstigatedBy, AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Character received damage by: %s"), *DamageCauser->GetName())
 }
 

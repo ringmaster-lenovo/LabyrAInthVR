@@ -2,6 +2,7 @@
 
 #include "BaseEnemy.h"
 #include "MeleeEnemy.h"
+#include "RangedEnemy.h"
 
 void UEnemyAnimInstance::NativeBeginPlay()
 {
@@ -9,6 +10,7 @@ void UEnemyAnimInstance::NativeBeginPlay()
 
 	BaseEnemy = Cast<ABaseEnemy>(TryGetPawnOwner());
 	MeleeEnemy = Cast<AMeleeEnemy>(BaseEnemy);
+	RangedEnemy = Cast<ARangedEnemy>(BaseEnemy);
 }
 
 void UEnemyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)

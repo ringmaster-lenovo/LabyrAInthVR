@@ -2,7 +2,6 @@
 
 #include "AIController.h"
 #include "NavigationSystem.h"
-#include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -11,8 +10,6 @@
 #include "LabyrAInthVR/Network/LabyrinthDTO.h"
 #include "LabyrAInthVR/Scene/Config.h"
 #include "Navigation/PathFollowingComponent.h"
-#include "NavMesh/NavMeshBoundsVolume.h"
-#include "NavMesh/RecastNavMesh.h"
 #include "Perception/PawnSensingComponent.h"
 
 ABaseEnemy::ABaseEnemy()
@@ -64,34 +61,6 @@ void ABaseEnemy::BeginPlay()
 		this, &ThisClass::NavMeshFinishedBuilding);
 }
 
-void ABaseEnemy::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	switch (EnemyState)
-	{
-	case EES_WaitingForNav:
-		break;
-	case EES_Idle:
-		StartPatrolling();
-		break;
-	case EES_Patrolling:
-		break;
-	case EES_Attacking:
-		Attack();
-		break;
-	case EES_Chasing:
-		CheckAttack();
-		break;
-	case EES_Hold:
-		HoldPosition();
-		break;
-	case EES_Dead:
-		break;
-	default: ;
-	}
-}
-
 void ABaseEnemy::SetMatrixPosition(uint8 Row, uint8 Column)
 {
 	MatrixRow = Row;
@@ -125,18 +94,15 @@ void ABaseEnemy::PatrollingTimerFinished()
 	AIController->MoveTo(MoveRequest);
 }
 
-void ABaseEnemy::AttackingTimerFinished()
-{
-	bCanAttack = true;
-}
-
 void ABaseEnemy::OnSeePawn(APawn* Pawn)
 {
 	if (EnemyState > EES_Patrolling) return;
 
+	UE_LOG(LogTemp, Warning, TEXT("Seen: %s"), *Pawn->GetName())
+	
 	SeenCharacter = SeenCharacter == nullptr ? Cast<AMockedCharacter>(Pawn) : SeenCharacter;
 
-	if(!IsCharacterOnNavMesh() || !SeenCharacter->IsAlive()) return;
+	if(!IsValid(SeenCharacter) || !IsCharacterOnNavMesh() || !SeenCharacter->IsAlive()) return;
 	
 	Chase();
 }
@@ -225,73 +191,6 @@ void ABaseEnemy::Chase()
 	AIController->MoveTo(MoveRequest);
 }
 
-void ABaseEnemy::Attack()
-{
-	if (!IsValid(AIController) || !IsValid(NavigationSystemV1) || !CanExecuteAction()) return;
-	
-	RotateToCharacter();
-
-	// If distance is greater than attack distance, it means we go back chasing
-	if (GetDistanceToCharacter() > AttackDistance && !IsAttacking())
-	{
-		Chase();
-	}
-
-	if (bCanAttack)
-	{
-		bCanAttack = false;
-		PlayMontage(AttackMontage);
-		GetWorldTimerManager().SetTimer(AttackingTimerHandle, this, &ThisClass::AttackingTimerFinished, AttackTimer,
-		                                false);
-	}
-}
-
-void ABaseEnemy::HoldPosition()
-{
-	if (!IsValid(AIController) || !CanExecuteAction()) return;
-
-	// If lost sight of character, go back to idle and patrolling
-	if (!AIController->LineOfSightTo(SeenCharacter))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Lost sight of character, going back to idle"))
-		UpdateMatrixPosition();
-		EnemyState = EES_Idle;
-	}
-	else if (GetDistanceToCharacter() <= ChaseDistance)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Character regained eligible distance for chasing, going back to chase"))
-		Chase();
-	}
-	else if (GetDistanceToCharacter() > ChaseDistance)
-	{
-		// If distance greater than chase distance we stop if we're facing the character, otherwise we chase
-		if (IsFacing()) AIController->StopMovement();
-		else Chase();
-	}
-}
-
-void ABaseEnemy::CheckAttack()
-{
-	if (!CanExecuteAction()) return;
-	
-	// Stop chasing if distance greater than ChasingDistance
-	if (GetDistanceToCharacter() > ChaseDistance && IsFacing())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Entering into hold phase"))
-		AIController->StopMovement();
-		EnemyState = EES_Hold;
-	}
-
-	// Initiate attack phase if closer to character than attack distance
-	if (GetDistanceToCharacter() < AttackDistance)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Entering into attacking phase"))
-		AIController->StopMovement();
-		bCanAttack = true;
-		EnemyState = EES_Attacking;
-	}
-}
-
 void ABaseEnemy::RotateToCharacter()
 {
 	if (!IsValid(SeenCharacter)) return;
@@ -301,35 +200,6 @@ void ABaseEnemy::RotateToCharacter()
 	TargetRotation.Roll = 0;
 	TargetRotation.Pitch = 0;
 	SetActorRotation(TargetRotation);
-}
-
-bool ABaseEnemy::CanExecuteAction()
-{
-	if(!IsValid(AIController)) return false;
-	if (!IsValid(SeenCharacter) || !IsCharacterOnNavMesh() || !SeenCharacter->IsAlive())
-	{
-		GetWorldTimerManager().ClearTimer(AttackingTimerHandle);
-		AIController->StopMovement();
-		UpdateMatrixPosition();
-		EnemyState = EES_Idle;
-		return false;	
-	}
-	return true;
-}
-
-float ABaseEnemy::GetDistanceToCharacter()
-{
-	if (!IsValid(SeenCharacter)) return 0.f;
-	return FVector::Distance(SeenCharacter->GetActorLocation(), GetActorLocation());
-}
-
-bool ABaseEnemy::IsAttacking()
-{
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-
-	if (!IsValid(AnimInstance) || !IsValid(AttackMontage)) return false;
-
-	return AnimInstance->Montage_IsPlaying(AttackMontage);
 }
 
 bool ABaseEnemy::IsFacing()
@@ -358,7 +228,6 @@ void ABaseEnemy::PlayMontage(UAnimMontage* MontageToPlay)
 	
 	AnimInstance->Montage_Play(MontageToPlay);
 	AnimInstance->Montage_JumpToSection(SectionName);
-	if(MontageToPlay == AttackMontage) AnimInstance->Montage_SetPlayRate(AttackMontage, AttackSpeed);
 }
 
 void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
@@ -366,6 +235,8 @@ void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamage
 {
 	if (EnemyState == EES_Dead) return;
 
+	UE_LOG(LogTemp, Warning, TEXT("Enemy received damage by: %s"), *DamageCauser->GetName())
+	
 	if(bHasShield)
 	{
 		DectivateShield();
@@ -377,14 +248,15 @@ void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamage
 	Health -= Damage;
 
 	if (BloodEffect == nullptr) return;
+	
 	FVector EffectSpawn{
 		GetActorLocation() + FVector{0.f, GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 0.75, 0.f}
 	};
+	
 	UGameplayStatics::SpawnEmitterAtLocation(this, BloodEffect, EffectSpawn);
 
 	if (Health > 0) return;
-
-	GetWorldTimerManager().ClearTimer(AttackingTimerHandle);
+	
 	GetWorldTimerManager().ClearTimer(PatrollingTimerHandle);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

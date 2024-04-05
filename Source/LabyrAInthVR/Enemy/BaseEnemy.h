@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "LabyrAInthVR/Interfaces/DamageableActor.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "BaseEnemy.generated.h"
 
@@ -54,61 +55,55 @@ struct FEnemyDirection
 };
 
 UCLASS()
-class LABYRAINTHVR_API ABaseEnemy : public ACharacter
+class LABYRAINTHVR_API ABaseEnemy : public ACharacter, public IDamageableActor
 {
 	GENERATED_BODY()
 
 public:
 	ABaseEnemy();
-
-protected:
-	virtual void BeginPlay() override;
-	
-	UFUNCTION()
-	virtual void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
-							 AController* InstigatedBy, AActor* DamageCauser);
-
-public:
-	virtual void Tick(float DeltaTime) override;
 	void SetMatrixPosition(uint8 Row, uint8 Column);
 	float GetSpeed();
 
-private:
+protected:
+	virtual void BeginPlay() override;
+	void StartPatrolling();
+	void RotateToCharacter();
+	virtual void PlayMontage(UAnimMontage* MontageToPlay);
+	void Chase();
+	void UpdateMatrixPosition();
+	bool IsFacing();
+	bool IsCharacterOnNavMesh();
+	
+	EEnemyState EnemyState{EEnemyState::EES_WaitingForNav};
+
+	UFUNCTION()
+	virtual void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+	                           AController* InstigatedBy, AActor* DamageCauser);
+
 	UPROPERTY()
 	AAIController* AIController;
 
+	UPROPERTY()
+	UNavigationSystemV1* NavigationSystemV1;
+
+	UPROPERTY()
+	AMockedCharacter* SeenCharacter;
+	
+	UPROPERTY(EditAnywhere, Category="Settings|Health")
+	float Health{100.f};
+
+private:
 	UPROPERTY()
 	ULabyrinthDTO* LabyrinthDTO;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true), Category=PawnSensing)
 	UPawnSensingComponent* PawnSensingComponent;
 
-	UPROPERTY(EditAnywhere, Category=Weapon)
-	FName WeaponSocketName{};
-
 	UPROPERTY(EditAnywhere, Category=Settings)
 	float MinPatrolTimer{1.f};
 
 	UPROPERTY(EditAnywhere, Category=Settings)
 	float MaxPatrolTimer{3.f};
-
-	UPROPERTY(EditAnywhere, Category=Settings)
-	float ChaseDistance{500.f};
-
-	UPROPERTY(EditAnywhere, Category="Settings|Attack")
-	float AttackTimer{2.f};
-
-	UPROPERTY(EditAnywhere, Category="Settings|Attack")
-	float AttackDistance{500.f};
-	
-	UPROPERTY(EditAnywhere, Category="Settings|Attack")
-	float AttackSpeed{1.f};
-	
-	UPROPERTY(EditAnywhere, Category="Settings|Attack")
-	float AttackDamage{50.f};
-
-	UPROPERTY(EditAnywhere, Category="Settings|Health")
-	float Health{100.f};
 
 	UPROPERTY(EditAnywhere, Category="Settings|Health")
 	float MaxHealth{100.f};
@@ -118,29 +113,17 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="Settings|Shield")
 	float MaxShield{100.f};
-	
+
 	UPROPERTY(EditAnywhere, Category="Settings|Health")
 	UParticleSystem* BloodEffect;
 
 	UPROPERTY(EditAnywhere, Category=Animation)
-	UAnimMontage* AttackMontage;
-
-	UPROPERTY(EditAnywhere, Category=Animation)
 	UAnimMontage* DeathMontage;
 
-	UPROPERTY()
-	AMockedCharacter* SeenCharacter;
-
-	UPROPERTY()
-	UNavigationSystemV1* NavigationSystemV1;
-
 	bool bRotated{false};
-	bool bCanAttack{true};
 	bool bHasShield{true};
 	FVector End{};
-	EEnemyState EnemyState{EEnemyState::EES_WaitingForNav};
 	FTimerHandle PatrollingTimerHandle;
-	FTimerHandle AttackingTimerHandle;
 
 	uint8 MatrixRow{0};
 	uint8 MatrixColumn{0};
@@ -153,9 +136,6 @@ private:
 	void PatrollingTimerFinished();
 
 	UFUNCTION()
-	void AttackingTimerFinished();
-
-	UFUNCTION()
 	void OnSeePawn(APawn* Pawn);
 
 	UFUNCTION()
@@ -163,52 +143,26 @@ private:
 
 	void OnMoveFinished(FAIRequestID RequestID, const FPathFollowingResult& PathFollowingResult);
 
-	void UpdateMatrixPosition();
-
-	void StartPatrolling();
-
-	void Chase();
-
-	void Attack();
-
-	void HoldPosition();
-
-	void CheckAttack();
-
-	void RotateToCharacter();
-
-	bool CanExecuteAction();
-
-	float GetDistanceToCharacter();
-
-	bool IsAttacking();
-
-	bool IsFacing();
-
-	bool IsCharacterOnNavMesh();
-
-	void PlayMontage(UAnimMontage* MontageToPlay);
-	
 	EEnemyDirection LastKnownDirection{EED_None};
 
 	EEnemyDirection GetIntersecDirection(TArray<EEnemyDirection>& EnemyDirections,
-													   EEnemyDirection EnemyDirection);
+	                                     EEnemyDirection EnemyDirection);
 	EEnemyDirection GetOppositeDirection(EEnemyDirection EnemyDirection);
 	void ChooseNextDirection(TArray<EEnemyDirection>& EnemyDirections, EEnemyDirection& NextDirection,
-										   EEnemyDirection PreviousDirection, uint8 MinIndex, uint8 MaxIndex);
+	                         EEnemyDirection PreviousDirection, uint8 MinIndex, uint8 MaxIndex);
 	void FillFreeDirections(uint8 Row, uint8 Column, TArray<EEnemyDirection>& FreeEnemyDirections);
 	FVector GetNextDestination(uint8& Row, uint8& Column, EEnemyDirection& LastDirection);
 	void FillDiagonalMatrix(uint8 Row, uint8 Column,
-										  TArray<EEnemyDiagonalDirection>& EnemyDiagonalDirections);
+	                        TArray<EEnemyDiagonalDirection>& EnemyDiagonalDirections);
 	void FillDiagonalIndexes(uint8& Row, uint8& Column);
 	void FillExitIndexes(uint8& Row, uint8& Column, EEnemyDirection EnemyDirection);
 	bool CheckForExit(uint8 Row, uint8 Column, EEnemyDirection EnemyDirection);
 	bool IsInRoom(uint8 Row, uint8 Column, const TArray<EEnemyDirection>& FreeEnemyDirections);
 	bool IsDiagonal(uint8 Row, uint8 Column) const;
 	bool IsIntersection(uint8 Row, uint8 Column) const;
-	
+
 public:
-	FORCEINLINE void SetLabyrinthMatrix(ULabyrinthDTO* LabyrinthDTOReference) {LabyrinthDTO = LabyrinthDTOReference; }
+	FORCEINLINE void SetLabyrinthMatrix(ULabyrinthDTO* LabyrinthDTOReference) { LabyrinthDTO = LabyrinthDTOReference; }
 	FORCEINLINE void ActivateShield() { bHasShield = true; }
 	FORCEINLINE void DectivateShield() { bHasShield = false; }
 };

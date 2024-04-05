@@ -4,6 +4,7 @@
 #include "Animation/AnimInstance.h"
 #include "EnemyAnimInstance.generated.h"
 
+class ARangedEnemy;
 class AMeleeEnemy;
 class ABaseEnemy;
 
@@ -21,6 +22,9 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	AMeleeEnemy* MeleeEnemy;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	ARangedEnemy* RangedEnemy;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	float Speed;
