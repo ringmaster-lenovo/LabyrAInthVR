@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "LobbyWidget.generated.h"
 
+class AWidgetContainer;
 /**
  * 
  */
@@ -17,8 +18,14 @@ class LABYRAINTHVR_API ULobbyWidget : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
+	UPROPERTY()
+	AWidgetContainer* WidgetContainer;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* NewGameButton;
+
+	DECLARE_MULTICAST_DELEGATE(FNewGameEvent);
+	FNewGameEvent OnNewGameButtonClickedEvent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* LoadGameButton;
@@ -33,7 +40,7 @@ public:
 	class UUserWidget* QuitButton;
 
 	UFUNCTION()
-	void OnNewGameClicked();
+	void OnNewGameButtonClicked();
 
 	UFUNCTION()
 	void OnLoadGameClicked();

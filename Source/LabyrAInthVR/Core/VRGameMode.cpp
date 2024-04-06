@@ -36,23 +36,13 @@ void AVRGameMode::BeginPlay()
 	if (!bIsVRHMDConnected)
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("No VR HMD connected: Switching to non-VR mode"));
-		
-		// Store references to the default player controller and pawn
-		// PlayerController = Cast<AVRPlayerController>(GetWorld()->GetFirstPlayerController());
-		// if (!IsValid(PlayerController))
-		// {
-		// 	UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of PlayerController"));
-		// 	throw "Invalid creation of PlayerController";
-		// }
-		//
-		// static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRCore/Blueprint/VR/VRCharacter"));
-		// DefaultPawnClass = PlayerPawnBPClass.Class;
-		// VRCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-		// if (!IsValid(VRCharacter))
-		// {
-		// 	UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn"));
-		// 	throw "Invalid creation of Pawn";
-		// }
+		// TODO: Get references to the default 3D player controller and character
+		PlayerController = Cast<AVRPlayerController>(GetWorld()->GetFirstPlayerController());
+		if (!IsValid(PlayerController))
+		{
+			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of PlayerController"));
+			throw "Invalid creation of PlayerController";
+		}
 	}
 	else
 	{
@@ -101,6 +91,7 @@ void AVRGameMode::BeginPlay()
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of WidgetController"));
 		throw "Invalid creation of WidgetController";
 	}
+	WidgetController->OnWidgetSError.AddUObject(this, &AVRGameMode::CrashCloseGame);
 	
 	// Spawn and set up scene controller
 	SceneController = GetWorld()->SpawnActor<ASceneController>(SceneController_BP);
@@ -128,7 +119,7 @@ void AVRGameMode::MainMenuLogicHandler()
 	// Set up the game to be in Main Menu
 	VRGameState->SetStateOfTheGame(EGameState::Egs_InMainMenu);
 	WidgetController->OnNewGameButtonClicked.AddUObject(this, &AVRGameMode::OnNewGameButtonClicked);
-	// WidgetController->ShowMainMenu();
+	WidgetController->ShowMainMenu();
 }
 
 void AVRGameMode::OnNewGameButtonClicked()
@@ -195,6 +186,13 @@ void AVRGameMode::RestartGame()
 
 void AVRGameMode::ProceedToNextLevel()
 {
+}
+
+
+void AVRGameMode::CrashCloseGame()
+{
+	// Close the game
+	FGenericPlatformMisc::RequestExit(false);
 }
 
 bool AVRGameMode::IsVRHMDConnected()

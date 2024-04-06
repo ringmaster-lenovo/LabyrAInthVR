@@ -6,7 +6,6 @@
 #include "Components/Button.h"
 
 
-
 void USettingsWidget::NativeConstruct()
 {
 	Super::NativeConstruct();

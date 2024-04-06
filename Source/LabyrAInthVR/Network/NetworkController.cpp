@@ -80,6 +80,7 @@ void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 					OnLabyrinthReceived.Broadcast();}
 				else
 				{
+					OnNetworkError.Broadcast();
 					UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Cannot Deserialize Json Response"));
 				}
 			} 

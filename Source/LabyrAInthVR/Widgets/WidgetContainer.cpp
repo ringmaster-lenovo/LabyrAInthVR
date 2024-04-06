@@ -5,6 +5,7 @@
 // #include "LobbyWidget.h"
 #include "SettingsWidget.h"
 #include "LobbyWidget.h"
+#include "WidgetController.h"
 
 
 // Sets default values
@@ -28,32 +29,90 @@ void AWidgetContainer::BeginPlay()
 
 	LobbyWidget = Cast<ULobbyWidget>(Widget->GetUserWidgetObject());
 	if (!LobbyWidget) return;
+	LobbyWidget->WidgetContainer = this;
 	
 	SettingsWidget = Cast<USettingsWidget>(Widget->GetUserWidgetObject());
 	if (!SettingsWidget) return;
+	SettingsWidget->WidgetContainer = this;
+
+	LoadingWidget = Cast<ULoadingWidget>(Widget->GetUserWidgetObject());
+	if (!LoadingWidget) return;
 }
 
+FString AWidgetContainer::ShowMainMenuUI()
+{
+	if (LobbyWidgetClass)
+	{
+		Widget->SetWidgetClass(LobbyWidgetClass);
+		LobbyWidget = Cast<ULobbyWidget>(Widget->GetUserWidgetObject());
+		if (!LobbyWidget) return "No LobbyWidget found!";
+		if (!bIsInVR)  // Non-VR widgets should be displayed on the screen
+		{
+			// set the background color of the widget
+			LobbyWidget->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.5f));
+			LobbyWidget->AddToViewport(0);
+			return "";
+		}
+	}
+	return "No LobbyWidgetClass set!";
+}
 
-void AWidgetContainer::ShowSettings()
+FString AWidgetContainer::ShowSettings()
 {
 	if (SettingsWidgetClass)
 	{
 		Widget->SetWidgetClass(SettingsWidgetClass);
 		SettingsWidget = Cast<USettingsWidget>(Widget->GetUserWidgetObject());
-		if (!SettingsWidget) return;
-	
+		if (!SettingsWidget) return "No SettingsWidget found!";
+		if (!bIsInVR)
+		{
+			LobbyWidget->RemoveFromParent();
+			SettingsWidget->AddToViewport(0);
+			return "";
+		}
 	}
+	return "No SettingsWidgetClass set!";
 }
-void AWidgetContainer::ShowRankings()
+
+FString AWidgetContainer::ShowRankings()
 {
-
+	return "Not implemented yet!";
 }
 
-void AWidgetContainer::ShowLoadingUI()
+FString AWidgetContainer::ShowLoadingUI()
 {
-
+	if (LoadingWidgetClass)
+	{
+		Widget->SetWidgetClass(LoadingWidgetClass);
+		LoadingWidget = Cast<ULoadingWidget>(Widget->GetUserWidgetObject());
+		if (!LoadingWidget) return "No LoadingWidget found!";
+		if (!bIsInVR)
+		{
+			LobbyWidget->RemoveFromParent();
+			LoadingWidget->AddToViewport(0);
+			return "";
+		}
+	}
+	return "No LoadingWidgetClass set!";
 }
 
+void AWidgetContainer::NewGameButtonClicked() const
+{
+	WidgetController->NewGameButtonClicked();
+}
 
-
-
+FString AWidgetContainer::HideMainMenuUI()
+{
+	if (LobbyWidgetClass)
+	{
+		if (!bIsInVR)  // Non-VR widgets should be displayed on the screen
+		{
+			UUserWidget* AnyWidget = Cast<UUserWidget>(Widget->GetUserWidgetObject());
+			if (!AnyWidget) return "No Widget found in Main Menu Container!";
+			AnyWidget->RemoveFromParent();
+		}
+		Widget->SetWidgetClass(LobbyWidgetClass);
+		return "";
+	}
+	return "No LobbyWidgetClass set!";
+}

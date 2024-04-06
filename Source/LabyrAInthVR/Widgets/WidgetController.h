@@ -15,37 +15,38 @@ class LABYRAINTHVR_API AWidgetController : public AActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AWidgetController();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-
+	virtual void Tick(float DeltaTime) override;
+	
+	bool bIsInVR = false;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<AWidgetContainer> WidgetContainerClass;
 
 	UPROPERTY()
 	AWidgetContainer* WidgetContainer = nullptr;
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	DECLARE_MULTICAST_DELEGATE(FNewGameEvent);
 	FNewGameEvent OnNewGameButtonClicked;
 
+	DECLARE_MULTICAST_DELEGATE(FWidgetsErrorEvent);
+	FWidgetsErrorEvent OnWidgetSError;
+
 	UFUNCTION(Category = "Widgets")
-	void ShowMainMenu()
-	{
-		// TODO: show the main menu in the world
-		OnNewGameButtonClicked.Broadcast();
-	};
+	void ShowMainMenu();
 
 	UFUNCTION(Category = "Widgets")
 	void ShowLoadingScreen();
 
 	UFUNCTION(Category = "Widgets")
 	void ShowGameUI();
+
+	UFUNCTION(Category = "Widgets")
+	void NewGameButtonClicked();
 	
 };

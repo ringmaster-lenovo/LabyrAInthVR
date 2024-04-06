@@ -26,9 +26,6 @@ class LABYRAINTHVR_API AVRGameMode : public AGameModeBase
 public:
 	AVRGameMode();
 
-	UPROPERTY()
-	AWidgetController* WidgetController;
-
 protected:
 	virtual void BeginPlay() override;
 
@@ -42,7 +39,10 @@ private:
 	ACharacter* VRCharacter;
 
 	UPROPERTY()
-	ANetworkController* NetworkController; 
+	ANetworkController* NetworkController;
+
+	UPROPERTY()
+	AWidgetController* WidgetController;
 
 	UPROPERTY()
 	AVRGameState* VRGameState;
@@ -82,6 +82,9 @@ private:
 
 	UFUNCTION()
 	bool IsVRHMDConnected();
+
+	UFUNCTION()
+	void CrashCloseGame();
 
 public:
 	UFUNCTION(BlueprintCallable)
