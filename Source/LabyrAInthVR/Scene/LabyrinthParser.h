@@ -118,10 +118,10 @@ private:
 
 	float Timer{0.f};
 
-	// Enemy
-	UPROPERTY(EditAnywhere, Category=Enemy)
-	TSubclassOf<ABaseEnemy> BaseEnemyClass;
-
-	UPROPERTY()
-	TArray<ABaseEnemy*> SpawnedEnemies {};
+	// // Enemy
+	// UPROPERTY(EditAnywhere, Category=Enemy)
+	// TSubclassOf<ABaseEnemy> BaseEnemyClass;
+	//
+	// UPROPERTY()
+	// TArray<ABaseEnemy*> SpawnedEnemies {};
 };
