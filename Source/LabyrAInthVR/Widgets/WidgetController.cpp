@@ -51,7 +51,7 @@ void AWidgetController::ShowMainMenu()
 		UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
 		OnWidgetSError.Broadcast();
 	}
-	NewGameButtonClicked();
+	// NewGameButtonClicked();
 }
 
 void AWidgetController::ShowLoadingScreen()

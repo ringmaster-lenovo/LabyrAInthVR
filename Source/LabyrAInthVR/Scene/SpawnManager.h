@@ -61,7 +61,6 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	uint8 DifficultyLevel = 0;
 	
 	int NumOfPowerUpsSpawned = 0;
 	int NumOfTrapsSpawned = 0;
@@ -77,10 +76,6 @@ private:
 	TArray<int> PotentialPowerUpSpawnLocations = {};
 	TArray<int> PotentialTrapSpawnLocations = {};
 	TArray<int> PotentialEnemySpawnLocations = {};
-	
-	TMap<TSubclassOf<APowerUp>, int> PowerUpsComplexityMap = {};
-	TMap<TSubclassOf<ATrap>, int> TrapsComplexityMap = {};
-	TMap<TSubclassOf<ABaseEnemy>, int> EnemiesComplexityMap = {};
 
 	UPROPERTY()
 	ULabyrinthDTO* LabyrinthDTO;
@@ -98,8 +93,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Enemies")
 	TArray<TSubclassOf<AActor>> EnemiesClasses;
 
-	void SetDifficultyLevel(const uint8 Level) { DifficultyLevel = Level; }
-
 	FString SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReference);
 
 	void FindPotentialSpawnLocations(const ULabyrinthDTO* LabyrinthDTO, int Row, int Column);
@@ -110,9 +103,9 @@ public:
 
 	FString ChooseEnemiesSpawnPoints(const int NumOfEnemiesToSpawn);
 	
-	FString ChooseRandomSpawnLocation(int NumOfActorsToSpawn, TArray<int>& ActorsSpawnLocations,  TArray<int>& PotentialLocations, uint8 ConventionalValueInTheMatrix);
+	FString ChooseRandomSpawnLocation(int NumOfActorsToSpawn, TArray<int>& ActorsSpawnLocations,  TArray<int>& PotentialLocations, uint8 ConventionalValueInTheMatrix) const;
 
-	FString ComplexityDecider(int& PowerUpsToSpawn, int& TrapsToSpawn, int& EnemiesToSpawn);
+	FString DifficultyDecider(int& PowerUpsToSpawn, int& TrapsToSpawn, int& EnemiesToSpawn) const;
 
-	FString SpawnActors(const TArray<int>& SpawnLocations, const TMap<TSubclassOf<AActor>, int>& ActorsToSpawn);
+	FString SpawnActors(const TArray<int>& SpawnLocations, const TArray<TSubclassOf<AActor>>& SpawnableActors) const;
 };

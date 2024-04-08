@@ -10,6 +10,7 @@
 #include "LabyrAInthVR/Scene/SceneController.h"
 #include "LabyrAInthVR/Widgets/WidgetController.h"
 #include "LabyrAInthVR/Player/VRPlayerController.h"
+#include "LabyrAInthVR/Player/VRMainCharacter.h"
 #include "VRGameMode.generated.h"
 
 /**

@@ -15,7 +15,9 @@ AVRGameMode::AVRGameMode()
 	// Set default classes for player controller
 	PlayerControllerClass = AVRPlayerController::StaticClass();
 	PlayerController = nullptr;
-	
+
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRCore/Blueprint/VR/VRCharacter"));
+	DefaultPawnClass = PlayerPawnBPClass.Class;
 	VRCharacter = nullptr;
 
 	GameStateClass = AVRGameState::StaticClass();
@@ -56,8 +58,7 @@ void AVRGameMode::BeginPlay()
 			throw "Invalid creation of PlayerController";
 		}
 
-		static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRCore/Blueprint/VR/VRCharacter"));
-		DefaultPawnClass = PlayerPawnBPClass.Class;
+		// DefaultPawnClass = AVRMainCharacter::StaticClass();
 		VRCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 		if (!IsValid(VRCharacter))
 		{

@@ -49,12 +49,12 @@ FString AWidgetContainer::ShowMainMenuUI()
 		if (!bIsInVR)  // Non-VR widgets should be displayed on the screen
 		{
 			// set the background color of the widget
-			LobbyWidget->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.5f));
+			// LobbyWidget->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.5f));
 			LobbyWidget->AddToViewport(0);
-			return "";
 		}
+		return "";
 	}
-	return "No LobbyWidgetClass set!";
+	else return "No LobbyWidgetClass set!";
 }
 
 FString AWidgetContainer::ShowSettings()
@@ -68,10 +68,10 @@ FString AWidgetContainer::ShowSettings()
 		{
 			LobbyWidget->RemoveFromParent();
 			SettingsWidget->AddToViewport(0);
-			return "";
 		}
+		return "";
 	}
-	return "No SettingsWidgetClass set!";
+	else return "No SettingsWidgetClass set!";
 }
 
 FString AWidgetContainer::ShowRankings()
@@ -90,10 +90,10 @@ FString AWidgetContainer::ShowLoadingUI()
 		{
 			LobbyWidget->RemoveFromParent();
 			LoadingWidget->AddToViewport(0);
-			return "";
 		}
+		return "";
 	}
-	return "No LoadingWidgetClass set!";
+	else return "No LoadingWidgetClass set!";
 }
 
 void AWidgetContainer::NewGameButtonClicked() const
