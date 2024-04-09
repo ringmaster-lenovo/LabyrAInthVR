@@ -41,7 +41,7 @@ protected:
 
 private:
 	UFUNCTION(BlueprintCallable)
-	void SetWeaponCollision(bool bEnabled);
+	void SetWeaponCollision(bool bEnabled, bool bRightWeapon);
 
 	UFUNCTION()
 	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -54,11 +54,17 @@ private:
 
 private:
 	UPROPERTY(EditAnywhere, Category=Weapon)
-	UBoxComponent* WeaponBoxComponent;
+	UBoxComponent* LeftWeaponBoxComponent;
+
+	UPROPERTY(EditAnywhere, Category=Weapon)
+	UBoxComponent* RightWeaponBoxComponent;
 
 	UPROPERTY(EditAnywhere, Category="Settings|Attack")
 	float MeleeAttackDamage{50.f};
 
+	UPROPERTY(EditAnywhere, Category="Settings|Attack")
+	bool bHasDoubleWeapon{false};
+	
 	UPROPERTY(EditAnywhere, Category=Settings)
 	float ChaseDistance{2000.f};
 

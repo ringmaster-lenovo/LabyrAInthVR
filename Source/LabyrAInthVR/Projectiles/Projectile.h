@@ -5,6 +5,7 @@
 #include "Projectile.generated.h"
 
 class UBoxComponent;
+class UNiagaraSystem;
 class UProjectileMovementComponent;
 
 UCLASS()
@@ -15,7 +16,7 @@ class LABYRAINTHVR_API AProjectile : public AActor
 public:
 	AProjectile();
 	virtual void BeginPlay() override;
-
+	virtual void Destroyed() override;
 private:
 	UFUNCTION()
 	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -38,7 +39,7 @@ private:
 	float InitialSpeed;
 
 	UPROPERTY(EditAnywhere)
-	UParticleSystem* ProjectileTracer;
+	UNiagaraSystem* ProjectileTracer;
 
 	UPROPERTY()
 	UParticleSystemComponent* ProjectileTracerComponent;

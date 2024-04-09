@@ -31,6 +31,9 @@ private:
 	TSubclassOf<AProjectile> ProjectileClass;
 
 	UPROPERTY(EditAnywhere)
+	UParticleSystem* MuzzleEffectParticle;
+
+	UPROPERTY(EditAnywhere)
 	FName AmmoEjectSocketName;
 	
 	UFUNCTION(BlueprintCallable)

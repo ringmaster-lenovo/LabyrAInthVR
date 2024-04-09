@@ -381,7 +381,7 @@ FVector ABaseEnemy::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirectio
 		WallSettings::WallOffset * TravellingColumn, WallSettings::WallOffset * TravellingRow, 0.f
 	};
 
-	DrawDebugSphere(GetWorld(), Destination, 20.f, 10, FColor::Red, true);
+	//DrawDebugSphere(GetWorld(), Destination, 20.f, 10, FColor::Red, true);
 	UE_LOG(LogTemp, Warning, TEXT("Post enemy indexes: %d %d"), TravellingRow, TravellingColumn)
 	// Update enemy values by ref
 	LastDirection = ChosenDirection;

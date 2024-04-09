@@ -105,8 +105,11 @@ private:
 
 	// Enemy
 	UPROPERTY(EditAnywhere, Category=Enemy)
-	TSubclassOf<ABaseEnemy> BaseEnemyClass;
+	TArray<TSubclassOf<ABaseEnemy>> BaseEnemyClass;
 
 	UPROPERTY()
 	TArray<ABaseEnemy*> SpawnedEnemies {};
+
+	UPROPERTY(EditAnywhere)
+	uint8 Enemies{0};
 };

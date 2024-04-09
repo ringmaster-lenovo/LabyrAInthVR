@@ -1,6 +1,7 @@
 #include "RangedEnemy.h"
 
 #include "AIController.h"
+#include "Kismet/GameplayStatics.h"
 #include "LabyrAInthVR/MockedCharacter/MockedCharacter.h"
 #include "LabyrAInthVR/Projectiles/Projectile.h"
 
@@ -42,19 +43,18 @@ void ARangedEnemy::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	DrawDebugSphere(GetWorld(), GetActorLocation(), RangedAttackDistance, 10, FColor::Green, false);
-
-
-	if(!IsValid(SeenCharacter)) return;
-	
-	FVector SocketLocation = GetMesh()->GetSocketTransform(AmmoEjectSocketName).GetLocation();
-	DrawDebugDirectionalArrow(GetWorld(), SocketLocation, SocketLocation + (SeenCharacter->GetActorLocation() - SocketLocation).GetSafeNormal() * 1000.f, 20.f, FColor::Red, false);
 }
 
 void ARangedEnemy::ShootProjectile()
 {
-	if(ProjectileClass == nullptr || !IsValid(GetMesh())) return;
-
 	FVector SocketLocation = GetMesh()->GetSocketTransform(AmmoEjectSocketName).GetLocation();
+	
+	if(MuzzleEffectParticle == nullptr) return;
+	
+	UGameplayStatics::SpawnEmitterAtLocation(this, MuzzleEffectParticle, SocketLocation);
+	
+	if(ProjectileClass == nullptr || !IsValid(GetMesh())) return;
+	
 	FVector EndVector = SeenCharacter->GetActorLocation() - SocketLocation;
 	
 	FActorSpawnParameters SpawnParameters;

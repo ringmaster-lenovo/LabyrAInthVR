@@ -8,18 +8,28 @@
 
 AMeleeEnemy::AMeleeEnemy()
 {
-	WeaponBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponBoxComponent"));
-	WeaponBoxComponent->SetupAttachment(GetMesh(), FName("weapon_r"));
+	LeftWeaponBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftWeaponBoxComponent"));
+	LeftWeaponBoxComponent->SetupAttachment(GetMesh(), FName("weapon_l"));
+	
+	RightWeaponBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("RightWeaponBoxComponent"));
+	RightWeaponBoxComponent->SetupAttachment(GetMesh(), FName("weapon_r"));
 }
 
 void AMeleeEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!IsValid(WeaponBoxComponent)) return;
+	if (!IsValid(LeftWeaponBoxComponent)) return;
 
-	WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	WeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnComponentBeginOverlap);
+	LeftWeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftWeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnComponentBeginOverlap);
+
+	RightWeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightWeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnComponentBeginOverlap);
+
+	if(bHasDoubleWeapon) return;
+
+	LeftWeaponBoxComponent->UnregisterComponent();
 }
 
 void AMeleeEnemy::Tick(float DeltaSeconds)
@@ -51,8 +61,8 @@ void AMeleeEnemy::Tick(float DeltaSeconds)
 	default: ;
 	}
 
-	DrawDebugSphere(GetWorld(), GetActorLocation(), MeleeAttackDistance, 10, FColor::Red, false);
-	DrawDebugSphere(GetWorld(), GetActorLocation(), ChaseDistance, 10, FColor::Turquoise, false);
+	//DrawDebugSphere(GetWorld(), GetActorLocation(), MeleeAttackDistance, 10, FColor::Red, false);
+	//DrawDebugSphere(GetWorld(), GetActorLocation(), ChaseDistance, 10, FColor::Turquoise, false);
 }
 
 void AMeleeEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
@@ -62,7 +72,15 @@ void AMeleeEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamag
 
 	if(Health > 0) return;
 	
-	SetWeaponCollision(false);
+	if(bHasDoubleWeapon)
+	{
+		SetWeaponCollision(false, true);
+		SetWeaponCollision(false, false);
+	} else
+	{
+		SetWeaponCollision(false, true);
+	}
+	
 	GetWorldTimerManager().ClearTimer(MeleeAttackTimerHandle);
 }
 
@@ -75,21 +93,31 @@ void AMeleeEnemy::PlayMontage(UAnimMontage* MontageToPlay)
 	if (MontageToPlay == MeleeAttackMontage) AnimInstance->Montage_SetPlayRate(MeleeAttackMontage, MeleeAttackSpeed);
 }
 
-void AMeleeEnemy::SetWeaponCollision(bool bEnabled)
+void AMeleeEnemy::SetWeaponCollision(bool bEnabled, bool bRightWeapon)
 {
-	if (!IsValid(WeaponBoxComponent)) return;
+	if(bRightWeapon)
+	{
+		if (!IsValid(RightWeaponBoxComponent)) return;
 
-	WeaponBoxComponent->SetCollisionEnabled(bEnabled
-		                                        ? ECollisionEnabled::QueryAndPhysics
-		                                        : ECollisionEnabled::NoCollision);
+		RightWeaponBoxComponent->SetCollisionEnabled(bEnabled
+													? ECollisionEnabled::QueryAndPhysics
+													: ECollisionEnabled::NoCollision);
+	} else
+	{
+		if (!IsValid(LeftWeaponBoxComponent)) return;
+
+		LeftWeaponBoxComponent->SetCollisionEnabled(bEnabled
+													? ECollisionEnabled::QueryAndPhysics
+													: ECollisionEnabled::NoCollision);
+	}
 }
 
 void AMeleeEnemy::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                           UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                           const FHitResult& SweepResult)
 {
-	ACharacter* HitCharacter = Cast<ACharacter>(OtherActor);
-	if (!IsValid(HitCharacter) || OtherActor == this || !OtherActor->Implements<UDamageableActor>()) return;
+	const bool bShouldDamage = Cast<ACharacter>(OtherActor) == nullptr || Cast<ABaseEnemy>(OtherActor) != nullptr;
+	if (bShouldDamage || OtherActor == this || !OtherActor->Implements<UDamageableActor>()) return;
 	UGameplayStatics::ApplyDamage(OtherActor, 50.f, GetController(), this, UDamageType::StaticClass());
 }
 
@@ -111,7 +139,7 @@ void AMeleeEnemy::AttackInternal()
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("can attack: %d"), bCanAttack);
+	//UE_LOG(LogTemp, Warning, TEXT("can attack: %d"), bCanAttack);
 	
 	if (!bCanAttack) return;
 

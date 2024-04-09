@@ -4,6 +4,8 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "LabyrAInthVR/Enemy/BaseEnemy.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "LabyrAInthVR/MockedCharacter/MockedCharacter.h"
 
 AProjectile::AProjectile()
@@ -35,17 +37,34 @@ void AProjectile::BeginPlay()
 	
 	if(ProjectileTracer == nullptr) return;
 
-	ProjectileTracerComponent = UGameplayStatics::SpawnEmitterAttached(
+	/*ProjectileTracerComponent = UGameplayStatics::SpawnEmitterAttached(
 		ProjectileTracer,
 		CollisionBox,
 		FName(),
 		GetActorLocation(),
 		GetActorRotation(),
-		EAttachLocation::KeepWorldPosition);
+		EAttachLocation::KeepWorldPosition);*/
+
+	UNiagaraFunctionLibrary::SpawnSystemAttached(
+											ProjectileTracer,
+											CollisionBox,
+											FName(),
+											GetActorLocation(),
+											GetActorRotation(),
+											EAttachLocation::KeepWorldPosition,
+											false);
+}
+
+void AProjectile::Destroyed()
+{
+	Super::Destroyed();
+	if(ImpactParticle == nullptr) return;
+
+	UGameplayStatics::SpawnEmitterAtLocation(this, ImpactParticle, GetActorLocation());
 }
 
 void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                          UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if(!IsValid(OtherActor) || OtherActor == GetOwner()) return;
 
