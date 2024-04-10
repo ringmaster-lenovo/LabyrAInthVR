@@ -267,6 +267,10 @@ void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamage
 
 FVector ABaseEnemy::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirection& LastDirection)
 {
+	if(!IsValid(LabyrinthDTO))
+	{
+		return FVector{};
+	}
 	EEnemyDirection ChosenDirection{EED_None};
 	TArray<EEnemyDirection> FreeEnemyDirections{};
 	bool bIsInRoom{false};
@@ -518,6 +522,19 @@ bool ABaseEnemy::IsIntersection(uint8 Row, uint8 Column) const
 	if (Row - 1 >= 0 && LabyrinthDTO->LabyrinthStructure[Row - 1][Column] != 1 && LabyrinthDTO->LabyrinthStructure[Row - 1][Column] != 3) Counter++;
 
 	return Counter > 2;
+}
+
+void ABaseEnemy::SetLabyrinthMatrix(ULabyrinthDTO* LabyrinthDTOReference)
+{
+	if(!IsValid(LabyrinthDTOReference))
+	{
+		UE_LOG(LogTemp, Error, TEXT("LabyrinthDTO is null"));
+	} else
+	{
+		UE_LOG(LogTemp, Error, TEXT("LabyrinthDTO is not null"));
+	}
+
+	LabyrinthDTO = LabyrinthDTOReference;
 }
 
 bool ABaseEnemy::IsDiagonal(uint8 Row, uint8 Column) const

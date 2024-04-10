@@ -162,7 +162,7 @@ private:
 	bool IsIntersection(uint8 Row, uint8 Column) const;
 
 public:
-	FORCEINLINE void SetLabyrinthMatrix(ULabyrinthDTO* LabyrinthDTOReference) { LabyrinthDTO = LabyrinthDTOReference; }
+	void SetLabyrinthMatrix(ULabyrinthDTO* LabyrinthDTOReference);
 	FORCEINLINE void ActivateShield() { bHasShield = true; }
 	FORCEINLINE void DectivateShield() { bHasShield = false; }
 };

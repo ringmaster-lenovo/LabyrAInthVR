@@ -5,6 +5,7 @@
 #include "Config.h"
 #include "SceneController.h"
 #include "Utils.h"
+#include "LabyrAInthVR/Enemy/RangedEnemy.h"
 #include "LabyrAInthVR/Interagibles/PowerUp.h"
 #include "LabyrAInthVR/Interagibles/Trap.h"
 #include "LabyrAInthVR/Network/LabyrinthDTO.h"
@@ -313,13 +314,16 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 		AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(SpawnableActors[Index], SpawnPoint, FRotator(0, FMath::RandRange(0, 360), 0));
 		if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned"))
 		else
-			if (ObjectClass == ABaseEnemy::StaticClass())
+			if (ObjectClass == ARangedEnemy::StaticClass() || ObjectClass == AMeleeEnemy::StaticClass())
 			{
 				ABaseEnemy* EnemyInstance = Cast<ABaseEnemy>(ActorSpawned);
 				if (EnemyInstance == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("EnemyInstance is null"))
+				EnemyInstance->SetLabyrinthMatrix(LabyrinthDTO);
 				EnemyInstance->SetMatrixPosition(Row, Column);
 			}
 			UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor spawned: %s"), *ActorSpawned->GetName());
+			UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor class: %s"), *ObjectClass->GetSuperClass()->GetName());
+			UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor class: %s"), *ObjectClass->GetName());
 	}
 	return "";
 
