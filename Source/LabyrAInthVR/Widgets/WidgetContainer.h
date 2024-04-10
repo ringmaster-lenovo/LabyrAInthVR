@@ -7,7 +7,10 @@
 #include "Components/WidgetComponent.h"
 #include "LobbyWidget.h"
 #include "SettingsWidget.h"
+#include "LoadingWidget.h"
 #include "WidgetContainer.generated.h"
+
+class AWidgetController;
 
 //DECLARE_DELEGATE_OneParam(FOnWantToSendMessage, const FString&);
 UCLASS()
@@ -20,11 +23,17 @@ public:
 	// Sets default values for this actor's properties
 	AWidgetContainer();
 
+	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
+	AWidgetController* WidgetController;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<ULobbyWidget> LobbyWidgetClass;
-	//
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<USettingsWidget> SettingsWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<ULoadingWidget> LoadingWidgetClass;
 	
 	UPROPERTY()
 	ULobbyWidget* LobbyWidget = nullptr;
@@ -32,8 +41,8 @@ public:
 	UPROPERTY()
 	USettingsWidget* SettingsWidget = nullptr;
 
-	// UPROPERTY()
-	// ULoadingWidget* LoadingWidget = nullptr;
+	UPROPERTY()
+	ULoadingWidget* LoadingWidget = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* Root;
@@ -42,17 +51,29 @@ public:
 	UWidgetComponent* Widget;
 
 	UFUNCTION(BlueprintCallable)
-	void ShowRankings();
+	FString ShowMainMenuUI();
+
 	UFUNCTION(BlueprintCallable)
-	void ShowSettings();
+	FString ShowSettings();
+	
 	UFUNCTION(BlueprintCallable)
-	void ShowLoadingUI();
+	FString ShowLoadingUI();
+	
+	UFUNCTION(BlueprintCallable)
+	FString ShowRankings();
+
+	UFUNCTION(BlueprintCallable)
+	FString HideMainMenuUI();
+
+	UFUNCTION()
+	void NewGameButtonClicked() const;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsInVR = true;
 
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
-	
-
 };

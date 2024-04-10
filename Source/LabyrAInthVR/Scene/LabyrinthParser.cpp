@@ -367,36 +367,36 @@ void ALabyrinthParser::BuildLabyrinthInternal()
 		ProceduralSplineWallPair->UpdateSplineMesh();
 	}
 
-	// Enemy spawn
-	bool bEnemySpawnPointFound = false;
-	FVector SpawnPoint{0};
-	uint8 RowSelection{0};
-	uint8 ColumnSelection{0};
-	while (!bEnemySpawnPointFound)
-	{
-		RowSelection = FMath::RandRange(0, std::size(UnparsedLabyrinthMatrix) - 1);
-		ColumnSelection = FMath::RandRange(0, std::size(UnparsedLabyrinthMatrix[0]) - 1);
-
-		if (!UnparsedLabyrinthMatrix[RowSelection][ColumnSelection])
-		{
-			bEnemySpawnPointFound = true;
-			SpawnPoint = FVector{
-				WallSettings::WallOffset * ColumnSelection, WallSettings::WallOffset * RowSelection,
-				EnemySettings::SpawnHeight
-			};
-			//DrawDebugSphere(GetWorld(), SpawnPoint, 20.f, 15, FColor::Red, true);
-		}
-	}
-
-	if (BaseEnemyClass == nullptr) return;
-
-	ABaseEnemy* EnemyInstance = GetWorld()->SpawnActor<ABaseEnemy>(BaseEnemyClass, SpawnPoint, FRotator{0.f, 0.f, 0.f});
-
-	if (EnemyInstance == nullptr) return;
-
-	EnemyInstance->SetOwner(this);
-	EnemyInstance->SetMatrixPosition(RowSelection, ColumnSelection);
-	SpawnedEnemies.Add(EnemyInstance);
+	// // Enemy spawn
+	// bool bEnemySpawnPointFound = false;
+	// FVector SpawnPoint{0};
+	// uint8 RowSelection{0};
+	// uint8 ColumnSelection{0};
+	// while (!bEnemySpawnPointFound)
+	// {
+	// 	RowSelection = FMath::RandRange(0, std::size(UnparsedLabyrinthMatrix) - 1);
+	// 	ColumnSelection = FMath::RandRange(0, std::size(UnparsedLabyrinthMatrix[0]) - 1);
+	//
+	// 	if (!UnparsedLabyrinthMatrix[RowSelection][ColumnSelection])
+	// 	{
+	// 		bEnemySpawnPointFound = true;
+	// 		SpawnPoint = FVector{
+	// 			WallSettings::WallOffset * ColumnSelection, WallSettings::WallOffset * RowSelection,
+	// 			EnemySettings::SpawnHeight
+	// 		};
+	// 		//DrawDebugSphere(GetWorld(), SpawnPoint, 20.f, 15, FColor::Red, true);
+	// 	}
+	// }
+	//
+	// if (BaseEnemyClass == nullptr) return;
+	//
+	// ABaseEnemy* EnemyInstance = GetWorld()->SpawnActor<ABaseEnemy>(BaseEnemyClass, SpawnPoint, FRotator{0.f, 0.f, 0.f});
+	//
+	// if (EnemyInstance == nullptr) return;
+	//
+	// EnemyInstance->SetOwner(this);
+	// EnemyInstance->SetMatrixPosition(RowSelection, ColumnSelection);
+	// SpawnedEnemies.Add(EnemyInstance);
 }
 
 void ALabyrinthParser::SetShortWallSettings(AProceduralSplineWall* & ProceduralSplineWall)

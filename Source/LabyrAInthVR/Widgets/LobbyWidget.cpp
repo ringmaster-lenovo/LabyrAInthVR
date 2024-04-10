@@ -5,8 +5,7 @@
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/Button.h"
-#include "Kismet/GameplayStatics.h"
-#include "LabyrAInthVR/Core/VRGameMode.h"
+#include "WidgetContainer.h"
 
 
 void ULobbyWidget::NativeConstruct()
@@ -19,7 +18,7 @@ void ULobbyWidget::NativeConstruct()
 		UButton* NewGameButtonWidget = Cast<UButton>(NewGameButton->GetWidgetFromName(TEXT("ButtonHit")));
 		if (NewGameButtonWidget)
 		{
-			NewGameButtonWidget->OnClicked.AddDynamic(this, &ULobbyWidget::OnNewGameClicked);
+			NewGameButtonWidget->OnClicked.AddDynamic(this, &ULobbyWidget::OnNewGameButtonClicked);
 		}
 	}
 
@@ -60,15 +59,9 @@ void ULobbyWidget::NativeConstruct()
 	}
 }
 
-void ULobbyWidget::OnNewGameClicked()
+void ULobbyWidget::OnNewGameButtonClicked()
 {
-
-	AVRGameMode* GameMode = Cast<AVRGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GameMode && GameMode->WidgetController)
-	{
-		// Broadcast the event that the New Game button was clicked
-		GameMode->WidgetController->OnNewGameButtonClicked.Broadcast();
-	}
+	WidgetContainer->NewGameButtonClicked();
 }
 
 void ULobbyWidget::OnLoadGameClicked()
@@ -83,7 +76,7 @@ void ULobbyWidget::OnRankingsClicked()
 
 void ULobbyWidget::OnSettingsClicked()
 {
-	// WidgetContainer->ShowSettings();
+	WidgetContainer->ShowSettings();
 }
 
 void ULobbyWidget::OnQuitClicked()

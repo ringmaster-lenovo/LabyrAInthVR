@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "SettingsWidget.generated.h"
 
+class AWidgetContainer;
 /**
  * 
  */
@@ -16,5 +17,7 @@ class LABYRAINTHVR_API USettingsWidget : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
-	
+
+	UPROPERTY()
+	AWidgetContainer* WidgetContainer;
 };
