@@ -38,7 +38,6 @@ public:
 	virtual void BeginPlay() override;
 
 	FString BuildLabyrinth(ULabyrinthDTO* LabyrinthDTOReference, ASpawnManager* SpawnManagerReference);
-	FVector GetNextDestination(uint8& Row, uint8& Column, EEnemyDirection& LastDirection);
 
 private:
 	void BuildLabyrinthInternal();
@@ -51,28 +50,14 @@ private:
 	void SpawnFlatSurface(bool bFloor);
 	void SetShortWallSettings(AProceduralSplineWall* & ProceduralSplineWall);
 	bool HasFrontNeighbor(uint8 Row, uint8 Column, ETravellingDirection TravellingDirection) const;
-	bool IsIntersection(uint8 Row, uint8 Column) const;
-	bool IsDiagonal(uint8 Row, uint8 Column) const;
-	bool IsInRoom(uint8 Row, uint8 Column, const TArray<EEnemyDirection>& FreeEnemyDirections) const;
-	bool CheckForExit(uint8 Row, uint8 Column, EEnemyDirection EnemyDirection) const;
 	
-	void FillExitIndexes(uint8& Row, uint8& Column, EEnemyDirection EnemyDirection) const;
-	void FillDiagonalIndexes(uint8& Row, uint8& Column) const;
-	void FillDiagonalMatrix(uint8 Row, uint8 Column, TArray<EEnemyDiagonalDirection>& EnemyDiagonalDirections) const;
 	AProceduralSplineWall* SpawnWall(FVector& Location, ETravellingDirection TravellingDirection, uint8 WallType);
 	AProceduralSplineWall* GetPossibleNeighborhood(FVector& Location, ETravellingDirection TravellingDirection) const;
-
-	void FillFreeDirections(uint8 Row, uint8 Column, TArray<EEnemyDirection>& FreeEnemyDirections) const;
-	void ChooseNextDirection(TArray<EEnemyDirection>& EnemyDirections, EEnemyDirection& NextDirection, EEnemyDirection PreviousDirection, uint8 MinIndex, uint8 MaxIndex);
-	static EEnemyDirection GetOppositeDirection(EEnemyDirection EnemyDirection);
-	static EEnemyDirection GetIntersectDirection(TArray<EEnemyDirection>& EnemyDirections, EEnemyDirection EnemyDirection);
 	
 	static FVector GetRandomHex(EWallPalette Palette);
 
 	UPROPERTY(EditAnywhere, Category=ProceduralWall)
 	TSubclassOf<AActor> ProceduralWallClass;
-
-	std::vector<std::vector<uint8>> UnparsedLabyrinthMatrix;
 
 	UPROPERTY()
 	ULabyrinthDTO* LabyrinthDTO;
@@ -118,10 +103,13 @@ private:
 
 	float Timer{0.f};
 
-	// // Enemy
-	// UPROPERTY(EditAnywhere, Category=Enemy)
-	// TSubclassOf<ABaseEnemy> BaseEnemyClass;
-	//
-	// UPROPERTY()
-	// TArray<ABaseEnemy*> SpawnedEnemies {};
+	// Enemy
+	UPROPERTY(EditAnywhere, Category=Enemy)
+	TArray<TSubclassOf<ABaseEnemy>> BaseEnemyClass;
+
+	UPROPERTY()
+	TArray<ABaseEnemy*> SpawnedEnemies {};
+
+	UPROPERTY(EditAnywhere)
+	uint8 Enemies{0};
 };
