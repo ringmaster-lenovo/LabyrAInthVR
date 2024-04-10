@@ -125,40 +125,6 @@ void ALabyrinthParser::BuildLabyrinthInternal()
 		ProceduralSplineWallPair->UpdateSplineMesh();
 	}
 
-	for(int i{0}; i < Enemies; i++)
-	{
-		// Enemy spawn
-		bool bEnemySpawnPointFound = false;
-		FVector SpawnPoint{0};
-		uint8 RowSelection{0};
-		uint8 ColumnSelection{0};
-		while (!bEnemySpawnPointFound)
-		{
-			RowSelection = FMath::RandRange(0, std::size(LabyrinthDTO->LabyrinthStructure) - 1);
-			ColumnSelection = FMath::RandRange(0, std::size(LabyrinthDTO->LabyrinthStructure[0]) - 1);
-
-			if (!LabyrinthDTO->LabyrinthStructure[RowSelection][ColumnSelection])
-			{
-				bEnemySpawnPointFound = true;
-				SpawnPoint = FVector{
-					WallSettings::WallOffset * ColumnSelection, WallSettings::WallOffset * RowSelection,
-					EnemySettings::SpawnHeight
-				};
-				//DrawDebugSphere(GetWorld(), SpawnPoint, 20.f, 15, FColor::Red, true);
-			}
-		}
-
-		ABaseEnemy* EnemyInstance = GetWorld()->SpawnActor<ABaseEnemy>(BaseEnemyClass[FMath::RandRange(0, BaseEnemyClass.Num() - 1)], SpawnPoint, FRotator{0.f, 0.f, 0.f});
-		
-
-		if (EnemyInstance == nullptr) return;
-
-		EnemyInstance->SetLabyrinthMatrix(LabyrinthDTO);
-		EnemyInstance->SetOwner(this);
-		EnemyInstance->SetMatrixPosition(RowSelection, ColumnSelection);
-		SpawnedEnemies.Add(EnemyInstance);
-	}
-
 	// Broadcast scene complete
 	ASceneController* SceneController = Cast<ASceneController>(
 		UGameplayStatics::GetActorOfClass(this, ASceneController::StaticClass()));
