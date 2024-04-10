@@ -6,8 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "SceneController.generated.h"
 
-
 class ANavMeshBoundsVolume;
+
 DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Scene_Log, Display, All);
 
 UCLASS()

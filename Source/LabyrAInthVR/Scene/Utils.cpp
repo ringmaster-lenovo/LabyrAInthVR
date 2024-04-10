@@ -2,7 +2,6 @@
 
 #include "Utils.h"
 #include "Config.h"
-#include "SceneController.h"
 
 /**
  * Convert the row and column to an index
@@ -72,7 +71,7 @@ FString UUtils::StructToString(const FInfoActorSpawned& InfoActorSpawned)
  * @param ActorsSpawnedLocations the locations of the actors spawned
  * @return FInfoActorSpawned the struct containing the number of actors spawned and their locations
  */
-FInfoActorSpawned UUtils::GetInfoActorSpawned(const int NumOfActorSpawned, const TSet<int>* ActorsSpawnedLocations)
+FInfoActorSpawned UUtils::GetInfoActorSpawned(const int NumOfActorSpawned, const TArray<int>* ActorsSpawnedLocations)
 {
 	FInfoActorSpawned Info;
 	Info.NumOfActorSpawned = NumOfActorSpawned;

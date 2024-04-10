@@ -20,7 +20,7 @@ struct FInfoActorSpawned
 	int NumOfActorSpawned = 0;
 
 	UPROPERTY()
-	TSet<int> ActorsLocations = {};
+	TArray<int> ActorsLocations = {};
 };
 
 /**
@@ -41,5 +41,5 @@ public:
 
 	static FString StructToString(const FInfoActorSpawned& InfoActorSpawned);
 
-	static FInfoActorSpawned GetInfoActorSpawned(const int NumOfActorSpawned, const TSet<int>* ActorsSpawnedLocations);
+	static FInfoActorSpawned GetInfoActorSpawned(const int NumOfActorSpawned, const TArray<int>* ActorsSpawnedLocations);
 };

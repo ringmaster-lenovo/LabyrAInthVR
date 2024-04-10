@@ -10,6 +10,7 @@
 #include "LabyrAInthVR/Scene/SceneController.h"
 #include "LabyrAInthVR/Widgets/WidgetController.h"
 #include "LabyrAInthVR/Player/VRPlayerController.h"
+#include "LabyrAInthVR/Player/VRMainCharacter.h"
 #include "VRGameMode.generated.h"
 
 /**
@@ -29,21 +30,23 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-private:	
+private:
+	bool bIsVRHMDConnected;
+	
 	UPROPERTY()
 	AVRPlayerController* PlayerController;
 
 	UPROPERTY()
-	APawn* Pawn;
+	ACharacter* VRCharacter;
 
 	UPROPERTY()
-	ANetworkController* NetworkController; 
-
-	UPROPERTY()
-	AVRGameState* VRGameState;
+	ANetworkController* NetworkController;
 
 	UPROPERTY()
 	AWidgetController* WidgetController;
+
+	UPROPERTY()
+	AVRGameState* VRGameState;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Game Mode")
 	TSubclassOf<ASceneController> SceneController_BP;
@@ -75,6 +78,15 @@ private:
 	UFUNCTION()
 	void ProceedToNextLevel();
 
+	UFUNCTION()
+	void MockNetwork();
+
+	UFUNCTION()
+	bool IsVRHMDConnected();
+
+	UFUNCTION()
+	void CrashCloseGame();
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void OnNewGameButtonClicked();
@@ -87,4 +99,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnRestartGameButtonClicked();
+
+	UFUNCTION(BlueprintCallable)
+	bool IsInVR() { return bIsVRHMDConnected; }
 };
