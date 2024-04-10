@@ -17,7 +17,7 @@ public:
 
 	uint8 GetDefaultLevel()
 	{
-		return 1;
+		return 10;
 	}
 
 	std::vector<std::vector<uint8>> GetDefaultLabyrinthStructure()

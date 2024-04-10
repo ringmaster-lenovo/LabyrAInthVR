@@ -5,6 +5,8 @@
 #include "Config.h"
 #include "SceneController.h"
 #include "Utils.h"
+#include "LabyrAInthVR/Interagibles/PowerUp.h"
+#include "LabyrAInthVR/Interagibles/Trap.h"
 #include "LabyrAInthVR/Network/LabyrinthDTO.h"
 
 // Sets default values
@@ -91,11 +93,13 @@ FString ASpawnManager::SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReferen
 	// spawn power-ups first
 	PowerUpsLocations.Empty();
 	PowerUpsLocations.Reserve(PowerUpsToSpawn);
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("PowerUpsLocations: %d"), PowerUpsLocations.Num());
 	ErrorMessage = ChoosePowerUpsSpawnPoints(PowerUpsToSpawn);
 	if (ErrorMessage != "")
 	{
 		return ErrorMessage;
 	}
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("PowerUpsLocations: %d"), PowerUpsLocations.Num());
 	ErrorMessage = SpawnActors(PowerUpsLocations, PowerUpsClasses);
 	if (ErrorMessage != "")
 	{
@@ -111,7 +115,8 @@ FString ASpawnManager::SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReferen
 	if (ErrorMessage != "")
 	{
 		return ErrorMessage;
-	}	ErrorMessage = SpawnActors(TrapsLocations, TrapsClasses);
+	}
+	ErrorMessage = SpawnActors(TrapsLocations, TrapsClasses);
 	if (ErrorMessage != "")
 	{
 		return ErrorMessage;
@@ -146,9 +151,9 @@ FString ASpawnManager::SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReferen
 FString ASpawnManager::ChoosePowerUpsSpawnPoints(const int NumOfPowerUpsToSpawn)
 {
 	FString ErrorMessage = "";
-	const int TrapsToSpawnFromPotentialLocations = FMath::Min(NumOfPowerUpsToSpawn, PotentialPowerUpSpawnLocations.Num());
+	const int PowerUpsToSpawnFromPotentialLocations = FMath::Min(NumOfPowerUpsToSpawn, PotentialPowerUpSpawnLocations.Num());
 	const int DeltaTotalVsPotential = NumOfPowerUpsToSpawn - PotentialPowerUpSpawnLocations.Num();
-	ErrorMessage = ChooseRandomSpawnLocation(TrapsToSpawnFromPotentialLocations, PowerUpsLocations, PotentialPowerUpSpawnLocations, 4);
+	ErrorMessage = ChooseRandomSpawnLocation(PowerUpsToSpawnFromPotentialLocations, PowerUpsLocations, PotentialPowerUpSpawnLocations, 4);
 	// it there are more power-ups to spawn than potential locations, spawn the remaining power-ups using the enemy potential locations, which are filled of every 0 in the labyrinth matrix which is not a power up or trap potential location
 	if (DeltaTotalVsPotential > 0)
 	{
@@ -270,7 +275,8 @@ FString ASpawnManager::DifficultyDecider(int& PowerUpsToSpawn, int& TrapsToSpawn
 
 FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArray<TSubclassOf<AActor>>& SpawnableActors) const
 {
-	if (SpawnLocations.Num() == 0) return "No locations to spawn actors";
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("SpawnLocations: %d"), SpawnLocations.Num());
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("SpawnableActors: %d"), SpawnableActors.Num());
 	if (SpawnableActors.Num() == 0) return "No actors to spawn";
 	FVector SpawnPoint{0};
 	for (int i = 0; i < SpawnLocations.Num(); i++)
@@ -278,15 +284,36 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 		int Row = -1;
 		int Column = -1;
 		UUtils::ConvertToRowColumn(SpawnLocations[i], Row, Column);
-		SpawnPoint = FVector {
-			WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
-			EnemySettings::SpawnHeight
-		};
+		
 		const int Index = i % SpawnableActors.Num();  // go trough the actors to spawn in a round robin fashion
+		const UClass* ObjectClass = SpawnableActors[Index]->GetSuperClass();
+		
+		if (ObjectClass == APowerUp::StaticClass())
+		{
+			SpawnPoint = FVector {
+				WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
+				20.0
+			};
+		}
+		else if (ObjectClass == ATrap::StaticClass())
+		{
+			SpawnPoint = FVector {
+				WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
+				Interagibles::SpawnHeight
+			};
+		}
+		else
+		{
+			SpawnPoint = FVector {
+				WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
+				EnemySettings::SpawnHeight
+			};
+		}
+
 		AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(SpawnableActors[Index], SpawnPoint, FRotator(0, FMath::RandRange(0, 360), 0));
 		if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned"))
 		else
-			if (ActorSpawned->GetClass() == ABaseEnemy::StaticClass())
+			if (ObjectClass == ABaseEnemy::StaticClass())
 			{
 				ABaseEnemy* EnemyInstance = Cast<ABaseEnemy>(ActorSpawned);
 				if (EnemyInstance == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("EnemyInstance is null"))
