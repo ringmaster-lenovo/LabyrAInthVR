@@ -71,7 +71,7 @@ private:
 	TArray<int> EnemiesLocations = {};
 
 	int PlayerStartPosition = -1;
-	int ExitPosition = -1;
+	int PortalPosition = -1;
 	
 	TArray<int> PotentialPowerUpSpawnLocations = {};
 	TArray<int> PotentialTrapSpawnLocations = {};
@@ -84,7 +84,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, Category = "Spawn")
+	UPROPERTY(EditAnywhere, Category = "PowerUps")
 	TArray<TSubclassOf<AActor>> PowerUpsClasses;
 
 	UPROPERTY(EditAnywhere, Category = "Traps")
@@ -92,6 +92,12 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Enemies")
 	TArray<TSubclassOf<AActor>> EnemiesClasses;
+
+	UPROPERTY(EditAnywhere, Category = "Portals")
+	TSubclassOf<AActor> PlayerSpawnPoint;
+
+	UPROPERTY(EditAnywhere, Category = "Portals")
+	TSubclassOf<AActor> Portal;
 
 	FString SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReference);
 
@@ -108,4 +114,8 @@ public:
 	FString DifficultyDecider(int& PowerUpsToSpawn, int& TrapsToSpawn, int& EnemiesToSpawn) const;
 
 	FString SpawnActors(const TArray<int>& SpawnLocations, const TArray<TSubclassOf<AActor>>& SpawnableActors) const;
+
+	FString SpawnPortal();
+
+	FString SpawnPlayerStart();
 };

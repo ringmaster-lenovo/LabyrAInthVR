@@ -157,7 +157,7 @@ void ALabyrinthParser::TravelHorizontal(uint8 RowIndex, uint8 FinalColumnIndex,
 
 		AProceduralSplineWall* Neighbor = GetPossibleNeighborhood(SpawnLocation, TravellingDirection);
 
-		if (LabyrinthDTO->LabyrinthStructure[RowIndex][j] == 0)
+		if (LabyrinthDTO->LabyrinthStructure[RowIndex][j] != 1)
 		{
 			SpawnManager->FindPotentialSpawnLocations(LabyrinthDTO, RowIndex, j);
 			XOffset += WallSettings::WallOffset;
