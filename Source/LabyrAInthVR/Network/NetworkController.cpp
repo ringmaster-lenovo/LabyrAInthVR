@@ -291,7 +291,7 @@ TArray<ULeaderBoardDTO> ANetworkController::GetAllLeaderboards()
 			{
 			if (connectedSuccessfully)
 			{
-				if (DeserializeAllLEaderBoards(pResponse->GetContentAsString()))
+				if (DeserializeAllLeaderBoards(pResponse->GetContentAsString()))
 				{
 					
 					UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("All Leaderboards retrieved succesfully."));
@@ -320,4 +320,10 @@ TArray<ULeaderBoardDTO> ANetworkController::GetAllLeaderboards()
 	UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("Starting the request for the GetAllLeaderBoards."));
 	// Finally, submit the request for processing
 	pRequest->ProcessRequest();
+}
+
+bool ANetworkController::DeserializeAllLeaderBoards(FString AllLeaderBoardsString, ULeaderBoardDTO* LeaderBoardDTO)
+{
+	// TODO: capire come implementare questo, capire come arriva la risposta di tutte le leaderboard
+	return true;
 }

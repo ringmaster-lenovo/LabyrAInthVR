@@ -49,6 +49,7 @@ private:
 	FString SerializeLabyrinth(ULabyrinthDTO* LabyrinthDTO);
 
 	bool DeSerializeLabyrinth(FString LabyrinthString, ULabyrinthDTO* LabyrinthDTO);
+	bool DeserializeAllLeaderBoards(FString AllLeaderBoardsString, ULeaderBoardDTO* LeaderBoardDTO);
 
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> GetRequest(FString Url, FString Method, FString* ObjectDTO);
 
