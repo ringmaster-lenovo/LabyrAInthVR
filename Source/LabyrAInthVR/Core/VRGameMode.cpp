@@ -158,6 +158,16 @@ void AVRGameMode::StartGame()
 	// Set up the game to be in Playing state
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Playing);
 	WidgetController->ShowGameUI();
+	
+	FVector PlayerStartPosition;
+	FRotator PlayerStartRotation;
+	SceneController->GetPlayerStartPositionAndRotation(PlayerStartPosition, PlayerStartRotation);
+	const FString ErrorMessage = PlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation);
+	if (ErrorMessage != "")
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal PLayer error: %s"), *ErrorMessage);
+		throw ErrorMessage;
+	}
 	PlayerController->EnableInputs(true);
 }
 
