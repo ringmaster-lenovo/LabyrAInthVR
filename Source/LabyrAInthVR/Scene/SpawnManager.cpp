@@ -41,12 +41,12 @@ void ASpawnManager::FindPotentialSpawnLocations(const ULabyrinthDTO* LabyrinthDT
 {
 	if (LabyrinthDTOObject->LabyrinthStructure[Row][Column] == 2)
 	{
-		PlayerStartPosition = UUtils::ConvertToIndex(Row, Column);
+		PlayerStartIndexPosition = UUtils::ConvertToIndex(Row, Column);
 		return;
 	}
 	if (LabyrinthDTOObject->LabyrinthStructure[Row][Column] == 3)
 	{
-		PortalPosition = UUtils::ConvertToIndex(Row, Column);
+		PortalIndexPosition = UUtils::ConvertToIndex(Row, Column);
 		return;
 	}
 	if (Row == 0 || Row == std::size(LabyrinthDTOObject->LabyrinthStructure) - 1 || Column == 0 || Column == std::size(LabyrinthDTOObject->LabyrinthStructure[0]) - 1)
@@ -349,14 +349,14 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 	return "";
 }
 
-FString ASpawnManager::SpawnPortal()
+FString ASpawnManager::SpawnPortal() const
 {
-	if (PortalPosition == -1) return "Did not found the portal position, invalid matrix";
+	if (PortalIndexPosition == -1) return "Did not found the portal position, invalid matrix";
 	if (Portal == nullptr) return "Portal asset not set, cannot play";
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT(""));
 	int Row = -1;
 	int Column = -1;
-	UUtils::ConvertToRowColumn(PortalPosition, Row, Column);
+	UUtils::ConvertToRowColumn(PortalIndexPosition, Row, Column);
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Portal Position = Row: %d  Column: %d"), Row, Column);
 	const FVector SpawnPoint = FVector {
 		WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
@@ -369,16 +369,18 @@ FString ASpawnManager::SpawnPortal()
 
 FString ASpawnManager::SpawnPlayerStart()
 {
-	if (PlayerStartPosition == -1) return "Did not found the player start position, invalid matrix";
+	if (PlayerStartIndexPosition == -1) return "Did not found the player start position, invalid matrix";
 	if (PlayerSpawnPoint == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Non blocking scene Error: PlayerSpawnPoint BP not set"));
 	int Row = -1;
 	int Column = -1;
-	UUtils::ConvertToRowColumn(PlayerStartPosition, Row, Column);
+	UUtils::ConvertToRowColumn(PlayerStartIndexPosition, Row, Column);
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Player Start Position = Row: %d  Column: %d"), Row, Column);
 	const FVector SpawnPoint = FVector {
 		WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
 		0.0
 	};
+	PlayerStartPosition = {SpawnPoint.X, SpawnPoint.Y, SpawnPoint.Z + 90};
+	PlayerStartRotation = {0, 45, 0};
 	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(PlayerSpawnPoint, SpawnPoint, FRotator(0, 0, 0));
 	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 	return "";

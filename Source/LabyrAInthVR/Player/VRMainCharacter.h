@@ -7,7 +7,6 @@
 // #include "Poker3DVR/Metarace/VRMetaraceController.h"
 #include "VRMainCharacter.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogVR, Log, All);
 
 UCLASS()
 class LABYRAINTHVR_API AVRMainCharacter : public ACharacter

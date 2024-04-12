@@ -124,12 +124,6 @@ void ALabyrinthParser::BuildLabyrinthInternal()
 	{
 		ProceduralSplineWallPair->UpdateSplineMesh();
 	}
-
-	// Broadcast scene complete
-	ASceneController* SceneController = Cast<ASceneController>(
-		UGameplayStatics::GetActorOfClass(this, ASceneController::StaticClass()));
-
-	SceneController->OnSceneReady.Broadcast();
 }
 
 void ALabyrinthParser::SetShortWallSettings(AProceduralSplineWall* & ProceduralSplineWall)

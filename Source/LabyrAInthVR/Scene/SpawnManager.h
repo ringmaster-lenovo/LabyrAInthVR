@@ -69,13 +69,13 @@ private:
 	TArray<int> PowerUpsLocations = {};
 	TArray<int> TrapsLocations = {};
 	TArray<int> EnemiesLocations = {};
-
-	int PlayerStartPosition = -1;
-	int PortalPosition = -1;
 	
 	TArray<int> PotentialPowerUpSpawnLocations = {};
 	TArray<int> PotentialTrapSpawnLocations = {};
 	TArray<int> PotentialEnemySpawnLocations = {};
+
+	int PlayerStartIndexPosition = -1;
+	int PortalIndexPosition = -1;
 
 	UPROPERTY()
 	ULabyrinthDTO* LabyrinthDTO;
@@ -99,6 +99,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Portals")
 	TSubclassOf<AActor> Portal;
 
+	FVector PlayerStartPosition;
+
+	FRotator PlayerStartRotation;
+
 	FString SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReference);
 
 	void FindPotentialSpawnLocations(const ULabyrinthDTO* LabyrinthDTO, int Row, int Column);
@@ -115,7 +119,7 @@ public:
 
 	FString SpawnActors(const TArray<int>& SpawnLocations, const TArray<TSubclassOf<AActor>>& SpawnableActors) const;
 
-	FString SpawnPortal();
+	FString SpawnPortal() const;
 
 	FString SpawnPlayerStart();
 };
