@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "LeaderBoard.generated.h"
 
 UCLASS()
 class LABYRAINTHVR_API ULeaderBoardDTO : public UObject

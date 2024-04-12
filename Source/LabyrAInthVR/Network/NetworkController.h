@@ -6,6 +6,7 @@
 #include "DTO/FinishGameRequestDTO.h"
 #include "DTO/LeaderBoard.h"
 #include "GameFramework/GameNetworkManager.h"
+#include "Interfaces/IHttpRequest.h"
 #include "NetworkController.generated.h"
 
 class ULabyrinthDTO;
@@ -25,10 +26,10 @@ public:
 	void GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO);
 
 	UFUNCTION(Category = "Network")
-	void FinishGame(UFinishGameRequestDTO FinishGameRequestDTO);
+	void FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO);
 
 	UFUNCTION(Category = "Network")
-	TArray<ULeaderBoardDTO> GetAllLeaderboards();
+	void GetAllLeaderboards(ULeaderBoardDTO* LeaderBoardDTO);
 	
 	DECLARE_MULTICAST_DELEGATE(FLabyrinthReceivedEvent);
 	FLabyrinthReceivedEvent OnLabyrinthReceived;
@@ -43,14 +44,12 @@ protected:
 private:
 
 	FString BaseURL = "https://localhost:8080";
-	FString LabyrinthURL = BaseURL + "/labyrinth";
-	FString LeaderboardUrl = BaseURL + "/leaderboards";
+	FString LabyrinthEndPoint = "/labyrinth";
+	FString LeaderboardEndPoint = "/leaderboards";
+	FString LabyrinthURL = BaseURL.Append(LabyrinthEndPoint);
+	FString LeaderboardUrl = BaseURL.Append(LeaderboardUrl);
 
-	FString SerializeLabyrinth(ULabyrinthDTO* LabyrinthDTO);
-
-	bool DeSerializeLabyrinth(FString LabyrinthString, ULabyrinthDTO* LabyrinthDTO);
 	bool DeserializeAllLeaderBoards(FString AllLeaderBoardsString, ULeaderBoardDTO* LeaderBoardDTO);
 
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> GetRequest(FString Url, FString Method, FString* ObjectDTO);
-
 };
