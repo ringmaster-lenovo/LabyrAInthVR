@@ -29,7 +29,16 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FSceneReadyEvent);
 	FSceneReadyEvent OnSceneReady;
 
+	UFUNCTION()
+	void GetPlayerStartPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
+
 private:
+	UPROPERTY()
+	ALabyrinthParser* LabyrinthParser;
+
+	UPROPERTY()
+	ASpawnManager* SpawnManager;
+	
 	UPROPERTY()
 	ANavMeshBoundsVolume* NavMeshBoundsVolume;
 	
