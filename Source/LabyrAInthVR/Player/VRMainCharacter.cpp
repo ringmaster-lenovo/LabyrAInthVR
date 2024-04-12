@@ -9,7 +9,6 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Delegates/DelegateSignatureImpl.inl"
 
-DEFINE_LOG_CATEGORY(LogVR);
 
 // This is the main character class for the VR game mode. It handles the VR camera, the VR controllers, and the VR movement.
 AVRMainCharacter::AVRMainCharacter()

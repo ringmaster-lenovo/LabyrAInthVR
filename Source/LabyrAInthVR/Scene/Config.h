@@ -61,5 +61,6 @@ namespace Misc
 
 namespace Interagibles
 {
-	constexpr inline float SpawnHeight { 0.0f };
+	constexpr inline float PowerUpsSpawnHeight { 20.0f };
+	constexpr inline float TrapsSpawnHeight { 0.0f };
 }

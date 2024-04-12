@@ -39,6 +39,16 @@ void ASpawnManager::Tick(float DeltaTime)
  */
 void ASpawnManager::FindPotentialSpawnLocations(const ULabyrinthDTO* LabyrinthDTOObject, const int Row, const int Column)
 {
+	if (LabyrinthDTOObject->LabyrinthStructure[Row][Column] == 2)
+	{
+		PlayerStartIndexPosition = UUtils::ConvertToIndex(Row, Column);
+		return;
+	}
+	if (LabyrinthDTOObject->LabyrinthStructure[Row][Column] == 3)
+	{
+		PortalIndexPosition = UUtils::ConvertToIndex(Row, Column);
+		return;
+	}
 	if (Row == 0 || Row == std::size(LabyrinthDTOObject->LabyrinthStructure) - 1 || Column == 0 || Column == std::size(LabyrinthDTOObject->LabyrinthStructure[0]) - 1)
 	{
 		// should never enter here if we have a 1 in the border, hence outer walls
@@ -140,6 +150,17 @@ FString ASpawnManager::SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReferen
 	}
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthMatrix:\n %s"), *UUtils::MatrixToString(&LabyrinthDTO->LabyrinthStructure));
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("EnemiesSpawned:\n %s"), *UUtils::StructToString(UUtils::GetInfoActorSpawned(NumOfEnemiesSpawned, &EnemiesLocations)));
+
+	ErrorMessage = SpawnPortal();
+	if (ErrorMessage != "")
+	{
+		return ErrorMessage;
+	}
+	ErrorMessage = SpawnPlayerStart();
+	if (ErrorMessage != "")
+	{
+		return ErrorMessage;
+	}
 	return "";
 }
 
@@ -293,14 +314,14 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 		{
 			SpawnPoint = FVector {
 				WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
-				20.0
+				Interagibles::PowerUpsSpawnHeight
 			};
 		}
 		else if (ObjectClass == ATrap::StaticClass())
 		{
 			SpawnPoint = FVector {
 				WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
-				Interagibles::SpawnHeight
+				Interagibles::TrapsSpawnHeight
 			};
 		}
 		else
@@ -312,7 +333,7 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 		}
 
 		AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(SpawnableActors[Index], SpawnPoint, FRotator(0, FMath::RandRange(0, 360), 0));
-		if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned"))
+		if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 		else
 			if (ObjectClass == ARangedEnemy::StaticClass() || ObjectClass == AMeleeEnemy::StaticClass())
 			{
@@ -326,35 +347,41 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 			UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor class: %s"), *ObjectClass->GetName());
 	}
 	return "";
+}
 
-	// Enemy spawn
-	// bool bEnemySpawnPointFound = false;
-	// FVector SpawnPoint{0};
-	// uint8 RowSelection{0};
-	// uint8 ColumnSelection{0};
-	// while (!bEnemySpawnPointFound)
-	// {
-	// 	RowSelection = FMath::RandRange(0, std::size(UnparsedLabyrinthMatrix) - 1);
-	// 	ColumnSelection = FMath::RandRange(0, std::size(UnparsedLabyrinthMatrix[0]) - 1);
-	//
-	// 	if (!UnparsedLabyrinthMatrix[RowSelection][ColumnSelection])
-	// 	{
-	// 		bEnemySpawnPointFound = true;
-	// 		SpawnPoint = FVector{
-	// 			WallSettings::WallOffset * ColumnSelection, WallSettings::WallOffset * RowSelection,
-	// 			EnemySettings::SpawnHeight
-	// 		};
-	// 		//DrawDebugSphere(GetWorld(), SpawnPoint, 20.f, 15, FColor::Red, true);
-	// 	}
-	// }
-	//
-	// if (BaseEnemyClass == nullptr) return;
-	//
-	// ABaseEnemy* EnemyInstance = GetWorld()->SpawnActor<ABaseEnemy>(BaseEnemyClass, SpawnPoint, FRotator{0.f, 0.f, 0.f});
-	//
-	// if (EnemyInstance == nullptr) return;
-	//
-	// EnemyInstance->SetOwner(this);
-	// EnemyInstance->SetMatrixPosition(RowSelection, ColumnSelection);
-	// SpawnedEnemies.Add(EnemyInstance);
+FString ASpawnManager::SpawnPortal() const
+{
+	if (PortalIndexPosition == -1) return "Did not found the portal position, invalid matrix";
+	if (Portal == nullptr) return "Portal asset not set, cannot play";
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT(""));
+	int Row = -1;
+	int Column = -1;
+	UUtils::ConvertToRowColumn(PortalIndexPosition, Row, Column);
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Portal Position = Row: %d  Column: %d"), Row, Column);
+	const FVector SpawnPoint = FVector {
+		WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
+		140.0
+	};
+	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(Portal, SpawnPoint, FRotator(0, 90, 0));
+	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
+	return "";
+}
+
+FString ASpawnManager::SpawnPlayerStart()
+{
+	if (PlayerStartIndexPosition == -1) return "Did not found the player start position, invalid matrix";
+	if (PlayerSpawnPoint == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Non blocking scene Error: PlayerSpawnPoint BP not set"));
+	int Row = -1;
+	int Column = -1;
+	UUtils::ConvertToRowColumn(PlayerStartIndexPosition, Row, Column);
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Player Start Position = Row: %d  Column: %d"), Row, Column);
+	const FVector SpawnPoint = FVector {
+		WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
+		0.0
+	};
+	PlayerStartPosition = {SpawnPoint.X, SpawnPoint.Y, SpawnPoint.Z + 90};
+	PlayerStartRotation = {0, 45, 0};
+	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(PlayerSpawnPoint, SpawnPoint, FRotator(0, 0, 0));
+	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
+	return "";
 }
