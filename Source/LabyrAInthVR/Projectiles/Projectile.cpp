@@ -37,14 +37,6 @@ void AProjectile::BeginPlay()
 	
 	if(ProjectileTracer == nullptr) return;
 
-	/*ProjectileTracerComponent = UGameplayStatics::SpawnEmitterAttached(
-		ProjectileTracer,
-		CollisionBox,
-		FName(),
-		GetActorLocation(),
-		GetActorRotation(),
-		EAttachLocation::KeepWorldPosition);*/
-
 	UNiagaraFunctionLibrary::SpawnSystemAttached(
 											ProjectileTracer,
 											CollisionBox,
@@ -68,10 +60,14 @@ void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
 {
 	if(!IsValid(OtherActor) || OtherActor == GetOwner()) return;
 
-	if(!OtherActor->Implements<UDamageableActor>()) return;
+	if(!OtherActor->Implements<UDamageableActor>())
+	{
+		Destroy();
+		return;
+	}
 	
 	UE_LOG(LogTemp, Warning, TEXT("Projectile has impacted with: %s"), *OtherActor->GetName())
-	UGameplayStatics::ApplyDamage(OtherActor, 50.f, GetOwner()->GetInstigatorController(), this, UDamageType::StaticClass());
+	UGameplayStatics::ApplyDamage(OtherActor, Damage, GetOwner()->GetInstigatorController(), this, UDamageType::StaticClass());
 	Destroy();
 }
 
