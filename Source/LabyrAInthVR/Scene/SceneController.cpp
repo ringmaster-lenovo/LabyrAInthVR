@@ -10,6 +10,8 @@ ASceneController::ASceneController()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	NavMeshBoundsVolume = nullptr;
+	LabyrinthParser = nullptr;
+	SpawnManager = nullptr;
 }
 
 void ASceneController::BeginPlay()
@@ -29,11 +31,11 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 	if (!IsValid(LabyrinthParser_BP) || !IsValid(SpawnManager_BP)) return "LabyrinthParser or SpawnManager not set in SceneController";
 
 	// Instantiate the LabyrinthParser and build the labyrinth
-	ALabyrinthParser* LabyrinthParser = GetWorld()->SpawnActor<ALabyrinthParser>(LabyrinthParser_BP);
+	LabyrinthParser = GetWorld()->SpawnActor<ALabyrinthParser>(LabyrinthParser_BP);
 	if (!IsValid(LabyrinthParser)) return "Invalid LabyrinthParserActor";
 	
 	// Instantiate the SpawnManager and spawn the actors in the labyrinth
-	ASpawnManager* SpawnManager = GetWorld()->SpawnActor<ASpawnManager>(SpawnManager_BP);
+	SpawnManager = GetWorld()->SpawnActor<ASpawnManager>(SpawnManager_BP);
 	if (!IsValid(SpawnManager)) return "Invalid SpawnManagerActor";
 	
 	FString ErrorMessage = LabyrinthParser->BuildLabyrinth(LabyrinthDTO, SpawnManager);
@@ -52,6 +54,13 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 	
 	OnSceneReady.Broadcast();
 	return "";
+}
+
+void ASceneController::GetPlayerStartPositionAndRotation(FVector& PlayerStartPosition,
+	FRotator& PlayerStartRotation) const
+{
+	PlayerStartPosition = SpawnManager->PlayerStartPosition;
+	PlayerStartRotation = SpawnManager->PlayerStartRotation;
 }
 
 void ASceneController::UpdateNavMeshBoundsPosition()
