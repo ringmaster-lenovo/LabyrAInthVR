@@ -18,7 +18,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
 
-	void SetDamage(double Damage) {this->Damage = Damage;}
+	void SetDamage(double DamagePassed) {Damage = DamagePassed;}
 private:
 	double Damage = 20;
 	
