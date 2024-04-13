@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "MainCharacter.h"
 // #include "Poker3DVR/Metarace/VRMetaraceController.h"
 #include "VRMainCharacter.generated.h"
 
 
 UCLASS()
-class LABYRAINTHVR_API AVRMainCharacter : public ACharacter
+class LABYRAINTHVR_API AVRMainCharacter : public AMainCharacter
 {
 	GENERATED_BODY()
 
