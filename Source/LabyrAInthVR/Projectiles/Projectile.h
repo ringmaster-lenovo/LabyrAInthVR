@@ -17,7 +17,11 @@ public:
 	AProjectile();
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
+
+	void SetDamage(double Damage) {this->Damage = Damage;}
 private:
+	double Damage = 20;
+	
 	UFUNCTION()
 	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 								 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
