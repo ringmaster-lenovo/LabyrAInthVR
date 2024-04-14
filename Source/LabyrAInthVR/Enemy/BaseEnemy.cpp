@@ -6,8 +6,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "LabyrAInthVR/MockedCharacter/MockedCharacter.h"
 #include "LabyrAInthVR/Network/LabyrinthDTO.h"
+#include "LabyrAInthVR/Player/MainCharacter.h"
+#include "LabyrAInthVR/Player/VRMainCharacter.h"
 #include "LabyrAInthVR/Scene/Config.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "Perception/PawnSensingComponent.h"
@@ -100,9 +101,9 @@ void ABaseEnemy::OnSeePawn(APawn* Pawn)
 
 	UE_LOG(LogTemp, Warning, TEXT("Seen: %s"), *Pawn->GetName())
 	
-	SeenCharacter = SeenCharacter == nullptr ? Cast<AMockedCharacter>(Pawn) : SeenCharacter;
-
-	if(!IsValid(SeenCharacter) || !IsCharacterOnNavMesh() || !SeenCharacter->IsAlive()) return;
+	SeenCharacter = SeenCharacter == nullptr ? Cast<AMainCharacter>(Pawn) : SeenCharacter;
+	
+	if (!IsValid(SeenCharacter) || !IsCharacterOnNavMesh() || !SeenCharacter->IsAlive()) return;
 	
 	Chase();
 }

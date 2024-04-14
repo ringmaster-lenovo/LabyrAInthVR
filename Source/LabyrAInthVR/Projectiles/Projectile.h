@@ -18,8 +18,10 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
 
-	FORCEINLINE void SetDamage(float ProjectileDamage) {Damage = ProjectileDamage; }
+	void SetDamage(double DamagePassed) {Damage = DamagePassed;}
 private:
+	double Damage = 20;
+	
 	UFUNCTION()
 	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 								 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
@@ -45,6 +47,4 @@ private:
 
 	UPROPERTY()
 	UParticleSystemComponent* ProjectileTracerComponent;
-
-	float Damage{0.f};
 };

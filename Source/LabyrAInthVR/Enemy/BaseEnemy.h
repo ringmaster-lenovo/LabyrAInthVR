@@ -6,6 +6,8 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "BaseEnemy.generated.h"
 
+class AVRMainCharacter;
+class AMainCharacter;
 class AMockedCharacter;
 class UNavigationSystemV1;
 class ULabyrinthDTO;
@@ -87,7 +89,7 @@ protected:
 	UNavigationSystemV1* NavigationSystemV1;
 
 	UPROPERTY()
-	AMockedCharacter* SeenCharacter;
+	AMainCharacter* SeenCharacter;
 	
 	UPROPERTY(EditAnywhere, Category="Settings|Health")
 	float Health{100.f};
