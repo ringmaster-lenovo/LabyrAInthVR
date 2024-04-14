@@ -4,12 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "LabyrAInthVR/Interfaces/DamageableActor.h"
 #include "MainCharacter.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogVR, Log, All);
 
 UCLASS()
-class LABYRAINTHVR_API AMainCharacter : public ACharacter
+class LABYRAINTHVR_API AMainCharacter : public ACharacter, public IDamageableActor
 {
 	GENERATED_BODY()
 
@@ -27,6 +28,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UFUNCTION(BlueprintCallable)
+	bool IsAlive() const { return Life > 0; }
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))

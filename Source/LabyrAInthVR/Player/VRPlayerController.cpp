@@ -13,7 +13,10 @@ FString AVRPlayerController::TeleportPlayer(const FVector& Position, const FRota
 	if (GetCharacter()->TeleportTo(Position, Rotation))
 	{
 		AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(GetCharacter());
-		VRCharacter->lobby = false;
+		if (VRCharacter != nullptr)
+		{
+			VRCharacter->lobby = false;
+		}
 		return "";
 	}
 	return "Cannot teleport player, game cannot start";
