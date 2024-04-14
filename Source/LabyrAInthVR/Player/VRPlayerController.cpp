@@ -19,5 +19,6 @@ FString AVRPlayerController::TeleportPlayer(const FVector& Position, const FRota
 		}
 		return "";
 	}
+	UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot teleport player, game cannot start"));
 	return "Cannot teleport player, game cannot start";
 }
