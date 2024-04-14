@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "MainCharacter.h"
 // #include "Poker3DVR/Metarace/VRMetaraceController.h"
 #include "VRMainCharacter.generated.h"
 
 
 UCLASS()
-class LABYRAINTHVR_API AVRMainCharacter : public ACharacter
+class LABYRAINTHVR_API AVRMainCharacter : public AMainCharacter
 {
 	GENERATED_BODY()
 
@@ -28,7 +28,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-
+	UPROPERTY(BlueprintReadWrite, Category = "VR")
+	bool lobby = true;
 	
 
 private:
@@ -59,6 +60,8 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "VR")
 	float YawCooldownTime = YawCooldownStartTime;
+
+	
 
 public:
 	USceneComponent* GetVRRoot() const;

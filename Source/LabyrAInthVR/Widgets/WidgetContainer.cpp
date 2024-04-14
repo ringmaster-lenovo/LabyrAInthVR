@@ -26,31 +26,47 @@ AWidgetContainer::AWidgetContainer()
 void AWidgetContainer::BeginPlay()
 {
 	Super::BeginPlay();
-
-	LobbyWidget = Cast<ULobbyWidget>(Widget->GetUserWidgetObject());
-	if (!LobbyWidget) return;
-	LobbyWidget->WidgetContainer = this;
 	
-	SettingsWidget = Cast<USettingsWidget>(Widget->GetUserWidgetObject());
-	if (!SettingsWidget) return;
-	SettingsWidget->WidgetContainer = this;
+	if (!bIsInVR)  // Non-VR widgets should be displayed on the screen
+		{
+			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+			LobbyWidget = CreateWidget<ULobbyWidget>(PlayerController, LobbyWidgetClass);
+			LobbyWidget->WidgetContainer = this;
+		}
+	else{
+			LobbyWidget = Cast<ULobbyWidget>(Widget->GetUserWidgetObject());
+			if (!LobbyWidget) return;
+			LobbyWidget->WidgetContainer = this;
+			// }
+			SettingsWidget = Cast<USettingsWidget>(Widget->GetUserWidgetObject());
+			if (!SettingsWidget) return;
+			SettingsWidget->WidgetContainer = this;
 
-	LoadingWidget = Cast<ULoadingWidget>(Widget->GetUserWidgetObject());
-	if (!LoadingWidget) return;
+			LoadingWidget = Cast<ULoadingWidget>(Widget->GetUserWidgetObject());
+			if (!LoadingWidget) return;
+		    LoadingWidget->WidgetContainer = this;
+		}
 }
 
 FString AWidgetContainer::ShowMainMenuUI()
 {
 	if (LobbyWidgetClass)
 	{
-		Widget->SetWidgetClass(LobbyWidgetClass);
-		LobbyWidget = Cast<ULobbyWidget>(Widget->GetUserWidgetObject());
-		if (!LobbyWidget) return "No LobbyWidget found!";
 		if (!bIsInVR)  // Non-VR widgets should be displayed on the screen
 		{
+			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+			LobbyWidget = CreateWidget<ULobbyWidget>(PlayerController, LobbyWidgetClass);
+			if (!LobbyWidget) return "No LobbyWidget found!";
+			LobbyWidget->WidgetContainer = this;
 			// set the background color of the widget
 			// LobbyWidget->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.5f));
 			LobbyWidget->AddToViewport(0);
+		} else
+		{
+			Widget->SetWidgetClass(LobbyWidgetClass);
+			LobbyWidget = Cast<ULobbyWidget>(Widget->GetUserWidgetObject());
+			LobbyWidget->WidgetContainer = this;
+			if (!LobbyWidget) return "No LobbyWidget found!";
 		}
 		return "";
 	}
