@@ -43,11 +43,11 @@ protected:
 
 private:
 
-	FString BaseURL = "https://localhost:8080";
+	FString BaseURL = "https://localhost:8080/api";
 	FString LabyrinthEndPoint = "/labyrinth";
 	FString LeaderboardEndPoint = "/leaderboards";
-	FString LabyrinthURL = BaseURL.Append(LabyrinthEndPoint);
-	FString LeaderboardUrl = BaseURL.Append(LeaderboardUrl);
+	FString LabyrinthURL = "https://localhost:8080/api/labyrinth";;
+	FString LeaderboardUrl = "https://localhost:8080/api/leaderboards";
 
 	bool DeserializeAllLeaderBoards(FString AllLeaderBoardsString, ULeaderBoardDTO* LeaderBoardDTO);
 

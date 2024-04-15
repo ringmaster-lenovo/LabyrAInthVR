@@ -37,8 +37,10 @@ void ANetworkController::BeginPlay()
 	{
 		UE_LOG(LabyrAInthVR_Network_Log, Warning, TEXT("Could not take the Url from config file. Using default value: %s"), *BaseURL);	
 	}
-	LabyrinthURL = BaseURL.Append(LabyrinthEndPoint);
-	LeaderboardUrl = BaseURL.Append(LeaderboardUrl);
+	FString URL = BaseURL;
+	LabyrinthURL = URL.Append(LabyrinthEndPoint);
+	URL = BaseURL;
+	LeaderboardUrl = URL.Append(LeaderboardEndPoint);
 }
 
 TSharedRef<IHttpRequest, ESPMode::ThreadSafe> ANetworkController::GetRequest(FString Url, FString Method, FString* ObjectDTO)
@@ -119,8 +121,8 @@ void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 							break;
 						}
 			   		}
-			   }
 				OnNetworkError.Broadcast();
+			   }
 		});
 	UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Starting the request for the labyrinth."));
 	// Finally, submit the request for processing
@@ -157,7 +159,7 @@ void ANetworkController::FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO)
 			   switch (pRequest->GetStatus()) {
 					case EHttpRequestStatus::Failed_ConnectionError:
 						{
-			   				UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Connection failed."));
+			   				UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("FinishGame: Connection failed."));
 							break;
 						}
 					default:
@@ -167,7 +169,6 @@ void ANetworkController::FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO)
 						}
 			   		}
 			   }
-				OnNetworkError.Broadcast();
 		});
 	UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Starting the request for the FinishGame."));
 	// Finally, submit the request for processing
@@ -192,6 +193,7 @@ void ANetworkController::GetAllLeaderboards(ULeaderBoardDTO* LeaderBoardDTO)
 			{
 				if (DeserializeAllLeaderBoards(pResponse->GetContentAsString(), LeaderBoardDTO))
 				{
+					// TODO: implementare il deserialize e la gestione degli errori della leaderboard completa
 					UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("All Leaderboards retrieved succesfully."));
 				}
 				else
@@ -213,7 +215,6 @@ void ANetworkController::GetAllLeaderboards(ULeaderBoardDTO* LeaderBoardDTO)
 						}
 					   }
 			   }
-				OnNetworkError.Broadcast();
 		});
 	UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Starting the request for the GetAllLeaderBoards."));
 	// Finally, submit the request for processing
