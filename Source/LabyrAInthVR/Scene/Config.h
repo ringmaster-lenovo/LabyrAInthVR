@@ -52,6 +52,7 @@ namespace EnemySettings
 	constexpr inline float TraceLength {50'000.f};
 	constexpr inline float TurnAtIntersecProbability {0.4f };
 	constexpr inline float TurnAtDiagonalProbability {0.4f };
+	constexpr inline bool bEnableLog {true};
 }
 
 namespace Misc

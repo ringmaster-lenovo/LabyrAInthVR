@@ -3,6 +3,9 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "EnhancedInputComponent.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "LabyrAInthVR/Projectiles/Projectile.h"
 
 AMain3DCharacter::AMain3DCharacter()
 {
@@ -47,6 +50,12 @@ void AMain3DCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		EnhancedInputComponent->BindAction(FlashlightInputAction, ETriggerEvent::Triggered, this, &ThisClass::ToggleFlashlight);
+		EnhancedInputComponent->BindAction(PickupInputAction, ETriggerEvent::Triggered, this, &ThisClass::PickupObject);
+		EnhancedInputComponent->BindAction(ShootInputAction, ETriggerEvent::Triggered, this, &ThisClass::Shoot);
+
+		EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Started, this, &ThisClass::Sprint, true);
+		EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Canceled, this, &ThisClass::Sprint, false);
+		EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Completed, this, &ThisClass::Sprint, false);
 	}
 }
 
@@ -69,5 +78,51 @@ void AMain3DCharacter::ToggleFlashlight(const FInputActionValue& Value)
 	if(!IsValid(Flashlight)) return;
 
 	Flashlight->SetVisibility(!Flashlight->GetVisibleFlag());
+}
+
+void AMain3DCharacter::PickupObject(const FInputActionValue& Value)
+{
+	if(!IsValid(OverlappedPickup) || !IsValid(FirstPersonMesh) || Weapon == nullptr) return;
+
+	//UE_LOG(LogTemp, Warning, TEXT("Pickup is available, picking it."))
+	OverlappedPickup->Destroy();
+	bHasWeapon = true;
+
+	const USkeletalMeshSocket* Socket = FirstPersonMesh->GetSocketByName(FName("GripPoint"));
+	SpawnedWeapon = Cast<AActor>(GetWorld()->SpawnActor(Weapon));
+
+	if(!IsValid(SpawnedWeapon)) return;
+	
+	Socket->AttachActor(SpawnedWeapon, FirstPersonMesh);
+}
+
+void AMain3DCharacter::Shoot(const FInputActionValue& Value)
+{
+	if(!IsValid(SpawnedWeapon)) return;
+	
+	USkeletalMeshComponent* WeaponMesh = SpawnedWeapon->FindComponentByClass<USkeletalMeshComponent>();
+	
+	if(!IsValid(WeaponMesh)) return;
+
+	FVector Start = WeaponMesh->GetSocketTransform(FName("Muzzle_Front")).GetLocation();
+	
+	FVector End = Start + (SpawnedWeapon->GetActorForwardVector() * 50000.f);
+	
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Instigator = this;
+	SpawnParameters.Owner = this;
+	
+	AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, Start, End.Rotation(), SpawnParameters);
+	if(!IsValid(SpawnedProjectile)) return;
+	SpawnedProjectile->SetDamage(50.f);
+}
+
+void AMain3DCharacter::Sprint(const FInputActionValue& Value, bool bSprint)
+{
+	if(!IsValid(GetCharacterMovement())) return;
+
+	GetCharacterMovement()->MaxWalkSpeed = bSprint ? 900.f : 600.f;
+
+	UE_LOG(LogTemp, Warning, TEXT("Sprint: %d"), bSprint)
 }
 

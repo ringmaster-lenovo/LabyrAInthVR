@@ -6,6 +6,7 @@
 #include "LabyrAInthVR/Enemy/BaseEnemy.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "LabyrAInthVR/Interagibles/PowerUp.h"
 #include "LabyrAInthVR/MockedCharacter/MockedCharacter.h"
 
 AProjectile::AProjectile()
@@ -58,7 +59,7 @@ void AProjectile::Destroyed()
 void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                           UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(!IsValid(OtherActor) || OtherActor == GetOwner()) return;
+	if(!IsValid(OtherActor) || OtherActor == GetOwner() || Cast<APowerUp>(OtherActor) != nullptr) return;
 
 	if(!OtherActor->Implements<UDamageableActor>())
 	{

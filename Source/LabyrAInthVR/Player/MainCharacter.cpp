@@ -24,6 +24,7 @@ void AMainCharacter::BeginPlay()
 	Super::BeginPlay();
 	UWorld* World = GetWorld();
 	if (!World) { return; }
+	OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
 }
 
 // Called every frame
@@ -36,4 +37,10 @@ void AMainCharacter::Tick(float const DeltaTime)
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
+void AMainCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+	AController* InstigatedBy, AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Character received damage by: %s"), *DamageCauser->GetName())
 }

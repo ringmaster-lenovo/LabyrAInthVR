@@ -31,6 +31,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const { return Life > 0; }
+	
+	UFUNCTION()
+	virtual void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+							   AController* InstigatedBy, AActor* DamageCauser);
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
@@ -54,5 +58,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
 	FString name;
 
-	
+	UPROPERTY()
+	AActor* OverlappedPickup;
+
+public:
+	FORCEINLINE void SetOverlappedPickup(AActor* NewPickup) { OverlappedPickup = NewPickup; }
 };

@@ -5,6 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "LabyrAInthVR/MockedCharacter/MockedCharacter.h"
+#include "LabyrAInthVR/Player/MainCharacter.h"
 
 AMeleeEnemy::AMeleeEnemy()
 {
@@ -116,9 +117,12 @@ void AMeleeEnemy::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
                                           UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                           const FHitResult& SweepResult)
 {
-	const bool bShouldDamage = Cast<ACharacter>(OtherActor) == nullptr || Cast<ABaseEnemy>(OtherActor) != nullptr;
+	const bool bShouldDamage = Cast<AMainCharacter>(OtherActor) == nullptr || Cast<ABaseEnemy>(OtherActor) != nullptr;
+	
 	if (bShouldDamage || OtherActor == this || !OtherActor->Implements<UDamageableActor>()) return;
-	UGameplayStatics::ApplyDamage(OtherActor, 50.f, GetController(), this, UDamageType::StaticClass());
+	UE_LOG(LogTemp, Warning, TEXT("Collision with: %s"), *OtherActor->GetName())
+	UGameplayStatics::ApplyDamage(OtherActor, MeleeAttackDamage, GetController(), this, UDamageType::StaticClass());
+	StatsChangerComponent->ChangeStats(Stats);
 }
 
 void AMeleeEnemy::Attack()
@@ -135,11 +139,10 @@ void AMeleeEnemy::AttackInternal()
 	// If distance is greater than melee attack distance, it means we go back chasing
 	if (GetDistanceToCharacter() > MeleeAttackDistance && !IsAttacking())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("GetDistanceToCharacter() > MeleeAttackDistance true so chase"))
 		Chase();
 		return;
 	}
-
-	//UE_LOG(LogTemp, Warning, TEXT("can attack: %d"), bCanAttack);
 	
 	if (!bCanAttack) return;
 
@@ -162,6 +165,7 @@ bool AMeleeEnemy::CanExecuteAction()
 		GetWorldTimerManager().ClearTimer(MeleeAttackTimerHandle);
 		AIController->StopMovement();
 		UpdateMatrixPosition();
+		UE_LOG(LogTemp, Warning, TEXT("Execute action failed"))
 		EnemyState = EES_Idle;
 		return false;
 	}

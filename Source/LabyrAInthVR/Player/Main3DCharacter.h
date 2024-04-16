@@ -3,13 +3,15 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputAction.h"
+#include "MainCharacter.h"
 #include "Main3DCharacter.generated.h"
 
+class AProjectile;
 class USpotLightComponent;
 class UCameraComponent;
 
 UCLASS()
-class LABYRAINTHVR_API AMain3DCharacter : public ACharacter
+class LABYRAINTHVR_API AMain3DCharacter : public AMainCharacter
 {
 	GENERATED_BODY()
 
@@ -45,7 +47,32 @@ private:
 	UPROPERTY(EditAnywhere, Category=Input)
 	UInputAction* FlashlightInputAction;
 
+	UPROPERTY(EditAnywhere, Category=Input)
+	UInputAction* PickupInputAction;
+
+	UPROPERTY(EditAnywhere, Category=Input)
+	UInputAction* ShootInputAction;
+
+	UPROPERTY(EditAnywhere, Category=Input)
+	UInputAction* SprintInputAction;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> Weapon;
+
+	UPROPERTY()
+	AActor* SpawnedWeapon;
+	
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AProjectile> ProjectileClass;
+
+	bool bHasWeapon;
+	
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void ToggleFlashlight(const FInputActionValue& Value);
+	void PickupObject(const FInputActionValue& Value);
+	void Shoot(const FInputActionValue& Value);
+	void Sprint(const FInputActionValue& Value, bool bSprint);
+public:
+	FORCEINLINE bool GetHasWeapon() {return bHasWeapon; }
 };

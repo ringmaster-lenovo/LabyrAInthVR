@@ -2,10 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "LabyrAInthVR/Interagibles/StatsChangerComponent.h"
 #include "LabyrAInthVR/Interfaces/DamageableActor.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "BaseEnemy.generated.h"
 
+class UStatsChangerComponent;
 class AVRMainCharacter;
 class AMainCharacter;
 class AMockedCharacter;
@@ -15,6 +17,8 @@ class UBoxComponent;
 class ALabyrinthParser;
 class UPawnSensingComponent;
 class AAIController;
+
+DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Enemy_Log, Display, All);
 
 UENUM()
 enum EEnemyState : uint8
@@ -94,6 +98,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Settings|Health")
 	float Health{100.f};
 
+	UPROPERTY(EditAnywhere, Category="Stats")
+	UStatsChangerComponent* StatsChangerComponent;
+
+	UPROPERTY(EditAnywhere, Category="Stats")
+	TArray<FStatsType> Stats;
 private:
 	UPROPERTY()
 	ULabyrinthDTO* LabyrinthDTO;
