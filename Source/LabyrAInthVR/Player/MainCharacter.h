@@ -39,6 +39,9 @@ public:
 	UFUNCTION()
 	virtual void ReceiveDamage(float Damage, AActor* DamageCauser);
 
+	UFUNCTION(BlueprintCallable)
+	void StartTimer();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	double MovementSpeed = 400;
@@ -55,7 +58,7 @@ protected:
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	// AWeapon* Weapon;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,  Category = "Game Mode")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<AWeapon> WeaponClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
@@ -67,8 +70,18 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
 	int CurrentSeconds = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FString name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
+	int32 time = 0;
+
+	FTimerHandle TimerHandle;
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateTimer();
+
+	
 
 	
 };

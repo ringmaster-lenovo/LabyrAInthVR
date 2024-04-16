@@ -16,6 +16,7 @@ FString AVRPlayerController::TeleportPlayer(const FVector& Position, const FRota
 		if (VRCharacter != nullptr)
 		{
 			VRCharacter->lobby = false;
+			VRCharacter->StartTimer();
 		}
 		return "";
 	}
