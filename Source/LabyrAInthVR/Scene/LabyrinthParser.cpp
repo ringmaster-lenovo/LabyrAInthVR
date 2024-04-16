@@ -338,6 +338,6 @@ void ALabyrinthParser::SpawnFlatSurface(bool bFloor)
 	FlatWall->AddPillarAtStart(false);
 	FlatWall->AddWallTop(false);
 	FlatWall->EditWallLook(ChosenFlatWallMaterial, FlatWallRandomColor, false);
-	FlatWall->SetCollision(bFloor);
+	FlatWall->SetCollision(true);
 	ProceduralSplineWallInstancesFlats.Add(FlatWall);
 }

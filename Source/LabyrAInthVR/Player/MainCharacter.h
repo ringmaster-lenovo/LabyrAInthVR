@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "LabyrAInthVR/Interagibles/Weapon.h"
 #include "LabyrAInthVR/Interfaces/DamageableActor.h"
 #include "MainCharacter.generated.h"
 
@@ -36,6 +37,15 @@ public:
 	virtual void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
 							   AController* InstigatedBy, AActor* DamageCauser);
 
+	FORCEINLINE void ActivateShield() { Shield = true; }
+	FORCEINLINE void DectivateShield() { Shield = false; }
+
+	UFUNCTION()
+	virtual void ReceiveDamage(float Damage, AActor* DamageCauser);
+
+	UFUNCTION(BlueprintCallable)
+	void StartTimer();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	double MovementSpeed = 400;
@@ -46,6 +56,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	double Life = 100;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
+	double Armor = 80;
+
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
+	// AWeapon* Weapon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<AWeapon> WeaponClass;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
 	int CurrentHours = 0;
 
@@ -55,12 +74,18 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
 	int CurrentSeconds = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FString name;
 
-	UPROPERTY()
-	AActor* OverlappedPickup;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
+	int32 time = 0;
 
-public:
-	FORCEINLINE void SetOverlappedPickup(AActor* NewPickup) { OverlappedPickup = NewPickup; }
+	FTimerHandle TimerHandle;
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateTimer();
+
+	
+
+	
 };

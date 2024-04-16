@@ -6,6 +6,7 @@
 #include "LabyrAInthVRGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
+#include "LabyrAInthVR/Music/MusicController.h"
 #include "LabyrAInthVR/Network/LabyrinthDTO.h"
 #include "LabyrAInthVR/Player/Main3DCharacter.h"
 
@@ -30,6 +31,7 @@ AVRGameMode::AVRGameMode()
 	NetworkController = nullptr;
 	WidgetController = nullptr;
 	SceneController = nullptr;
+	MusicController = nullptr;
 
 	LabyrinthDTO = nullptr;
 }
@@ -109,11 +111,17 @@ void AVRGameMode::BeginPlay()
 	WidgetController->OnWidgetSError.AddUObject(this, &AVRGameMode::CrashCloseGame);
 	
 	// Spawn and set up scene controller
-	SceneController = GetWorld()->SpawnActor<ASceneController>(SceneController_BP);
+	SceneController = GetWorld()->SpawnActor<ASceneController>(BP_SceneController);
 	if (!IsValid(SceneController))
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of SceneController"));
 		throw "Invalid creation of SceneController";
+	}
+
+	MusicController = GetWorld()->SpawnActor<AMusicController>(BP_MusicController);
+	if (!IsValid(MusicController))
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of MusicController"));
 	}
 
 	// create a LabyrinthDTO
@@ -135,6 +143,7 @@ void AVRGameMode::MainMenuLogicHandler()
 	VRGameState->SetStateOfTheGame(EGameState::Egs_InMainMenu);
 	WidgetController->OnNewGameButtonClicked.AddUObject(this, &AVRGameMode::OnNewGameButtonClicked);
 	WidgetController->ShowMainMenu();
+	MusicController->StartAmbienceMusic(true);
 }
 
 void AVRGameMode::OnNewGameButtonClicked()
@@ -172,6 +181,7 @@ void AVRGameMode::StartGame()
 	// Set up the game to be in Playing state
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Playing);
 	WidgetController->ShowGameUI();
+	MusicController->StartAmbienceMusic(false);
 	
 	FVector PlayerStartPosition;
 	FRotator PlayerStartRotation;

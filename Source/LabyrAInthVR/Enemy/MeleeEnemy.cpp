@@ -3,6 +3,7 @@
 #include "AIController.h"
 #include "NavigationSystem.h"
 #include "Components/BoxComponent.h"
+#include "../Player/MainCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "LabyrAInthVR/MockedCharacter/MockedCharacter.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
@@ -120,9 +121,14 @@ void AMeleeEnemy::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
 	const bool bShouldDamage = Cast<AMainCharacter>(OtherActor) == nullptr || Cast<ABaseEnemy>(OtherActor) != nullptr;
 	
 	if (bShouldDamage || OtherActor == this || !OtherActor->Implements<UDamageableActor>()) return;
-	UE_LOG(LogTemp, Warning, TEXT("Collision with: %s"), *OtherActor->GetName())
-	UGameplayStatics::ApplyDamage(OtherActor, MeleeAttackDamage, GetController(), this, UDamageType::StaticClass());
-	StatsChangerComponent->ChangeStats(Stats);
+	AMainCharacter* Player = Cast<AMainCharacter> (OtherActor);
+	if(!Player)
+	{
+		UGameplayStatics::ApplyDamage(OtherActor, MeleeAttackDamage, GetController(), this, UDamageType::StaticClass());
+	} else
+	{
+		Player->ReceiveDamage(MeleeAttackDamage, this);
+	}
 }
 
 void AMeleeEnemy::Attack()

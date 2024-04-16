@@ -14,6 +14,7 @@
 #include "VRGameMode.generated.h"
 
 class AMain3DCharacter;
+class AMusicController;
 /**
  * This is the heart of the game. It will control the game state and the game flow.
  * It controls the game mode to be used in a level. It also controls the game state.
@@ -61,11 +62,17 @@ private:
 	UPROPERTY()
 	AVRGameState* VRGameState;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Game Mode")
-	TSubclassOf<ASceneController> SceneController_BP;
-
 	UPROPERTY()
 	ASceneController* SceneController;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Game Mode")
+	TSubclassOf<ASceneController> BP_SceneController;
+
+	UPROPERTY()
+	AMusicController* MusicController;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Game Mode")
+	TSubclassOf<AMusicController> BP_MusicController;
 
 	UPROPERTY()
 	ULabyrinthDTO* LabyrinthDTO;

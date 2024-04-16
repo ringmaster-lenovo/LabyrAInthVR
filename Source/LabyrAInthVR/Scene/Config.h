@@ -3,7 +3,7 @@
 namespace WallSettings
 {
 	// How close are the walls from each other (distance from a 1 to another value in the matrix)
-	inline constexpr float WallOffset{175.f};
+	inline constexpr float WallOffset{170.f};
 	inline constexpr float WallHeight{100.f};
 	inline constexpr int ShortWall{3};
 	inline constexpr float FloorOffset{0.f}; // Horizontal distance from floor start to labyrinth
@@ -60,8 +60,14 @@ namespace Misc
 	constexpr inline float FacingEnemyDegrees {90.f };
 }
 
-namespace Interagibles
+namespace Interactables
 {
 	constexpr inline float PowerUpsSpawnHeight { 20.0f };
 	constexpr inline float TrapsSpawnHeight { 0.0f };
+}
+
+namespace Weapons
+{
+	constexpr inline float SpawnHeight { 170.0f };
+	constexpr inline float DistanceFromWall { 20.0f };
 }

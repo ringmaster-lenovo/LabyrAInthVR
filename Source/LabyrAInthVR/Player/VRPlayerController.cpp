@@ -15,9 +15,11 @@ FString AVRPlayerController::TeleportPlayer(const FVector& Position, const FRota
 		AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(GetCharacter());
 		if (VRCharacter != nullptr)
 		{
-			VRCharacter->lobby = false;
+			VRCharacter->IsInLobby = false;
+			VRCharacter->StartTimer();
 		}
 		return "";
 	}
+	UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot teleport player, game cannot start"));
 	return "Cannot teleport player, game cannot start";
 }
