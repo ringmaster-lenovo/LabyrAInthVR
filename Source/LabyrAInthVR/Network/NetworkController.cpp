@@ -45,13 +45,13 @@ void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 
 	FString LabyrinthURL = BaseURL + "/labyrinth";
 
-	// Create an http request. The request will execute asynchronously, and call us back on the Lambda below
+	// Create a http request. The request will execute asynchronously, and call us back on the Lambda below
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> pRequest = HttpModule.CreateRequest();
 
 	// Set the http URL
 	pRequest->SetURL(LabyrinthURL);
 
-	// This is where we set the HTTP method (GET, POST, etc)
+	// This is where we set the HTTP method (GET, POST, etc...)
 	pRequest->SetVerb(TEXT("POST"));	
 
 	// Set the Header for a json content-type
@@ -66,17 +66,19 @@ void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 		// Here, we "capture" the 'this' pointer (the "&"), so our lambda can call this
 		// class's methods in the callback.
 		[this, LabyrinthDTO](
-			FHttpRequestPtr pRequest,
-			FHttpResponsePtr pResponse,
-			bool connectedSuccessfully) mutable
+		const FHttpRequestPtr& PRequest,
+		const FHttpResponsePtr& PResponse,
+		const bool bConnectedSuccessfully) mutable
 			{
-			if (connectedSuccessfully) {
+			if (bConnectedSuccessfully)
+			{
 				UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Connection SUCCESSFULL."));
 				// We should have a JSON response - attempt to process it.
 				// Validate http called us back on the Game Thread...
-				FString ResponseContent = pResponse->GetContentAsString();
+				FString ResponseContent = PResponse->GetContentAsString();
 				if (DeSerializeLabyrinth(ResponseContent, LabyrinthDTO))
 				{
+					UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Created LabyrinthDTO from Json Response."));
 					OnLabyrinthReceived.Broadcast();
 				}
 				else
@@ -85,21 +87,23 @@ void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 					UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Cannot Deserialize Json Response"));
 				}
 			} 
-			else {
-			   switch (pRequest->GetStatus()) {
+			else
+			{
+			   switch (PRequest->GetStatus())
+			   {
 					case EHttpRequestStatus::Failed_ConnectionError:
-						{
-			   				UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Connection failed."));
-							break;
-						}
+					{
+			   			UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Connection failed."));
+						break;
+					}
 					default:
-						{
-							UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Request failed. "));
-							break;
-						}
-			   		}
+					{
+						UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Request failed. "));
+						break;
+					}
 			   }
 				OnNetworkError.Broadcast();
+			}
 		});
 	UE_LOG(LabyrAInthVR_Network_Log, Log, TEXT("Starting the request for the labyrinth."));
 	// Finally, submit the request for processing
