@@ -6,6 +6,7 @@
 #include "LabyrAInthVRGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
+#include "PlayerStatsSubSystem.h"
 #include "LabyrAInthVR/Network/LabyrinthDTO.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Core_Log);
@@ -134,6 +135,7 @@ void AVRGameMode::MainMenuLogicHandler()
 	VRGameState->SetStateOfTheGame(EGameState::Egs_InMainMenu);
 	WidgetController->OnNewGameButtonClicked.AddUObject(this, &AVRGameMode::OnNewGameButtonClicked);
 	WidgetController->ShowMainMenu();
+	
 }
 
 void AVRGameMode::OnNewGameButtonClicked()

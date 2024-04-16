@@ -33,6 +33,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const { return Life > 0; }
 
+	FORCEINLINE void ActivateShield() { Shield = true; }
+	FORCEINLINE void DectivateShield() { Shield = false; }
+
+	UFUNCTION()
+	virtual void ReceiveDamage(float Damage, AActor* DamageCauser);
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	double MovementSpeed = 400;
@@ -46,10 +52,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	double Armor = 80;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
-	AWeapon* Weapon;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
+	// AWeapon* Weapon;
 
-	UPROPERTY(EditDefaultsOnly,  Category = "Game Mode")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,  Category = "Game Mode")
 	TSubclassOf<AWeapon> WeaponClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))

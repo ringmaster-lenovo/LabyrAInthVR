@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "LabyrAInthVR/Projectiles/Projectile.h"
 #include "Weapon.generated.h"
 
 class UStatsChangerComponent;
@@ -34,6 +35,11 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	double FireRate;
-	
+
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* WeaponMesh;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AProjectile> ProjectileClass;
 
 };

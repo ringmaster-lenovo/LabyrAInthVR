@@ -7,6 +7,7 @@
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "LabyrAInthVR/MockedCharacter/MockedCharacter.h"
+#include "LabyrAInthVR/Player/MainCharacter.h"
 
 AProjectile::AProjectile()
 {
@@ -71,7 +72,14 @@ void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
 	if(!OtherActor->Implements<UDamageableActor>()) return;
 	
 	UE_LOG(LogTemp, Warning, TEXT("Projectile has impacted with: %s"), *OtherActor->GetName())
-	UGameplayStatics::ApplyDamage(OtherActor, 50.f, GetOwner()->GetInstigatorController(), this, UDamageType::StaticClass());
+	AMainCharacter* Player = Cast<AMainCharacter> (OtherActor);
+	if(!Player)
+	{
+		UGameplayStatics::ApplyDamage(OtherActor, Damage, GetOwner()->GetInstigatorController(), this, UDamageType::StaticClass());
+	} else
+	{
+		Player->ReceiveDamage(Damage, this);
+	}
 	Destroy();
 }
 
