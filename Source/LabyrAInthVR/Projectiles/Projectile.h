@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
 
+class AProceduralSplineWall;
 class UBoxComponent;
 class UNiagaraSystem;
 class UProjectileMovementComponent;
@@ -19,6 +20,7 @@ public:
 	virtual void Destroyed() override;
 
 	void SetDamage(double DamagePassed) {Damage = DamagePassed;}
+	
 private:
 	double Damage = 20;
 	
