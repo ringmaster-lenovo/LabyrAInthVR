@@ -7,6 +7,8 @@
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "LabyrAInthVR/MockedCharacter/MockedCharacter.h"
+#include "LabyrAInthVR/Scene/ProceduralSplineWall.h"
+#include "LabyrAInthVR/Player/MainCharacter.h"
 
 AProjectile::AProjectile()
 {
@@ -35,7 +37,7 @@ void AProjectile::BeginPlay()
 	
 	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnComponentBeginOverlap);
 	
-	if(ProjectileTracer == nullptr) return;
+	if (ProjectileTracer == nullptr) return;
 
 	/*ProjectileTracerComponent = UGameplayStatics::SpawnEmitterAttached(
 		ProjectileTracer,
@@ -58,7 +60,7 @@ void AProjectile::BeginPlay()
 void AProjectile::Destroyed()
 {
 	Super::Destroyed();
-	if(ImpactParticle == nullptr) return;
+	if (ImpactParticle == nullptr) return;
 
 	UGameplayStatics::SpawnEmitterAtLocation(this, ImpactParticle, GetActorLocation());
 }
@@ -66,12 +68,25 @@ void AProjectile::Destroyed()
 void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                           UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(!IsValid(OtherActor) || OtherActor == GetOwner()) return;
+	if (!IsValid(OtherActor) || OtherActor == GetOwner()) return;
 
-	if(!OtherActor->Implements<UDamageableActor>()) return;
+	if (OtherActor->IsA<AProceduralSplineWall>())
+	{
+		Destroy();
+		return;
+	}
+
+	if (!OtherActor->Implements<UDamageableActor>()) return;
 	
 	UE_LOG(LogTemp, Warning, TEXT("Projectile has impacted with: %s"), *OtherActor->GetName())
-	UGameplayStatics::ApplyDamage(OtherActor, 50.f, GetOwner()->GetInstigatorController(), this, UDamageType::StaticClass());
+	AMainCharacter* Player = Cast<AMainCharacter> (OtherActor);
+	if (!Player)
+	{
+		UGameplayStatics::ApplyDamage(OtherActor, Damage, GetOwner()->GetInstigatorController(), this, UDamageType::StaticClass());
+	} else
+	{
+		Player->ReceiveDamage(Damage, this);
+	}
 	Destroy();
 }
 

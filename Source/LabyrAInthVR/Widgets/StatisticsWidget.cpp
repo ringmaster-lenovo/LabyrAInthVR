@@ -10,7 +10,7 @@ void UStatisticsWidget::NativeConstruct()
 	Super::NativeConstruct();
 			
 	StartTimer(65); //mocked starting time
-	SetStatisticsValues(100, 20, 34, 0.68); //mocked stats
+	// SetStatisticsValues(100, 20, 34, 0.68); //mocked stats
 }
 
 void UStatisticsWidget::SetStatisticsValues(int SpeedValue, int ArmorValue, int DamageValue, float healthPercentage)

@@ -151,6 +151,11 @@ FString ASpawnManager::SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReferen
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthMatrix:\n %s"), *UUtils::MatrixToString(&LabyrinthDTO->LabyrinthStructure));
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("EnemiesSpawned:\n %s"), *UUtils::StructToString(UUtils::GetInfoActorSpawned(NumOfEnemiesSpawned, &EnemiesLocations)));
 
+	ErrorMessage = SpawnWeapons();
+	if (ErrorMessage != "")
+	{
+		return ErrorMessage;
+	}
 	ErrorMessage = SpawnPortal();
 	if (ErrorMessage != "")
 	{
@@ -319,7 +324,7 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 		{
 			SpawnPoint = FVector {
 				WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
-				Interagibles::PowerUpsSpawnHeight
+				Interactables::PowerUpsSpawnHeight
 			};
 		}
 		else if (ObjectClass == ATrap::StaticClass())
@@ -334,13 +339,14 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 					{
 						if (LabyrinthDTO->LabyrinthStructure[Row + j][Column] != 1 || LabyrinthDTO->LabyrinthStructure[Row][Column + k] != 1)
 						{
-							InX = WallSettings::WallOffset * (Column + j);
-							InY = WallSettings::WallOffset * (Row + k);
+							InX = WallSettings::WallOffset * (Column + k);
+							InY = WallSettings::WallOffset * (Row + j);
+							break;
 						}
 					}
 				}
 			}
-			SpawnPoint = FVector { InX, InY,Interagibles::TrapsSpawnHeight };
+			SpawnPoint = FVector { InX, InY,Interactables::TrapsSpawnHeight };
 		}
 		else
 		{
@@ -366,6 +372,51 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 	}
 	return "";
 }
+
+FString ASpawnManager::SpawnWeapons() const
+{
+	if (WeaponsClasses.IsEmpty()) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Non blocking scene Error: No Weapons Set"));
+	if (PlayerStartIndexPosition == -1)
+	{
+		UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Did not found the player start position, invalid matrix"));
+		return "";
+	}
+	int Row = -1;
+	int Column = -1;
+	UUtils::ConvertToRowColumn(PlayerStartIndexPosition, Row, Column);
+	FVector SpawnPoint{0};
+	
+	double InX = WallSettings::WallOffset * Column;
+	double InY = WallSettings::WallOffset * Row;
+	for (int j = -1; j <= 1; j += 2)
+	{
+		for (int k = -1; k <= 1; k += 2)
+		{
+			if (LabyrinthDTO->LabyrinthStructure[Row][Column + k] == 1)
+			{
+				InX = WallSettings::WallOffset * (Column + k) - (k * Weapons::DistanceFromWall);
+				InY = WallSettings::WallOffset * (Row);
+				break;
+			}
+			else if (LabyrinthDTO->LabyrinthStructure[Row + j][Column] == 1)
+			{
+				InX = WallSettings::WallOffset * (Column);
+				InY = WallSettings::WallOffset * (Row + j) - (j * Weapons::DistanceFromWall);
+				break;
+			}
+		}
+	}
+	SpawnPoint = FVector { InX, InY,Weapons::SpawnHeight };
+	const UClass* ObjectClass = WeaponsClasses[0]->GetSuperClass();
+	AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(WeaponsClasses[0], SpawnPoint, FRotator(0, 0, 0));
+	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
+	else
+	{
+		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor spawned: %s"), *ActorSpawned->GetName());
+	}
+	return "";
+}
+
 
 FString ASpawnManager::SpawnPortal() const
 {
@@ -397,7 +448,7 @@ FString ASpawnManager::SpawnPlayerStart()
 		WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
 		0.0
 	};
-	PlayerStartPosition = {SpawnPoint.X, SpawnPoint.Y, SpawnPoint.Z + 110};
+	PlayerStartPosition = {SpawnPoint.X, SpawnPoint.Y, SpawnPoint.Z + 120};
 	PlayerStartRotation = {0, 45, 0};
 	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(PlayerSpawnPoint, SpawnPoint, FRotator(0, 0, 0));
 	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))

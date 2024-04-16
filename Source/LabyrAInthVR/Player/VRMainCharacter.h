@@ -28,8 +28,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UPROPERTY(BlueprintReadWrite, Category = "VR")
-	bool lobby = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
+	bool IsInLobby = true;
 	
 
 private:
