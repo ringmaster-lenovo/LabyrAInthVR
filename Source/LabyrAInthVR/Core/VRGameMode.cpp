@@ -8,6 +8,7 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "LabyrAInthVR/Music/MusicController.h"
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
+#include "LabyrAInthVR/Player/Main3DCharacter.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Core_Log);
 
@@ -18,7 +19,7 @@ AVRGameMode::AVRGameMode()
 	VRPlayerController = nullptr;
 
 	CharacterVRClass = AVRMainCharacter::StaticClass();
-	Character3DClass = A3DMainCharacter::StaticClass();
+	Character3DClass = AMain3DCharacter::StaticClass();
 
 	// static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRCore/Blueprint/VR/VRCharacter"));
 	// DefaultPawnClass = PlayerPawnBPClass.Class;
@@ -51,7 +52,7 @@ void AVRGameMode::BeginPlay()
 			throw "Invalid creation of PlayerController";
 		}
 		DefaultPawnClass = Character3DClass;
-		Character3D = Cast<A3DMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		Character3D = Cast<AMain3DCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 		if (!IsValid(Character3D))
 		{
 			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn"));
