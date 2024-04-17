@@ -78,7 +78,7 @@ protected:
 	
 	EEnemyState EnemyState{EEnemyState::EES_WaitingForNav};
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	virtual void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
 	                           AController* InstigatedBy, AActor* DamageCauser);
 

@@ -181,6 +181,7 @@ void AVRGameMode::StartGame()
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Playing);
 	WidgetController->ShowGameUI();
 	MusicController->StartAmbienceMusic(false);
+	// MusicController->StopCombatMusic();
 	
 	FVector PlayerStartPosition;
 	FRotator PlayerStartRotation;
