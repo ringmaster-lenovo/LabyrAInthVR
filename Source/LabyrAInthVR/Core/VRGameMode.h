@@ -10,7 +10,9 @@
 #include "LabyrAInthVR/Scene/SceneController.h"
 #include "LabyrAInthVR/Widgets/WidgetController.h"
 #include "LabyrAInthVR/Player/VRPlayerController.h"
+#include "LabyrAInthVR/Player/3DPlayerController.h"
 #include "LabyrAInthVR/Player/VRMainCharacter.h"
+#include "LabyrAInthVR/Player/3DMainCharacter.h"
 #include "VRGameMode.generated.h"
 
 /**
@@ -34,10 +36,22 @@ private:
 	bool bIsVRHMDConnected;
 	
 	UPROPERTY()
-	AVRPlayerController* PlayerController;
+	AVRPlayerController* VRPlayerController;
 
 	UPROPERTY()
-	ACharacter* VRCharacter;
+	A3DPlayerController* PlayerController3D;
+
+	UPROPERTY()
+	AVRMainCharacter* CharacterVR;
+	
+	UPROPERTY()
+	A3DMainCharacter* Character3D;
+
+	UPROPERTY(EditDefaultsOnly,  Category = "Game Mode")
+	TSubclassOf<AVRMainCharacter> CharacterVRClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Game Mode")
+	TSubclassOf<A3DMainCharacter> Character3DClass;
 
 	UPROPERTY()
 	ANetworkController* NetworkController;

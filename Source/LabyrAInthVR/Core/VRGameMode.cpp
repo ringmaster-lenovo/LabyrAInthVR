@@ -14,11 +14,14 @@ AVRGameMode::AVRGameMode()
 {
 	// Set default classes for player controller
 	PlayerControllerClass = AVRPlayerController::StaticClass();
-	PlayerController = nullptr;
+	VRPlayerController = nullptr;
 
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRCore/Blueprint/VR/VRCharacter"));
-	DefaultPawnClass = PlayerPawnBPClass.Class;
-	VRCharacter = nullptr;
+	CharacterVRClass = AVRMainCharacter::StaticClass();
+	Character3DClass = A3DMainCharacter::StaticClass();
+
+	// static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRCore/Blueprint/VR/VRCharacter"));
+	// DefaultPawnClass = PlayerPawnBPClass.Class;
+	// VRCharacter = nullptr;
 
 	GameStateClass = AVRGameState::StaticClass();
 	VRGameState = nullptr;
@@ -38,29 +41,39 @@ void AVRGameMode::BeginPlay()
 	if (!bIsVRHMDConnected)
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("No VR HMD connected: Switching to non-VR mode"));
-		// TODO: Get references to the default 3D player controller and character
-		PlayerController = Cast<AVRPlayerController>(GetWorld()->GetFirstPlayerController());
-		if (!IsValid(PlayerController))
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("No VR HMD connected: Switching to non-VR mode"));
+		VRPlayerController = Cast<AVRPlayerController>(GetWorld()->GetFirstPlayerController());
+		if (!IsValid(VRPlayerController))
 		{
 			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of PlayerController"));
 			throw "Invalid creation of PlayerController";
+		}
+		DefaultPawnClass = Character3DClass;
+		Character3D = Cast<A3DMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		if (!IsValid(Character3D))
+		{
+			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn"));
+			throw "Invalid creation of Pawn";
 		}
 	}
 	else
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("VR HMD connected: Starting VR mode"));
 		
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("VR HMD connected: Starting VR mode"));
+		
 		// Store references to the default player controller and pawn
-		PlayerController = Cast<AVRPlayerController>(GetWorld()->GetFirstPlayerController());
-		if (!IsValid(PlayerController))
+		VRPlayerController = Cast<AVRPlayerController>(GetWorld()->GetFirstPlayerController());
+		if (!IsValid(VRPlayerController))
 		{
 			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of PlayerController"));
 			throw "Invalid creation of PlayerController";
 		}
 
-		// DefaultPawnClass = AVRMainCharacter::StaticClass();
-		VRCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-		if (!IsValid(VRCharacter))
+		// static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRCore/Blueprint/VR/VRCharacter"));
+		DefaultPawnClass = CharacterVRClass;
+		CharacterVR = Cast<AVRMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		if (!IsValid(CharacterVR))
 		{
 			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn"));
 			throw "Invalid creation of Pawn";
@@ -162,13 +175,13 @@ void AVRGameMode::StartGame()
 	FVector PlayerStartPosition;
 	FRotator PlayerStartRotation;
 	SceneController->GetPlayerStartPositionAndRotation(PlayerStartPosition, PlayerStartRotation);
-	const FString ErrorMessage = PlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation);
+	const FString ErrorMessage = VRPlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation);
 	if (ErrorMessage != "")
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal PLayer error: %s"), *ErrorMessage);
 		throw ErrorMessage;
 	}
-	PlayerController->EnableInputs(true);
+	VRPlayerController->EnableInputs(true);
 }
 
 void AVRGameMode::OnPauseButtonClicked()

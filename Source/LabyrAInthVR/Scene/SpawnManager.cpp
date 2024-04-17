@@ -294,7 +294,12 @@ FString ASpawnManager::DifficultyDecider(int& PowerUpsToSpawn, int& TrapsToSpawn
 	return "";
 }
 
-
+/**
+ * Spawn the actors in the labyrinth
+ * @param SpawnLocations the locations to spawn the actors
+ * @param SpawnableActors the actors to spawn
+ * @return an error message describing the blocking error that occured while spawning the actors
+ */
 FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArray<TSubclassOf<AActor>>& SpawnableActors) const
 {
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("SpawnLocations: %d"), SpawnLocations.Num());
@@ -319,10 +324,23 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 		}
 		else if (ObjectClass == ATrap::StaticClass())
 		{
-			SpawnPoint = FVector {
-				WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
-				Interagibles::TrapsSpawnHeight
-			};
+			double InX = WallSettings::WallOffset * Column;
+			double InY = WallSettings::WallOffset * Row;
+			for (int j = -1; j <= 1; j += 2)
+			{
+				for (int k = -1; k <= 1; k += 2)
+				{
+					if (LabyrinthDTO->LabyrinthStructure[Row + j][Column + k] == 1)
+					{
+						if (LabyrinthDTO->LabyrinthStructure[Row + j][Column] != 1 || LabyrinthDTO->LabyrinthStructure[Row][Column + k] != 1)
+						{
+							InX = WallSettings::WallOffset * (Column + j);
+							InY = WallSettings::WallOffset * (Row + k);
+						}
+					}
+				}
+			}
+			SpawnPoint = FVector { InX, InY,Interagibles::TrapsSpawnHeight };
 		}
 		else
 		{
@@ -379,7 +397,7 @@ FString ASpawnManager::SpawnPlayerStart()
 		WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
 		0.0
 	};
-	PlayerStartPosition = {SpawnPoint.X, SpawnPoint.Y, SpawnPoint.Z + 90};
+	PlayerStartPosition = {SpawnPoint.X, SpawnPoint.Y, SpawnPoint.Z + 110};
 	PlayerStartRotation = {0, 45, 0};
 	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(PlayerSpawnPoint, SpawnPoint, FRotator(0, 0, 0));
 	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
