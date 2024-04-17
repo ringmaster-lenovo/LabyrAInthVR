@@ -59,8 +59,14 @@ namespace Misc
 	constexpr inline float FacingEnemyDegrees {90.f };
 }
 
-namespace Interagibles
+namespace Interactables
 {
 	constexpr inline float PowerUpsSpawnHeight { 20.0f };
 	constexpr inline float TrapsSpawnHeight { 0.0f };
+}
+
+namespace Weapons
+{
+	constexpr inline float SpawnHeight { 170.0f };
+	constexpr inline float DistanceFromWall { 20.0f };
 }

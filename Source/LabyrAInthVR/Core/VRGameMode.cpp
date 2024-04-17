@@ -6,7 +6,8 @@
 #include "LabyrAInthVRGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
-#include "LabyrAInthVR/Network/LabyrinthDTO.h"
+#include "LabyrAInthVR/Music/MusicController.h"
+#include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Core_Log);
 
@@ -29,6 +30,7 @@ AVRGameMode::AVRGameMode()
 	NetworkController = nullptr;
 	WidgetController = nullptr;
 	SceneController = nullptr;
+	MusicController = nullptr;
 
 	LabyrinthDTO = nullptr;
 }
@@ -108,17 +110,26 @@ void AVRGameMode::BeginPlay()
 	WidgetController->OnWidgetSError.AddUObject(this, &AVRGameMode::CrashCloseGame);
 	
 	// Spawn and set up scene controller
-	SceneController = GetWorld()->SpawnActor<ASceneController>(SceneController_BP);
+	SceneController = GetWorld()->SpawnActor<ASceneController>(BP_SceneController);
 	if (!IsValid(SceneController))
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of SceneController"));
 		throw "Invalid creation of SceneController";
 	}
 
+	MusicController = GetWorld()->SpawnActor<AMusicController>(BP_MusicController);
+	if (!IsValid(MusicController))
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of MusicController"));
+	}
+
 	// create a LabyrinthDTO
 	LabyrinthDTO = NewObject<ULabyrinthDTO>();
-	LabyrinthDTO->Level = 1;
-	LabyrinthDTO->LabyrinthStructure.resize(11, std::vector<uint8>(11, 0));
+	LabyrinthDTO->Level = 3;
+	LabyrinthDTO->Width = 31;
+	LabyrinthDTO->Height = 31;
+	
+	// LabyrinthDTO->LabyrinthStructure.resize(11, std::vector<uint8>(11, 0));
 	if (!IsValid(LabyrinthDTO))
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of LabyrinthDTO"));
@@ -134,6 +145,7 @@ void AVRGameMode::MainMenuLogicHandler()
 	VRGameState->SetStateOfTheGame(EGameState::Egs_InMainMenu);
 	WidgetController->OnNewGameButtonClicked.AddUObject(this, &AVRGameMode::OnNewGameButtonClicked);
 	WidgetController->ShowMainMenu();
+	MusicController->StartAmbienceMusic(true);
 }
 
 void AVRGameMode::OnNewGameButtonClicked()
@@ -164,6 +176,10 @@ void AVRGameMode::PrepareGame()
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Scene error: %s"), *ErrorMessage);
 		throw ErrorMessage;
 	}
+	// UFinishGameRequestDTO* FinishGameRequestDto = NewObject<UFinishGameRequestDTO>();
+	// FinishGameRequestDto->username = TEXT("moli");
+	// FinishGameRequestDto->score = 100;
+	// NetworkController->FinishGame(FinishGameRequestDto);
 }
 
 void AVRGameMode::StartGame()
@@ -171,6 +187,7 @@ void AVRGameMode::StartGame()
 	// Set up the game to be in Playing state
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Playing);
 	WidgetController->ShowGameUI();
+	MusicController->StartAmbienceMusic(false);
 	
 	FVector PlayerStartPosition;
 	FRotator PlayerStartRotation;

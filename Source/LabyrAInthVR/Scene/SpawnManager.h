@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "LabyrAInthVR/Network/LabyrinthDTO.h"
+#include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "SpawnManager.generated.h"
 
 
@@ -93,6 +93,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Enemies")
 	TArray<TSubclassOf<AActor>> EnemiesClasses;
 
+	UPROPERTY(EditAnywhere, Category = "Weapons")
+	TArray<TSubclassOf<AActor>> WeaponsClasses;
+
 	UPROPERTY(EditAnywhere, Category = "Portals")
 	TSubclassOf<AActor> PlayerSpawnPoint;
 
@@ -118,6 +121,8 @@ public:
 	FString DifficultyDecider(int& PowerUpsToSpawn, int& TrapsToSpawn, int& EnemiesToSpawn) const;
 
 	FString SpawnActors(const TArray<int>& SpawnLocations, const TArray<TSubclassOf<AActor>>& SpawnableActors) const;
+
+	FString SpawnWeapons() const;
 
 	FString SpawnPortal() const;
 
