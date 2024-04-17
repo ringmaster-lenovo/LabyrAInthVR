@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "BasePickup.generated.h"
 
+class AWeapon;
 class USphereComponent;
 
 UCLASS()
@@ -15,6 +16,8 @@ public:
 	ABasePickup();
 	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
+
+	FORCEINLINE TSubclassOf<AWeapon> GetWeapon() { return Weapon; }
 	
 private:
 	UFUNCTION()
@@ -31,4 +34,7 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* StaticMeshComponent;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AWeapon> Weapon;
 };

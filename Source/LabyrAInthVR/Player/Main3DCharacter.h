@@ -56,14 +56,8 @@ private:
 	UPROPERTY(EditAnywhere, Category=Input)
 	UInputAction* SprintInputAction;
 
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> Weapon;
-
 	UPROPERTY()
-	AActor* SpawnedWeapon;
-	
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AProjectile> ProjectileClass;
+	AWeapon* EquippedWeapon;
 
 	bool bHasWeapon;
 	
