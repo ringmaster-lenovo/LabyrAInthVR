@@ -8,7 +8,6 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "LabyrAInthVR/MockedCharacter/MockedCharacter.h"
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
-#include "LabyrAInthVR/Network/LabyrinthDTO.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
 #include "LabyrAInthVR/Player/VRMainCharacter.h"
 #include "LabyrAInthVR/Scene/Config.h"
