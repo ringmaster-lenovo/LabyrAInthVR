@@ -15,6 +15,9 @@ public:
 	
 	std::vector<std::vector<uint8>> LabyrinthStructure;
 
+	uint8 Width;
+	uint8 Height;
+
 	uint8 GetDefaultLevel()
 	{
 		return 10;
@@ -34,6 +37,16 @@ public:
 			{1,0,0,0,1,0,0,1,3,1},
 			{1,1,1,1,1,1,1,1,1,1}
 		};
+	}
+
+	uint8 GetDefaultWidth()
+	{
+		return 10;
+	}
+
+	uint8 GetDefaultHeight()
+	{
+		return 10;
 	}
 
 	// lev 1

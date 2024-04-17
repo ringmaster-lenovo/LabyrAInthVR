@@ -7,7 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "LabyrAInthVR/Music/MusicController.h"
-#include "LabyrAInthVR/Network/LabyrinthDTO.h"
+#include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "LabyrAInthVR/Player/Main3DCharacter.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Core_Log);
@@ -126,8 +126,11 @@ void AVRGameMode::BeginPlay()
 
 	// create a LabyrinthDTO
 	LabyrinthDTO = NewObject<ULabyrinthDTO>();
-	LabyrinthDTO->Level = 1;
-	LabyrinthDTO->LabyrinthStructure.resize(11, std::vector<uint8>(11, 0));
+	LabyrinthDTO->Level = 3;
+	LabyrinthDTO->Width = 31;
+	LabyrinthDTO->Height = 31;
+	
+	// LabyrinthDTO->LabyrinthStructure.resize(11, std::vector<uint8>(11, 0));
 	if (!IsValid(LabyrinthDTO))
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of LabyrinthDTO"));
@@ -174,6 +177,10 @@ void AVRGameMode::PrepareGame()
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Scene error: %s"), *ErrorMessage);
 		throw ErrorMessage;
 	}
+	// UFinishGameRequestDTO* FinishGameRequestDto = NewObject<UFinishGameRequestDTO>();
+	// FinishGameRequestDto->username = TEXT("moli");
+	// FinishGameRequestDto->score = 100;
+	// NetworkController->FinishGame(FinishGameRequestDto);
 }
 
 void AVRGameMode::StartGame()

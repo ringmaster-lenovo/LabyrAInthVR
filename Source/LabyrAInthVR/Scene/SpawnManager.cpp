@@ -8,7 +8,7 @@
 #include "LabyrAInthVR/Enemy/RangedEnemy.h"
 #include "LabyrAInthVR/Interagibles/PowerUp.h"
 #include "LabyrAInthVR/Interagibles/Trap.h"
-#include "LabyrAInthVR/Network/LabyrinthDTO.h"
+#include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 
 // Sets default values
 ASpawnManager::ASpawnManager()

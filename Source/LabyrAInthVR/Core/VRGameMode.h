@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "LabyrAInthVR/Core/VRGameState.h"
-#include "LabyrAInthVR/Network/LabyrinthDTO.h"
+#include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "LabyrAInthVR/Network/NetworkController.h"
 #include "LabyrAInthVR/Scene/SceneController.h"
 #include "LabyrAInthVR/Widgets/WidgetController.h"
