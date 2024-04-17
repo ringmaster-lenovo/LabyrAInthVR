@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "DTO/FinishGameRequestDTO.h"
-#include "DTO/LeaderBoard.h"
+#include "DTO/FinishGameResponseDTO.h"
 #include "GameFramework/GameNetworkManager.h"
 #include "Interfaces/IHttpRequest.h"
 #include "NetworkController.generated.h"
@@ -26,7 +26,7 @@ public:
 	void GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO);
 
 	UFUNCTION(Category = "Network")
-	void FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO);
+	void FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO, UFinishGameResponseDTO* FinishGameResponseDTO);
 
 	UFUNCTION(Category = "Network")
 	void GetAllLeaderboards(ULeaderBoardDTO* LeaderBoardDTO);

@@ -3,9 +3,10 @@
 
 #include "NetworkController.h"
 #include "HttpModule.h"
-#include "LabyrinthSerializer.h"
-#include "DTO/LabyrinthDTO.h"
+#include "DTO/FinishGameResponseDTO.h"
 #include "Interfaces/IHttpResponse.h"
+#include "Serializers/FinishGameResponseDeserializer.h"
+#include "Serializers/LabyrinthSerializer.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Network_Log);
 
@@ -129,13 +130,14 @@ void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 	pRequest->ProcessRequest();
 }
 
-void ANetworkController::FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO)
+void ANetworkController::FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO, UFinishGameResponseDTO* FinishGameResponseDTO)
 {
 	UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Preparing Request for FinishGameRequest"));
 	
 	TSharedPtr<FJsonObject> FinishGameDTOJson = MakeShareable(new FJsonObject);
-	FinishGameDTOJson->SetStringField("username", FinishGameRequestDTO->username);
-	FinishGameDTOJson->SetNumberField("score", FinishGameRequestDTO->score);
+	FinishGameDTOJson->SetStringField("username", FinishGameRequestDTO->Username);
+	FinishGameDTOJson->SetNumberField("score", FinishGameRequestDTO->Score);
+	FinishGameDTOJson->SetNumberField("labyrinthComplexity", FinishGameRequestDTO->LabyrinthComplexity);
 	
 	FString JsonString;
 	TSharedRef<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&JsonString);
@@ -146,7 +148,7 @@ void ANetworkController::FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO)
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> pRequest = GetRequest(LeaderboardUrl, Method, &JsonString);
 	
 	pRequest->OnProcessRequestComplete().BindLambda(
-		[this](
+		[this, FinishGameResponseDTO](
 			FHttpRequestPtr pRequest,
 			FHttpResponsePtr pResponse,
 			bool connectedSuccessfully) mutable
@@ -154,6 +156,15 @@ void ANetworkController::FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO)
 			if (connectedSuccessfully)
 			{
 				UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("FinishGameDTO sent succesfully."));
+
+				if (FinishGameDeserializer::DeSerializeFinishGameResponse(pResponse->GetContentAsString(), FinishGameResponseDTO))
+				{
+					// TODO: call the event for the leaderboard received
+				}
+				else
+				{
+					// TODO: call the error message
+				}
 			} 
 			else {
 			   switch (pRequest->GetStatus()) {

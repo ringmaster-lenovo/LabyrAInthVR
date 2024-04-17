@@ -1,15 +1,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FinishGameRequestDTO.generated.h"
+#include "LeaderBoardDTO.generated.h"
 
 UCLASS()
-class LABYRAINTHVR_API UFinishGameRequestDTO : public UObject
+class LABYRAINTHVR_API ULeaderBoardDTO : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	UFinishGameRequestDTO(){}
+	ULeaderBoardDTO(){}
 
 	FString Username;
 	int16 Score;
