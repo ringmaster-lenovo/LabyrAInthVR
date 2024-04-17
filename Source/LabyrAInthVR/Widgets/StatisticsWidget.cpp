@@ -2,8 +2,12 @@
 
 
 #include "StatisticsWidget.h"
+
+#include "PlayerStatsSubSystem.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
+#include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Player/VRMainCharacter.h"
 
 void UStatisticsWidget::NativeConstruct()
 {
@@ -11,6 +15,26 @@ void UStatisticsWidget::NativeConstruct()
 			
 	StartTimer(65); //mocked starting time
 	// SetStatisticsValues(100, 20, 34, 0.68); //mocked stats
+}
+
+void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+    Super::NativeTick(MyGeometry, InDeltaTime);
+
+    UWorld* World = GetWorld();
+    if (!World) { return; }
+    UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+    UPlayerStatsSubSystem* PlayerStatisticsSubsystem = GameInstance->GetSubsystem<UPlayerStatsSubSystem>();
+    bool found = true;
+    float healthValue;
+    float armorValue;
+    float speedValue;
+    PlayerStatisticsSubsystem->GetStatNumberValue(FName("Health"), found, healthValue);
+    PlayerStatisticsSubsystem->GetStatNumberValue(FName("Shield"), found, armorValue);
+    PlayerStatisticsSubsystem->GetStatNumberValue(FName("Speed"), found, speedValue);
+    //TODO: ADD DAMAGE NOT MOCKED
+
+    SetStatisticsValues(speedValue, armorValue, 20, healthValue/100);
 }
 
 void UStatisticsWidget::SetStatisticsValues(int SpeedValue, int ArmorValue, int DamageValue, float healthPercentage)

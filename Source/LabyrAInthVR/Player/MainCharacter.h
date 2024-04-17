@@ -42,7 +42,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StartTimer();
 
-protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	double MovementSpeed = 400;
 
@@ -55,6 +54,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	double Armor = 80;
 
+
+protected:
+	
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	// AWeapon* Weapon;
 

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "LabyrAInthVR/Player/VRMainCharacter.h"
 #include "StatisticsWidget.generated.h"
 
 /**
@@ -16,6 +17,7 @@ class LABYRAINTHVR_API UStatisticsWidget : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* minutes;
@@ -50,5 +52,6 @@ public:
 private:
     FTimerHandle TimerHandle;
     int32 CurrentTimeInSeconds = 0;
+	
 	
 };
