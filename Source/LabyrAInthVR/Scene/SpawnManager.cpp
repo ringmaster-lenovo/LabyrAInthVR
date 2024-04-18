@@ -440,14 +440,6 @@ FString ASpawnManager::SpawnPortal() const
 			YawRotation = 0;
 		}
 	}
-	// if (Column + 1 <= LabyrinthDTO->LabyrinthStructure[0].size() && Column - 1 >= 0)
-	// {
-	// 	if (LabyrinthDTO->LabyrinthStructure[Row + 1][Column] != 0 && LabyrinthDTO->LabyrinthStructure[Row - 1][Column] != 0)
-	// 	{
-	// 		YawRotation = 0;
-	// 	}
-	// 	
-	// }
 	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(Portal, SpawnPoint, FRotator(0, YawRotation, 0));
 	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 	return "";

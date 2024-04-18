@@ -56,8 +56,13 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 	return "";
 }
 
+FString ASceneController::CleanLevel()
+{
+	return "";
+}
+
 void ASceneController::GetPlayerStartPositionAndRotation(FVector& PlayerStartPosition,
-	FRotator& PlayerStartRotation) const
+                                                         FRotator& PlayerStartRotation) const
 {
 	PlayerStartPosition = SpawnManager->PlayerStartPosition;
 	PlayerStartRotation = SpawnManager->PlayerStartRotation;

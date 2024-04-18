@@ -26,6 +26,8 @@ public:
 
 	FString SetupLevel(ULabyrinthDTO* LabyrinthDTO);
 
+	FString CleanLevel();
+
 	DECLARE_MULTICAST_DELEGATE(FSceneReadyEvent);
 	FSceneReadyEvent OnSceneReady;
 

@@ -15,8 +15,8 @@ DEFINE_LOG_CATEGORY(LabyrAInthVR_Core_Log);
 AVRGameMode::AVRGameMode()
 {
 	// Set default classes for player controller
-	PlayerControllerClass = AVRPlayerController::StaticClass();
-	VRPlayerController = nullptr;
+	PlayerControllerClass = ABasePlayerController::StaticClass();
+	BasePlayerController = nullptr;
 
 	CharacterVRClass = AVRMainCharacter::StaticClass();
 	Character3DClass = AMain3DCharacter::StaticClass();
@@ -44,43 +44,34 @@ void AVRGameMode::BeginPlay()
 	if (!bIsVRHMDConnected)
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("No VR HMD connected: Switching to non-VR mode"));
-		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("No VR HMD connected: Switching to non-VR mode"));
-		VRPlayerController = Cast<AVRPlayerController>(GetWorld()->GetFirstPlayerController());
-		if (!IsValid(VRPlayerController))
-		{
-			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of PlayerController"));
-			throw "Invalid creation of PlayerController";
-		}
+		
 		DefaultPawnClass = Character3DClass;
 		Character3D = Cast<AMain3DCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 		if (!IsValid(Character3D))
 		{
-			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn"));
-			throw "Invalid creation of Pawn";
+			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn: change default pawn in GM_VRGameMode"));
+			// throw "Invalid creation of Pawn";
 		}
 	}
 	else
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("VR HMD connected: Starting VR mode"));
-		
-		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("VR HMD connected: Starting VR mode"));
-		
-		// Store references to the default player controller and pawn
-		VRPlayerController = Cast<AVRPlayerController>(GetWorld()->GetFirstPlayerController());
-		if (!IsValid(VRPlayerController))
-		{
-			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of PlayerController"));
-			throw "Invalid creation of PlayerController";
-		}
 
 		// static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRCore/Blueprint/VR/VRCharacter"));
 		DefaultPawnClass = CharacterVRClass;
 		CharacterVR = Cast<AVRMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 		if (!IsValid(CharacterVR))
 		{
-			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn"));
-			throw "Invalid creation of Pawn";
+			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn, change default pawn in GM_VRGameMode"));
+			// throw "Invalid creation of Pawn";
 		}
+	}
+
+	BasePlayerController = Cast<ABasePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (!IsValid(BasePlayerController))
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of PlayerController"));
+		throw "Invalid creation of PlayerController";
 	}
 	
 	// Spawn and set up network manager
@@ -194,13 +185,13 @@ void AVRGameMode::StartGame()
 	FVector PlayerStartPosition;
 	FRotator PlayerStartRotation;
 	SceneController->GetPlayerStartPositionAndRotation(PlayerStartPosition, PlayerStartRotation);
-	const FString ErrorMessage = VRPlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation);
+	const FString ErrorMessage = BasePlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation);
 	if (ErrorMessage != "")
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal PLayer error: %s"), *ErrorMessage);
 		throw ErrorMessage;
 	}
-	VRPlayerController->EnableInputs(true);
+	BasePlayerController->OnCollisionWithEndPortal.AddUObject(this, &AVRGameMode::EndGame);
 }
 
 void AVRGameMode::OnPauseButtonClicked()
@@ -221,6 +212,14 @@ void AVRGameMode::PauseGame()
 
 void AVRGameMode::EndGame()
 {
+	const FString ErrorMessage = SceneController->CleanLevel();
+	if (ErrorMessage != "")
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Error: cannot cleane scene at the end of a game"));
+		throw(ErrorMessage);
+	}
+	AActor* StartActor = FindPlayerStart(BasePlayerController, "LobbyStart");
+	RestartPlayerAtPlayerStart(BasePlayerController, StartActor);
 }
 
 void AVRGameMode::RestartGame()

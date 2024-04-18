@@ -9,7 +9,7 @@
 #include "LabyrAInthVR/Network/NetworkController.h"
 #include "LabyrAInthVR/Scene/SceneController.h"
 #include "LabyrAInthVR/Widgets/WidgetController.h"
-#include "LabyrAInthVR/Player/VRPlayerController.h"
+#include "LabyrAInthVR/Player/BasePlayerController.h"
 #include "LabyrAInthVR/Player/VRMainCharacter.h"
 #include "VRGameMode.generated.h"
 
@@ -36,10 +36,7 @@ private:
 	bool bIsVRHMDConnected;
 	
 	UPROPERTY()
-	AVRPlayerController* VRPlayerController;
-
-	//UPROPERTY()
-	//A3DPlayerController* PlayerController3D;
+	ABasePlayerController* BasePlayerController;
 
 	UPROPERTY()
 	AVRMainCharacter* CharacterVR;
