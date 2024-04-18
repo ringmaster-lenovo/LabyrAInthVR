@@ -20,6 +20,9 @@ AVRGameMode::AVRGameMode()
 
 	CharacterVRClass = AVRMainCharacter::StaticClass();
 	Character3DClass = AMain3DCharacter::StaticClass();
+	Character3D = nullptr;
+	CharacterVR = nullptr;
+	bIsVRHMDConnected = false;
 
 	// static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRCore/Blueprint/VR/VRCharacter"));
 	// DefaultPawnClass = PlayerPawnBPClass.Class;
@@ -146,9 +149,10 @@ void AVRGameMode::OnNewGameButtonClicked()
 	VRGameState->SetStateOfTheGame(EGameState::Egs_WaitingForLabyrinth);
 	
 	WidgetController->ShowLoadingScreen();
-	NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
-	NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
-	NetworkController->GetLabyrinthFromBE(LabyrinthDTO);
+	MockNetwork();
+	// NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
+	// NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
+	// NetworkController->GetLabyrinthFromBE(LabyrinthDTO);
 }
 
 void AVRGameMode::MockNetwork()
@@ -212,14 +216,26 @@ void AVRGameMode::PauseGame()
 
 void AVRGameMode::EndGame()
 {
-	const FString ErrorMessage = SceneController->CleanLevel();
+	FString ErrorMessage = SceneController->CleanLevel();
 	if (ErrorMessage != "")
 	{
-		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Error: cannot cleane scene at the end of a game"));
+		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Error: cannot clean scene at the end of a game"));
 		throw(ErrorMessage);
 	}
 	AActor* StartActor = FindPlayerStart(BasePlayerController, "LobbyStart");
-	RestartPlayerAtPlayerStart(BasePlayerController, StartActor);
+	FVector PlayerStartPosition = StartActor->GetActorLocation();
+	FRotator PlayerStartRotation = StartActor->GetActorRotation();
+	ErrorMessage = BasePlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation);
+	if (ErrorMessage != "")
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Error: cannot teleport player back to lobby"));
+		// throw(ErrorMessage);
+	}
+	if (bIsVRHMDConnected)
+	{
+		AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(BasePlayerController->GetCharacter());
+		VRCharacter->IsInLobby = true;
+	}
 }
 
 void AVRGameMode::RestartGame()
