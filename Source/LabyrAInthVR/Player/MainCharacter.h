@@ -8,6 +8,7 @@
 #include "LabyrAInthVR/Interfaces/DamageableActor.h"
 #include "MainCharacter.generated.h"
 
+class ABasePickup;
 DECLARE_LOG_CATEGORY_EXTERN(LogVR, Log, All);
 
 UCLASS()
@@ -35,6 +36,7 @@ public:
 
 	FORCEINLINE void ActivateShield() { Shield = true; }
 	FORCEINLINE void DectivateShield() { Shield = false; }
+	FORCEINLINE void SetOverlappedPickup(ABasePickup* Pickup) {OverlappingPickup = Pickup; }
 
 	UFUNCTION()
 	virtual void ReceiveDamage(float Damage, AActor* DamageCauser);
@@ -82,8 +84,7 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateTimer();
-
 	
-
-	
+	UPROPERTY()
+	ABasePickup* OverlappingPickup;
 };
