@@ -61,19 +61,19 @@ void ASpawnManager::FindPotentialSpawnLocations(const ULabyrinthDTO* LabyrinthDT
 	if (LateralNeighbors + VerticalNeighbors == 3)
 	{
 		PotentialPowerUpSpawnLocations.Add(UUtils::ConvertToIndex(Row, Column));
-		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Potential power up location: %d : %d"), Row, Column);
+		UE_LOG(LabyrAInthVR_Scene_Log, Log, TEXT("Potential power up location: %d : %d"), Row, Column);
 	}
 	// if I have 2 walls around me but not in front of each other, this happens when there is a turn in the labyrinth, I should spawn a trap in this location
 	else if (LateralNeighbors == 1 && VerticalNeighbors == 1)
 	{
 		PotentialTrapSpawnLocations.Add(UUtils::ConvertToIndex(Row, Column));
-		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Potential trap location: %d : %d"), Row, Column);
+		UE_LOG(LabyrAInthVR_Scene_Log, Log, TEXT("Potential trap location: %d : %d"), Row, Column);
 	}
 	// else, its a normal corridor, I could spawn an enemy in this location
 	else
 	{
 		PotentialEnemySpawnLocations.Add(UUtils::ConvertToIndex(Row, Column));
-		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Potential enemy location: %d : %d"), Row, Column);
+		UE_LOG(LabyrAInthVR_Scene_Log, Log, TEXT("Potential enemy location: %d : %d"), Row, Column);
 	}
 }
 
@@ -291,10 +291,11 @@ FString ASpawnManager::DifficultyDecider(int& PowerUpsToSpawn, int& TrapsToSpawn
 	if (LabyrinthDTO == nullptr) return "LabyrinthDTO is null";
 	
 	const int Level = LabyrinthDTO->Level;
+	UE_LOG(LabyrAInthVR_Scene_Log, Warning, TEXT("Labyrinth Level= %d"), Level);
 	
-	PowerUpsToSpawn = FMath::Floor(Level / 5);
+	PowerUpsToSpawn = FMath::Floor(Level / 1);
 	TrapsToSpawn = PowerUpsToSpawn;
-	EnemiesToSpawn = FMath::Floor(Level / 10) + 1;
+	EnemiesToSpawn = FMath::Floor(Level / 3) + 1;
 	
 	return "";
 }
@@ -431,7 +432,23 @@ FString ASpawnManager::SpawnPortal() const
 		WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
 		140.0
 	};
-	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(Portal, SpawnPoint, FRotator(0, 90, 0));
+	double YawRotation = 90;
+	if (Row + 1 < LabyrinthDTO->LabyrinthStructure.size() && Row - 1 >= 0)
+	{
+		if (LabyrinthDTO->LabyrinthStructure[Row + 1][Column] != 0 && LabyrinthDTO->LabyrinthStructure[Row - 1][Column] != 0)
+		{
+			YawRotation = 0;
+		}
+	}
+	// if (Column + 1 <= LabyrinthDTO->LabyrinthStructure[0].size() && Column - 1 >= 0)
+	// {
+	// 	if (LabyrinthDTO->LabyrinthStructure[Row + 1][Column] != 0 && LabyrinthDTO->LabyrinthStructure[Row - 1][Column] != 0)
+	// 	{
+	// 		YawRotation = 0;
+	// 	}
+	// 	
+	// }
+	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(Portal, SpawnPoint, FRotator(0, YawRotation, 0));
 	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 	return "";
 }
