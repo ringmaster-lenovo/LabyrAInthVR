@@ -34,6 +34,9 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FLabyrinthReceivedEvent);
 	FLabyrinthReceivedEvent OnLabyrinthReceived;
 
+	DECLARE_MULTICAST_DELEGATE(FFinishGameResponseReceivedEvent);
+	FFinishGameResponseReceivedEvent OnFinishGameResponseReceived;
+
 	DECLARE_MULTICAST_DELEGATE(FNetworkErrorEvent);
 	FNetworkErrorEvent OnNetworkError;
 

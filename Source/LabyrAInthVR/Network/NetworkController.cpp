@@ -110,17 +110,18 @@ void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 				}
 			} 
 			else {
-			   switch (pRequest->GetStatus()) {
+			   switch (pRequest->GetStatus())
+				{
 					case EHttpRequestStatus::Failed_ConnectionError:
-						{
-			   				UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Connection failed."));
-							break;
-						}
+					{
+			   			UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Connection failed."));
+						break;
+					}
 					default:
-						{
-							UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Request failed. "));
-							break;
-						}
+					{
+						UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Request failed. "));
+						break;
+					}
 			   		}
 				OnNetworkError.Broadcast();
 			   }
@@ -159,26 +160,28 @@ void ANetworkController::FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO,
 
 				if (FinishGameDeserializer::DeSerializeFinishGameResponse(pResponse->GetContentAsString(), FinishGameResponseDTO))
 				{
-					// TODO: call the event for the leaderboard received
+					OnFinishGameResponseReceived.Broadcast();
 				}
 				else
 				{
-					// TODO: call the error message
+					OnNetworkError.Broadcast();
 				}
 			} 
 			else {
-			   switch (pRequest->GetStatus()) {
+			   switch (pRequest->GetStatus())
+				{
 					case EHttpRequestStatus::Failed_ConnectionError:
-						{
-			   				UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("FinishGame: Connection failed."));
-							break;
-						}
+					{
+			   			UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("FinishGame: Connection failed."));
+						break;
+					}
 					default:
-						{
-							UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("FinishGameRequest failed. "));
-							break;
-						}
-			   		}
+					{
+						UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("FinishGameRequest failed. "));
+						break;
+					}
+				}
+				OnNetworkError.Broadcast();
 			   }
 		});
 	UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Starting the request for the FinishGame."));
