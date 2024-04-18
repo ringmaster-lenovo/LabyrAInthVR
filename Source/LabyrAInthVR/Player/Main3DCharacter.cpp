@@ -86,22 +86,40 @@ void AMain3DCharacter::ToggleFlashlight(const FInputActionValue& Value)
 void AMain3DCharacter::PickupObject(const FInputActionValue& Value)
 {
 	if(!IsValid(OverlappingPickup) || !IsValid(FirstPersonMesh) || !IsValid(OverlappingPickup->GetWeapon())) return;
-
-	//UE_LOG(LogTemp, Warning, TEXT("Pickup is available, picking it."))
-
-	const USkeletalMeshSocket* Socket = FirstPersonMesh->GetSocketByName(FName("GripPoint"));
-	EquippedWeapon = GetWorld()->SpawnActor<AWeapon>(OverlappingPickup->GetWeapon());
-
-	if(!IsValid(EquippedWeapon)) return;
 	
-	bHasWeapon = true;
+	const USkeletalMeshSocket* Socket = FirstPersonMesh->GetSocketByName(FName("GripPoint"));
+
+	ABasePickup* AuxPickup {nullptr};
+	FVector PickupLocation{OverlappingPickup->GetActorLocation()};
+	
+	// I already have an equipped weapon
+	if(IsValid(EquippedWeapon))
+	{
+		AuxPickup = EquippedWeapon->GetPickup();
+		EquippedWeapon->Destroy();
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Current pickup: %s"), *OverlappingPickup->GetName())
+	EquippedWeapon = GetWorld()->SpawnActor<AWeapon>(OverlappingPickup->GetWeapon());
+	
+	if(!IsValid(EquippedWeapon)) return;
+
 	Socket->AttachActor(EquippedWeapon, FirstPersonMesh);
-	OverlappingPickup->Destroy();
+	bHasWeapon = true;
+	EquippedWeapon->SetPickup(OverlappingPickup);
+	OverlappingPickup->SetActorHiddenInGame(true);
+	OverlappingPickup->SetActorEnableCollision(false);
+
+	if(!IsValid(AuxPickup)) return;
+	
+	AuxPickup->SetActorHiddenInGame(false);
+	AuxPickup->SetActorEnableCollision(true);
+	AuxPickup->SetActorLocation(PickupLocation);
 }
 
 void AMain3DCharacter::Shoot(const FInputActionValue& Value)
 {
-	if(!IsValid(EquippedWeapon) || !IsValid(EquippedWeapon->GetMuzzleEffect()) || !IsValid(EquippedWeapon->GetAnimation())) return;
+	if(!IsValid(EquippedWeapon) || !IsValid(EquippedWeapon->GetMuzzleEffect())) return;
 	
 	USkeletalMeshComponent* WeaponMesh = EquippedWeapon->FindComponentByClass<USkeletalMeshComponent>();
 	
@@ -114,7 +132,7 @@ void AMain3DCharacter::Shoot(const FInputActionValue& Value)
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Instigator = this;
 	SpawnParameters.Owner = this;
-	WeaponMesh->PlayAnimation(EquippedWeapon->GetAnimation(), false);
+	if(IsValid(EquippedWeapon->GetAnimation())) WeaponMesh->PlayAnimation(EquippedWeapon->GetAnimation(), false);
 	UGameplayStatics::SpawnEmitterAttached(EquippedWeapon->GetMuzzleEffect(), WeaponMesh, FName("Muzzle_Front"));
 	AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(EquippedWeapon->GetProjectileTemplate(), Start, End.Rotation(), SpawnParameters);
 	if(!IsValid(SpawnedProjectile)) return;

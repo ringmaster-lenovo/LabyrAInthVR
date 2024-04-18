@@ -85,4 +85,7 @@ protected:
 	
 	UPROPERTY()
 	ABasePickup* OverlappingPickup;
+	
+	UPROPERTY()
+	AWeapon* EquippedWeapon;
 };
