@@ -5,16 +5,15 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "LabyrAInthVR/Core/VRGameState.h"
-#include "LabyrAInthVR/Network/LabyrinthDTO.h"
+#include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "LabyrAInthVR/Network/NetworkController.h"
 #include "LabyrAInthVR/Scene/SceneController.h"
 #include "LabyrAInthVR/Widgets/WidgetController.h"
 #include "LabyrAInthVR/Player/VRPlayerController.h"
-#include "LabyrAInthVR/Player/3DPlayerController.h"
 #include "LabyrAInthVR/Player/VRMainCharacter.h"
-#include "LabyrAInthVR/Player/3DMainCharacter.h"
 #include "VRGameMode.generated.h"
 
+class AMain3DCharacter;
 class AMusicController;
 /**
  * This is the heart of the game. It will control the game state and the game flow.
@@ -39,20 +38,20 @@ private:
 	UPROPERTY()
 	AVRPlayerController* VRPlayerController;
 
-	UPROPERTY()
-	A3DPlayerController* PlayerController3D;
+	//UPROPERTY()
+	//A3DPlayerController* PlayerController3D;
 
 	UPROPERTY()
 	AVRMainCharacter* CharacterVR;
 	
 	UPROPERTY()
-	A3DMainCharacter* Character3D;
+	AMain3DCharacter* Character3D;
 
 	UPROPERTY(EditDefaultsOnly,  Category = "Game Mode")
 	TSubclassOf<AVRMainCharacter> CharacterVRClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Game Mode")
-	TSubclassOf<A3DMainCharacter> Character3DClass;
+	TSubclassOf<AMain3DCharacter> Character3DClass;
 
 	UPROPERTY()
 	ANetworkController* NetworkController;

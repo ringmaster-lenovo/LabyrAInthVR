@@ -6,6 +6,7 @@
 #include "LabyrAInthVR/Enemy/BaseEnemy.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "LabyrAInthVR/Interagibles/PowerUp.h"
 #include "LabyrAInthVR/MockedCharacter/MockedCharacter.h"
 #include "LabyrAInthVR/Scene/ProceduralSplineWall.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
@@ -39,14 +40,6 @@ void AProjectile::BeginPlay()
 	
 	if (ProjectileTracer == nullptr) return;
 
-	/*ProjectileTracerComponent = UGameplayStatics::SpawnEmitterAttached(
-		ProjectileTracer,
-		CollisionBox,
-		FName(),
-		GetActorLocation(),
-		GetActorRotation(),
-		EAttachLocation::KeepWorldPosition);*/
-
 	UNiagaraFunctionLibrary::SpawnSystemAttached(
 											ProjectileTracer,
 											CollisionBox,
@@ -68,8 +61,10 @@ void AProjectile::Destroyed()
 void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                           UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!IsValid(OtherActor) || OtherActor == GetOwner()) return;
-
+	UE_LOG(LogTemp, Warning, TEXT("Projectile has impacted with: %s"), *OtherActor->GetName())
+	
+	if(!IsValid(OtherActor) || OtherActor == GetOwner() || OtherActor->IsA<APowerUp>()) return;
+	
 	if (OtherActor->IsA<AProceduralSplineWall>())
 	{
 		Destroy();
@@ -78,7 +73,6 @@ void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
 
 	if (!OtherActor->Implements<UDamageableActor>()) return;
 	
-	UE_LOG(LogTemp, Warning, TEXT("Projectile has impacted with: %s"), *OtherActor->GetName())
 	AMainCharacter* Player = Cast<AMainCharacter> (OtherActor);
 	if (!Player)
 	{

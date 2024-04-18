@@ -6,12 +6,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "LabyrAInthVR/Network/LabyrinthDTO.h"
+#include "LabyrAInthVR/Interagibles/StatsChangerComponent.h"
+#include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
-#include "LabyrAInthVR/Player/VRMainCharacter.h"
 #include "LabyrAInthVR/Scene/Config.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "Perception/PawnSensingComponent.h"
+
+DEFINE_LOG_CATEGORY(LabyrAInthVR_Enemy_Log);
 
 ABaseEnemy::ABaseEnemy()
 {
@@ -30,6 +32,8 @@ ABaseEnemy::ABaseEnemy()
 
 	GetCharacterMovement()->MaxAcceleration = 450.f;
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+
+	StatsChangerComponent = CreateDefaultSubobject<UStatsChangerComponent>(TEXT("StatsChangerComponent"));
 }
 
 void ABaseEnemy::BeginPlay()
@@ -77,6 +81,7 @@ float ABaseEnemy::GetSpeed()
 
 void ABaseEnemy::NavMeshFinishedBuilding(ANavigationData* NavigationData)
 {
+	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s: Enemy set to EES_Idle, ready for patrolling"), *GetName());
 	EnemyState = EES_Idle;
 }
 
@@ -84,7 +89,7 @@ void ABaseEnemy::PatrollingTimerFinished()
 {
 	if (EnemyState == EES_Attacking || !IsValid(AIController)) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("Patrolling timer finished"))
+	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s: Patrolling timer finished"), *GetName());
 
 	EnemyState = EES_Patrolling;
 
@@ -99,12 +104,13 @@ void ABaseEnemy::OnSeePawn(APawn* Pawn)
 {
 	if (EnemyState > EES_Patrolling) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("Seen: %s"), *Pawn->GetName())
+	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> seen pawn: %s"), *GetName(),  *Pawn->GetName());
 	
 	SeenCharacter = SeenCharacter == nullptr ? Cast<AMainCharacter>(Pawn) : SeenCharacter;
 	
 	if (!IsValid(SeenCharacter) || !IsCharacterOnNavMesh() || !SeenCharacter->IsAlive()) return;
-	
+
+	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Initiating chase action to: %s from ABaseEnemy::OnSeePawn"), *GetName(),  *SeenCharacter->GetName());
 	Chase();
 }
 
@@ -133,24 +139,24 @@ void ABaseEnemy::OnMoveFinished(FAIRequestID RequestID, const FPathFollowingResu
 	}
 
 	EnemyState = EES_Idle;
-	UE_LOG(LogTemp, Warning, TEXT("Move finished"));
+	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Move finished"), *GetName());
 }
 
 // Whenever we chased we have to update the matrix position and we do it based on the X Y coordinates
 void ABaseEnemy::UpdateMatrixPosition()
 {
 	LastKnownDirection = EED_None;
-	UE_LOG(LogTemp, Warning, TEXT("Previous position: %d %d"), MatrixRow, MatrixColumn);
+	//UE_LOG(LogTemp, Warning, TEXT("Previous position: %d %d"), MatrixRow, MatrixColumn);
 	float XPos = GetActorLocation().X;
 	float YPos = GetActorLocation().Y;
 
 	MatrixColumn = XPos / WallSettings::WallOffset;
 	MatrixRow = YPos / WallSettings::WallOffset;
 
-	UE_LOG(LogTemp, Warning, TEXT("X Position: %f - Modulus: %f - Index: %d"), XPos,
+	/*UE_LOG(LogTemp, Warning, TEXT("X Position: %f - Modulus: %f - Index: %d"), XPos,
 	       FMath::Fmod(XPos, WallSettings::WallOffset), MatrixColumn);
 	UE_LOG(LogTemp, Warning, TEXT("Y Position: %f - Modulus: %f - Index: %d"), YPos,
-	       FMath::Fmod(YPos, WallSettings::WallOffset), MatrixRow);
+	       FMath::Fmod(YPos, WallSettings::WallOffset), MatrixRow);*/
 
 	if (FMath::Fmod(XPos, WallSettings::WallOffset) > WallSettings::WallOffset / 2)
 	{
@@ -162,7 +168,7 @@ void ABaseEnemy::UpdateMatrixPosition()
 		MatrixRow++;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("New position: %d %d"), MatrixRow, MatrixColumn);
+	//UE_LOG(LogTemp, Warning, TEXT("New position: %d %d"), MatrixRow, MatrixColumn);
 
 	FVector NewPos{MatrixColumn * WallSettings::WallOffset, MatrixRow * WallSettings::WallOffset, 0.f};
 	DrawDebugSphere(GetWorld(), NewPos, 20.f, 15, FColor::Green, true);
@@ -174,7 +180,7 @@ void ABaseEnemy::StartPatrolling()
 		return;
 
 	const float RandomWaitTime = FMath::FRandRange(MinPatrolTimer, MaxPatrolTimer);
-	UE_LOG(LogTemp, Warning, TEXT("Random wait time: %f"), RandomWaitTime);
+	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Random wait time: %f"), *GetName(), RandomWaitTime);
 	GetWorldTimerManager().SetTimer(PatrollingTimerHandle, this, &ThisClass::PatrollingTimerFinished, RandomWaitTime,
 	                                false);
 }
@@ -185,7 +191,6 @@ void ABaseEnemy::Chase()
 	
 	GetWorldTimerManager().ClearTimer(PatrollingTimerHandle);
 	EnemyState = EES_Chasing;
-	UE_LOG(LogTemp, Warning, TEXT("Initiating chase action to: %s"), *SeenCharacter->GetName());
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalActor(SeenCharacter);
 	MoveRequest.SetAcceptanceRadius(0.f);
@@ -224,9 +229,10 @@ void ABaseEnemy::PlayMontage(UAnimMontage* MontageToPlay)
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 	if (!IsValid(AnimInstance) || !IsValid(MontageToPlay)) return;
-	UE_LOG(LogTemp, Warning, TEXT("Playing montage"))
-	FName SectionName{*FString::Printf(TEXT("%d"), FMath::RandRange(1, MontageToPlay->GetNumSections()))};
 	
+	
+	FName SectionName{*FString::Printf(TEXT("%d"), FMath::RandRange(1, MontageToPlay->GetNumSections()))};
+	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Playing montage with section: %s %s"), *GetName(), *MontageToPlay->GetName(), *SectionName.ToString());
 	AnimInstance->Montage_Play(MontageToPlay);
 	AnimInstance->Montage_JumpToSection(SectionName);
 }
@@ -234,18 +240,17 @@ void ABaseEnemy::PlayMontage(UAnimMontage* MontageToPlay)
 void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
                                AController* InstigatedBy, AActor* DamageCauser)
 {
-	if (EnemyState == EES_Dead) return;
+	if (EnemyState == EES_Dead || !IsValid(DamageCauser)) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("Enemy received damage by: %s"), *DamageCauser->GetName())
+	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Received %f damage by: %s"), *GetName(), Damage, *DamageCauser->GetName());
 	
 	if(bHasShield)
 	{
 		DectivateShield();
-		UE_LOG(LogTemp, Warning, TEXT("Received damage but has shield, shield is destroyed"))
+		if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Received damage but had shield, shield is destroyed"), *GetName());
 		return;
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("Received damage"))
 	Health -= Damage;
 
 	if (BloodEffect == nullptr) return;
@@ -282,7 +287,7 @@ FVector ABaseEnemy::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirectio
 	if (bIsInRoom)
 	{
 		FreeEnemyDirections.Remove(EED_Diagonal);
-		UE_LOG(LogTemp, Error, TEXT("The enemy is standing at the start of a room"))
+		if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Standing in a room"), *GetName());
 	}
 
 	// Pick direction based on the last known direction
@@ -306,13 +311,13 @@ FVector ABaseEnemy::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirectio
 	default: ;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Chosen direction: %s"), *UEnum::GetValueAsString(ChosenDirection))
+	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Chosen direction: %s"), *GetName(), *UEnum::GetValueAsString(ChosenDirection));
 
 	// Find the (X,Y) for the chosen direction, stop at intersections
 	uint8 TravellingRow{Row};
 	uint8 TravellingColumn{Column};
 
-	UE_LOG(LogTemp, Warning, TEXT("Current enemy indexes: %d %d"), TravellingRow, TravellingColumn)
+	//UE_LOG(LogTemp, Warning, TEXT("Current enemy indexes: %d %d"), TravellingRow, TravellingColumn)
 
 	switch (ChosenDirection)
 	{
@@ -324,7 +329,7 @@ FVector ABaseEnemy::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirectio
 		{
 			if (bIsInRoom && CheckForExit(TravellingRow, TravellingColumn, ChosenDirection))
 			{
-				UE_LOG(LogTemp, Error, TEXT("Found exit!"));
+				if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Found exit from room"), *GetName());
 				FillExitIndexes(TravellingRow, TravellingColumn, ChosenDirection);
 				break;
 			}
@@ -339,7 +344,7 @@ FVector ABaseEnemy::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirectio
 		{
 			if (bIsInRoom && CheckForExit(TravellingRow, TravellingColumn, ChosenDirection))
 			{
-				UE_LOG(LogTemp, Error, TEXT("Found exit!"));
+				if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Found exit from room"), *GetName());
 				FillExitIndexes(TravellingRow, TravellingColumn, ChosenDirection);
 				break;
 			}
@@ -353,7 +358,7 @@ FVector ABaseEnemy::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirectio
 		{
 			if (bIsInRoom && CheckForExit(TravellingRow, TravellingColumn, ChosenDirection))
 			{
-				UE_LOG(LogTemp, Error, TEXT("Found exit!"));
+				if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Found exit from room"), *GetName());
 				FillExitIndexes(TravellingRow, TravellingColumn, ChosenDirection);
 				break;
 			}
@@ -368,7 +373,7 @@ FVector ABaseEnemy::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirectio
 		{
 			if (bIsInRoom && CheckForExit(TravellingRow, TravellingColumn, ChosenDirection))
 			{
-				UE_LOG(LogTemp, Error, TEXT("Found exit!"));
+				if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Found exit from room"), *GetName());
 				FillExitIndexes(TravellingRow, TravellingColumn, ChosenDirection);
 				break;
 			}
@@ -386,8 +391,6 @@ FVector ABaseEnemy::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirectio
 		WallSettings::WallOffset * TravellingColumn, WallSettings::WallOffset * TravellingRow, 0.f
 	};
 
-	//DrawDebugSphere(GetWorld(), Destination, 20.f, 10, FColor::Red, true);
-	UE_LOG(LogTemp, Warning, TEXT("Post enemy indexes: %d %d"), TravellingRow, TravellingColumn)
 	// Update enemy values by ref
 	LastDirection = ChosenDirection;
 	Row = TravellingRow;
@@ -412,7 +415,7 @@ void ABaseEnemy::FillFreeDirections(uint8 Row, uint8 Column, TArray<EEnemyDirect
 
 
 	const bool bDiagonal = IsDiagonal(Row, Column);
-	UE_LOG(LogTemp, Warning, TEXT("Diagonal presence: %s"), bDiagonal ? *FString("True") : *FString("False"))
+	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Diagonal presence: %s"), *GetName(), bDiagonal ? *FString("True") : *FString("False"));
 
 	if (bDiagonal) FreeEnemyDirections.Add(EEnemyDirection::EED_Diagonal);
 }
@@ -424,15 +427,13 @@ void ABaseEnemy::ChooseNextDirection(TArray<EEnemyDirection>& EnemyDirections, E
 	const float SwitchToDiagonalValue = FMath::RandRange(0.f, 1.f);
 
 	for (const auto& RandomDirection : EnemyDirections)
-		UE_LOG(LogTemp, Warning, TEXT("Free direction: %s"), *UEnum::GetValueAsString(RandomDirection))
+		if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Free direction: %s"), *GetName(), *UEnum::GetValueAsString(RandomDirection));
 
-	UE_LOG(LogTemp, Warning, TEXT("Previous direction: %s"), *UEnum::GetValueAsString(PreviousDirection))
+	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Previous direction: %s"), *GetName(), *UEnum::GetValueAsString(PreviousDirection));
 	// Pick diagonal first
 	if (EnemyDirections.Contains(EED_Diagonal) && SwitchToDiagonalValue < EnemySettings::TurnAtDiagonalProbability &&
 		PreviousDirection != EED_Diagonal)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Switching to diagonal: %f < %f"), SwitchToDiagonalValue,
-		       EnemySettings::TurnAtDiagonalProbability)
 		NextDirection = EED_Diagonal;
 		return;
 	}
@@ -443,6 +444,7 @@ void ABaseEnemy::ChooseNextDirection(TArray<EEnemyDirection>& EnemyDirections, E
 	if (EnemyDirections.Num() <= 0)
 	{
 		NextDirection = EED_None;
+		if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Warning, TEXT("%s -> No free direction"), *GetName());
 		return;
 	}
 
@@ -529,11 +531,10 @@ void ABaseEnemy::SetLabyrinthMatrix(ULabyrinthDTO* LabyrinthDTOReference)
 {
 	if(!IsValid(LabyrinthDTOReference))
 	{
-		UE_LOG(LogTemp, Error, TEXT("LabyrinthDTO is null"));
-	} else
-	{
-		UE_LOG(LogTemp, Error, TEXT("LabyrinthDTO is not null"));
+		if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Error, TEXT("%s -> LabyrinthDTO in ABaseEnemy::SetLabyrinthMatrix is NULL"), *GetName());
+		return;
 	}
+
 
 	LabyrinthDTO = LabyrinthDTOReference;
 }
@@ -587,8 +588,6 @@ bool ABaseEnemy::IsInRoom(uint8 Row, uint8 Column, const TArray<EEnemyDirection>
 
 bool ABaseEnemy::CheckForExit(uint8 Row, uint8 Column, EEnemyDirection EnemyDirection)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Checking for exit in: %s Row: %d Column: %d"),
-	       *UEnum::GetValueAsString(EnemyDirection), Row, Column);
 	switch (EnemyDirection)
 	{
 	case EED_None:
@@ -703,8 +702,6 @@ void ABaseEnemy::FillExitIndexes(uint8& Row, uint8& Column, EEnemyDirection Enem
 
 void ABaseEnemy::FillDiagonalIndexes(uint8& Row, uint8& Column)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Filling diagonal indexes"))
-
 	TArray<EEnemyDiagonalDirection> DiagonalDirections;
 
 	FillDiagonalMatrix(Row, Column, DiagonalDirections);
@@ -737,27 +734,23 @@ void ABaseEnemy::FillDiagonalMatrix(uint8 Row, uint8 Column,
 	if (Column - 1 >= 0 && Row - 1 >= 0 && LabyrinthDTO->LabyrinthStructure[Row - 1][Column - 1] != 1 &&
 		LabyrinthDTO->LabyrinthStructure[Row - 1][Column - 1] != 3)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Upper left"))
 		EnemyDiagonalDirections.Add(EEDD_UpperLeft);
 	}
 	if (Column + 1 < std::size(LabyrinthDTO->LabyrinthStructure[Row]) && Row - 1 >= 0 && LabyrinthDTO->LabyrinthStructure[Row - 1][Column
 	+ 1] != 1 && LabyrinthDTO->LabyrinthStructure[Row - 1][Column
 	+ 1] != 3)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Upper right"))
 		EnemyDiagonalDirections.Add(EEDD_UpperRight);
 	}
 	if (Column - 1 >= 0 && Row + 1 < std::size(LabyrinthDTO->LabyrinthStructure) && LabyrinthDTO->LabyrinthStructure[Row + 1][Column - 1]
 	!= 1 && LabyrinthDTO->LabyrinthStructure[Row + 1][Column - 1]
 	!= 3)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Bottom left"))
 		EnemyDiagonalDirections.Add(EEDD_LowerLeft);
 	}
 	if (Column + 1 < std::size(LabyrinthDTO->LabyrinthStructure[Row]) && Row + 1 < std::size(LabyrinthDTO->LabyrinthStructure) &&
 		LabyrinthDTO->LabyrinthStructure[Row + 1][Column + 1] != 1 && LabyrinthDTO->LabyrinthStructure[Row + 1][Column + 1] != 3)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Bottom right"))
 		EnemyDiagonalDirections.Add(EEDD_LowerRight);
 	}
 }

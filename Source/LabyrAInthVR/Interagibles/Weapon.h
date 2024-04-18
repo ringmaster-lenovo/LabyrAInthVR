@@ -26,6 +26,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	FORCEINLINE TSubclassOf<AProjectile> GetProjectileTemplate() {return ProjectileClass; }
+	FORCEINLINE UParticleSystem* GetMuzzleEffect() {return MuzzleEffect; }
+	FORCEINLINE UAnimationAsset* GetAnimation() { return FireAnimation; }
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	double Damage = 20;
@@ -36,10 +39,12 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	double FireRate;
 
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* WeaponMesh;
-
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AProjectile> ProjectileClass;
 
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* MuzzleEffect;
+
+	UPROPERTY(EditAnywhere)
+	UAnimationAsset* FireAnimation;
 };

@@ -3,6 +3,7 @@
 #include "AIController.h"
 #include "Kismet/GameplayStatics.h"
 #include "LabyrAInthVR/MockedCharacter/MockedCharacter.h"
+#include "LabyrAInthVR/Player/MainCharacter.h"
 #include "LabyrAInthVR/Projectiles/Projectile.h"
 
 void ARangedEnemy::AttackInternal()
@@ -10,6 +11,8 @@ void ARangedEnemy::AttackInternal()
 	// If distance is greater than ranged attack distance, it means we go back chasing
 	if (GetDistanceToCharacter() > RangedAttackDistance && !IsAttacking())
 	{
+		
+		UE_LOG(LogTemp, Warning, TEXT("Initiating chase action to: %s from AttackInternal"), *SeenCharacter->GetName());
 		Chase();
 		return;
 	}
@@ -17,8 +20,15 @@ void ARangedEnemy::AttackInternal()
 	// If distance is between ranged and melee then start shooting mode
 	bShootingMode = GetDistanceToCharacter() <= RangedAttackDistance && GetDistanceToCharacter() > MeleeAttackDistance;
 
+	if(!AIController->LineOfSightTo(SeenCharacter))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Initiating chase action to: %s from LostSight"), *SeenCharacter->GetName());
+		Chase();
+		return;
+	}
+	
 	if (!bCanAttack) return;
-
+	
 	bCanAttack = false;
 	PlayMontage(bShootingMode ? RangedAttackMontage : MeleeAttackMontage);
 	GetWorldTimerManager().SetTimer(bShootingMode ? RangedAttackTimerHandle : MeleeAttackTimerHandle, this,
@@ -30,7 +40,7 @@ void ARangedEnemy::CheckDistances()
 {
 	Super::CheckDistances();
 	
-	if (GetDistanceToCharacter() <= RangedAttackDistance)
+	if (GetDistanceToCharacter() <= RangedAttackDistance && GetDistanceToCharacter() > MeleeAttackDistance && AIController->LineOfSightTo(SeenCharacter))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Entering into ranged attacking phase"))
 		AIController->StopMovement();
@@ -42,7 +52,6 @@ void ARangedEnemy::CheckDistances()
 void ARangedEnemy::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	DrawDebugSphere(GetWorld(), GetActorLocation(), RangedAttackDistance, 10, FColor::Green, false);
 }
 
 void ARangedEnemy::ShootProjectile()
