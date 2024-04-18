@@ -18,7 +18,7 @@ FName parseStatistics(EStatsMapping Stat) {
 			break;
 
 		case EStatsMapping::Esm_Resistance:
-			result = "Resistance";
+			result = "Shield";
 			break;
 	}
 	return result;
