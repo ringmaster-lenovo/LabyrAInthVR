@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "LabyrAInthVR/Interfaces/SpawnableActor.h"
 #include "SpawnPoint.generated.h"
 
 UCLASS()
-class LABYRAINTHVR_API ASpawnPoint : public AActor
+class LABYRAINTHVR_API ASpawnPoint : public AActor, public ISpawnableActor
 {
 	GENERATED_BODY()
 	

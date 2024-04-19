@@ -26,10 +26,13 @@ public:
 
 	FString SetupLevel(ULabyrinthDTO* LabyrinthDTO);
 
-	FString CleanLevel();
+	FString CleanUpLevel();
 
 	DECLARE_MULTICAST_DELEGATE(FSceneReadyEvent);
 	FSceneReadyEvent OnSceneReady;
+
+	DECLARE_MULTICAST_DELEGATE(FSceneReadyEvent);
+	FSceneReadyEvent OnSceneCleanedUp;
 
 	UFUNCTION()
 	void GetPlayerStartPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;

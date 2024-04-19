@@ -4,24 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "LabyrAInthVR/Interfaces/SpawnableActor.h"
 #include "Portal.generated.h"
 
 UCLASS()
-class LABYRAINTHVR_API APortal : public AActor
+class LABYRAINTHVR_API APortal : public AActor, public ISpawnableActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
 	APortal();
-
-	/** Sound to play on collect */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
-	USoundBase* PortalSound;
-
-	/** Pass trough the portal */
-	UFUNCTION(BlueprintCallable, Category = "Portal")
-	void OnPassTrough();
 
 protected:
 	// Called when the game starts or when spawned

@@ -8,7 +8,7 @@
 class USplineComponent;
 
 UCLASS()
-class LABYRAINTHVR_API AProceduralSplineWall : public AActor
+class LABYRAINTHVR_API AProceduralSplineWall : public AActor, public ISpawnableActor
 {
 	GENERATED_BODY()
 

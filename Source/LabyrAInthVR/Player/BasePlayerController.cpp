@@ -5,20 +5,27 @@
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Player_Log);
 
-FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRotator& Rotation) const
+FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRotator& Rotation, const bool InGame) const
 {
 	if (GetCharacter()->TeleportTo(Position, Rotation))
 	{
 		AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(GetCharacter());
 		if (VRCharacter != nullptr)
 		{
-			VRCharacter->IsInLobby = false;
-			VRCharacter->StartTimer();
+			if (InGame)
+			{
+				VRCharacter->IsInLobby = false;
+				VRCharacter->StartTimer();
+			}
+			else
+			{
+				VRCharacter->IsInLobby = true;
+			}
 		}
 		return "";
 	}
-	UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot teleport player, game cannot start"));
-	return "Cannot teleport player, game cannot start";
+	UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot teleport player, unplayable game state"));
+	return "Cannot teleport player, unplayable game state";
 }
 
 void ABasePlayerController::CollidedWithEndPortal()

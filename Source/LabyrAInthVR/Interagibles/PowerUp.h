@@ -4,12 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "LabyrAInthVR/Interfaces/SpawnableActor.h"
 #include "PowerUp.generated.h"
 
 class UStatsChangerComponent;
 
 UCLASS()
-class LABYRAINTHVR_API APowerUp : public AActor
+class LABYRAINTHVR_API APowerUp : public AActor, public ISpawnableActor
 {
 	GENERATED_BODY()
 

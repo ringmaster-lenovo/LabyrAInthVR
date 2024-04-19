@@ -2,13 +2,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "LabyrAInthVR/Interfaces/SpawnableActor.h"
 #include "BasePickup.generated.h"
 
 class AWeapon;
 class USphereComponent;
 
 UCLASS()
-class LABYRAINTHVR_API ABasePickup : public AActor
+class LABYRAINTHVR_API ABasePickup : public AActor, public ISpawnableActor
 {
 	GENERATED_BODY()
 	

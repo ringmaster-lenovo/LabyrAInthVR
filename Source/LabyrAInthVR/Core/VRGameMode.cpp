@@ -131,19 +131,19 @@ void AVRGameMode::BeginPlay()
 		throw "Invalid creation of LabyrinthDTO";
 	}
 
-	MainMenuLogicHandler();
+	StartLobby();
 }
 
-void AVRGameMode::MainMenuLogicHandler()
+void AVRGameMode::StartLobby()
 {
 	// Set up the game to be in Main Menu
 	VRGameState->SetStateOfTheGame(EGameState::Egs_InMainMenu);
-	WidgetController->OnNewGameButtonClicked.AddUObject(this, &AVRGameMode::OnNewGameButtonClicked);
+	WidgetController->OnNewGameButtonClicked.AddUObject(this, &AVRGameMode::NewGameButtonClicked);
 	WidgetController->ShowMainMenu();
 	MusicController->StartAmbienceMusic(true);
 }
 
-void AVRGameMode::OnNewGameButtonClicked()
+void AVRGameMode::NewGameButtonClicked()
 {
 	// Set up the game to be in Waiting For Labyrinth state
 	VRGameState->SetStateOfTheGame(EGameState::Egs_WaitingForLabyrinth);
@@ -189,7 +189,7 @@ void AVRGameMode::StartGame()
 	FVector PlayerStartPosition;
 	FRotator PlayerStartRotation;
 	SceneController->GetPlayerStartPositionAndRotation(PlayerStartPosition, PlayerStartRotation);
-	const FString ErrorMessage = BasePlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation);
+	const FString ErrorMessage = BasePlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation, true);
 	if (ErrorMessage != "")
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal PLayer error: %s"), *ErrorMessage);
@@ -198,15 +198,15 @@ void AVRGameMode::StartGame()
 	BasePlayerController->OnCollisionWithEndPortal.AddUObject(this, &AVRGameMode::EndGame);
 }
 
-void AVRGameMode::OnPauseButtonClicked()
+void AVRGameMode::PauseButtonClicked()
 {
 }
 
-void AVRGameMode::OnEndGameButtonClicked()
+void AVRGameMode::EndGameButtonClicked()
 {
 }
 
-void AVRGameMode::OnRestartGameButtonClicked()
+void AVRGameMode::RestartGameButtonClicked()
 {
 }
 
@@ -216,16 +216,18 @@ void AVRGameMode::PauseGame()
 
 void AVRGameMode::EndGame()
 {
-	FString ErrorMessage = SceneController->CleanLevel();
+	SceneController->OnSceneCleanedUp.AddUObject(this, &AVRGameMode::StartLobby);
+	FString ErrorMessage = SceneController->CleanUpLevel();
 	if (ErrorMessage != "")
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Error: cannot clean scene at the end of a game"));
 		throw(ErrorMessage);
 	}
+	
 	AActor* StartActor = FindPlayerStart(BasePlayerController, "LobbyStart");
 	FVector PlayerStartPosition = StartActor->GetActorLocation();
 	FRotator PlayerStartRotation = StartActor->GetActorRotation();
-	ErrorMessage = BasePlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation);
+	ErrorMessage = BasePlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation, false);
 	if (ErrorMessage != "")
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Error: cannot teleport player back to lobby"));

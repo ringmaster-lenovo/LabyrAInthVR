@@ -24,7 +24,7 @@ public:
 	bool bIsInputsEnabled = true;
 
 	UFUNCTION(Category = "GameLogic")
-	FString TeleportPlayer(const FVector& Position, const FRotator& Rotation) const;
+	FString TeleportPlayer(const FVector& Position, const FRotator& Rotation, const bool InGame = true) const;
 
 	UFUNCTION(BlueprintCallable, Category = "GameLogic")
 	void CollidedWithEndPortal();

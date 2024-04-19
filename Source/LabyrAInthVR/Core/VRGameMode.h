@@ -75,7 +75,7 @@ private:
 	ULabyrinthDTO* LabyrinthDTO;
 
 	UFUNCTION()
-	void MainMenuLogicHandler();
+	void StartLobby();
 
 	UFUNCTION()
 	void PrepareGame();
@@ -106,16 +106,16 @@ private:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void OnNewGameButtonClicked();
+	void NewGameButtonClicked();
 
 	UFUNCTION(BlueprintCallable)
-	void OnPauseButtonClicked();
+	void PauseButtonClicked();
 
 	UFUNCTION(BlueprintCallable)
-	void OnEndGameButtonClicked();
+	void EndGameButtonClicked();
 
 	UFUNCTION(BlueprintCallable)
-	void OnRestartGameButtonClicked();
+	void RestartGameButtonClicked();
 
 	UFUNCTION(BlueprintCallable)
 	bool IsInVR() { return bIsVRHMDConnected; }

@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "LabyrAInthVR/Interfaces/DamageableActor.h"
+#include "LabyrAInthVR/Interfaces/SpawnableActor.h"
 #include "Trap.generated.h"
 
 UCLASS()
-class LABYRAINTHVR_API ATrap : public AActor, public IDamageableActor
+class LABYRAINTHVR_API ATrap : public AActor, public IDamageableActor, public ISpawnableActor
 {
 	GENERATED_BODY()
 

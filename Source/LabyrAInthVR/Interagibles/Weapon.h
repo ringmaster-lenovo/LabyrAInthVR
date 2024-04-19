@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "LabyrAInthVR/Interfaces/SpawnableActor.h"
 #include "LabyrAInthVR/Projectiles/Projectile.h"
 #include "Weapon.generated.h"
 
 class UStatsChangerComponent;
 
 UCLASS()
-class LABYRAINTHVR_API AWeapon : public AActor
+class LABYRAINTHVR_API AWeapon : public AActor, public ISpawnableActor
 {
 	GENERATED_BODY()
 
