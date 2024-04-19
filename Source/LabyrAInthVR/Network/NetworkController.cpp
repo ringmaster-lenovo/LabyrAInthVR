@@ -164,7 +164,7 @@ void ANetworkController::FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO,
 				}
 				else
 				{
-					OnNetworkError.Broadcast();
+					OnFinishGameError.Broadcast();
 				}
 			} 
 			else {
@@ -181,7 +181,7 @@ void ANetworkController::FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO,
 						break;
 					}
 				}
-				OnNetworkError.Broadcast();
+				OnFinishGameError.Broadcast();
 			   }
 		});
 	UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Starting the request for the FinishGame."));

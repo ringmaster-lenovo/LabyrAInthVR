@@ -40,6 +40,9 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FNetworkErrorEvent);
 	FNetworkErrorEvent OnNetworkError;
 
+	DECLARE_MULTICAST_DELEGATE(FFinishGameErrorEvent);
+	FFinishGameErrorEvent OnFinishGameError;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

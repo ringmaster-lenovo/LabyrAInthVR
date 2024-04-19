@@ -12,6 +12,6 @@ public:
 	ULeaderBoardDTO(){}
 
 	FString Username;
-	int16 Score;
-	int8 Level;
+	uint16 Score;
+	uint8 Level;
 };

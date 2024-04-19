@@ -29,16 +29,17 @@ bool FinishGameDeserializer::DeSerializeFinishGameResponse(FString FinishGameRes
 		UE_LOG(LabyrAInthVR_FinishGameResponseSerializer_Log, Error, TEXT("Error during Leaderboard Deserialization: 'leaderboard' field not found or not an array."));
 		return false;
 	}
+	FinishGameResponseDTO->Leaderboard = TArray<ULeaderBoardDTO*>();
 	// for each leaderboard in LeaderboardArray deserialize it and add it to the FinishGameResponseDTO
 	for (auto Leaderboard : *LeaderboardArray)
 	{
-		ULeaderBoardDTO LeaderBoardDTO;
-		if (LeaderboardSerializer::DeSerializeLeaderboard(Leaderboard->AsString(), &LeaderBoardDTO))
+		ULeaderBoardDTO* LeaderBoardDTO = NewObject<ULeaderBoardDTO>();
+		if (LeaderboardSerializer::DeSerializeLeaderboard(Leaderboard->AsObject(), LeaderBoardDTO))
 		{
 			// TODO: decommentare che al momento non builda, capire perchè
-			// TArray<ULeaderBoardDTO>* LeaderboardArray = &FinishGameResponseDTO->Leaderboard;
-			// LeaderboardArray->Add(LeaderBoardDTO);
+			FinishGameResponseDTO->Leaderboard.Add(LeaderBoardDTO);
 		}
+		
 		else
 		{
 			UE_LOG(LabyrAInthVR_FinishGameResponseSerializer_Log, Error, TEXT("Error during Leaderboard entry Deserialization: 'leaderboard' field not found or not an array."));
