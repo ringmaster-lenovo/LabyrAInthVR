@@ -56,9 +56,6 @@ private:
 	UPROPERTY(EditAnywhere, Category=Input)
 	UInputAction* SprintInputAction;
 
-	UPROPERTY()
-	AWeapon* EquippedWeapon;
-
 	bool bHasWeapon;
 	
 	void Move(const FInputActionValue& Value);

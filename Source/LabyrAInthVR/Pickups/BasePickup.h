@@ -19,6 +19,9 @@ public:
 	virtual void BeginPlay() override;
 
 	FORCEINLINE TSubclassOf<AWeapon> GetWeapon() { return Weapon; }
+	FORCEINLINE AWeapon* GetSpawnedWeapon() { return SpawnedWeapon; }
+	FORCEINLINE void SetSpawnedWeapon(AWeapon* WeaponSpawned) { SpawnedWeapon = WeaponSpawned; }
+	FORCEINLINE bool IsWeaponSpawned() { return SpawnedWeapon != nullptr; }
 	
 private:
 	UFUNCTION()
@@ -38,4 +41,7 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AWeapon> Weapon;
+
+	UPROPERTY()
+	AWeapon* SpawnedWeapon;
 };

@@ -3,11 +3,9 @@
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "LabyrAInthVR/Enemy/BaseEnemy.h"
-#include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "LabyrAInthVR/Interagibles/PowerUp.h"
-#include "LabyrAInthVR/MockedCharacter/MockedCharacter.h"
+#include "LabyrAInthVR/Pickups/BasePickup.h"
 #include "LabyrAInthVR/Scene/ProceduralSplineWall.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
 
@@ -63,15 +61,13 @@ void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
 {
 	UE_LOG(LogTemp, Warning, TEXT("Projectile has impacted with: %s"), *OtherActor->GetName())
 	
-	if(!IsValid(OtherActor) || OtherActor == GetOwner() || OtherActor->IsA<APowerUp>()) return;
+	if(!IsValid(OtherActor) || OtherActor == GetOwner() || OtherActor->IsA<APowerUp>() || OtherActor->IsA<ABasePickup>()) return;
 	
-	if (OtherActor->IsA<AProceduralSplineWall>())
+	if (OtherActor->IsA<AProceduralSplineWall>() || !OtherActor->Implements<UDamageableActor>())
 	{
 		Destroy();
 		return;
 	}
-
-	if (!OtherActor->Implements<UDamageableActor>()) return;
 	
 	AMainCharacter* Player = Cast<AMainCharacter> (OtherActor);
 	if (!Player)
@@ -81,6 +77,7 @@ void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
 	{
 		Player->ReceiveDamage(Damage, this);
 	}
+	
 	Destroy();
 }
 
