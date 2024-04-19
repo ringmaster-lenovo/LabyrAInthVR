@@ -34,10 +34,10 @@ bool LeaderboardSerializer::DeSerializeLeaderboard(FString LeaderboardString, UL
 		return false;
 	}
 
-	// Get the labyrinthComplexity field from the Json object
-	if (!OutLeaderboard->TryGetNumberField(TEXT("labyrinthComplexity"), LeaderboardDTO->LabyrinthComplexity))
+	// Get the level field from the Json object
+	if (!OutLeaderboard->TryGetNumberField(TEXT("level"), LeaderboardDTO->Level))
 	{
-		UE_LOG(LabyrAInthVR_LeaderboardSerializer_Log, Error, TEXT("Error during labyrinthComplexity Deserialization: 'labyrinthComplexity' field not found or not an array."));
+		UE_LOG(LabyrAInthVR_LeaderboardSerializer_Log, Error, TEXT("Error during level Deserialization: 'level' field not found or not an array."));
 		return false;
 	}
 	UE_LOG(LabyrAInthVR_LeaderboardSerializer_Log, Display, TEXT("Leaderboard deserialized correctly"));
@@ -53,7 +53,7 @@ FString LeaderboardSerializer::SerializeLeaderboard(ULeaderBoardDTO* Leaderboard
 	// Set the leaderboard fields
 	LeaderboardDTOJson->SetStringField(TEXT("username"), LeaderboardDTO->Username);
 	LeaderboardDTOJson->SetNumberField(TEXT("score"), LeaderboardDTO->Score);
-	LeaderboardDTOJson->SetNumberField(TEXT("labyrinthComplexity"), LeaderboardDTO->LabyrinthComplexity);
+	LeaderboardDTOJson->SetNumberField(TEXT("level"), LeaderboardDTO->Level);
 	
 	// Serialize the Json object to a string
 	FString JsonString;

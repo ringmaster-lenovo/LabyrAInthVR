@@ -13,5 +13,5 @@ public:
 
 	FString Username;
 	int16 Score;
-	int8 LabyrinthComplexity;
+	int8 Level;
 };

@@ -138,7 +138,7 @@ void ANetworkController::FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO,
 	TSharedPtr<FJsonObject> FinishGameDTOJson = MakeShareable(new FJsonObject);
 	FinishGameDTOJson->SetStringField("username", FinishGameRequestDTO->Username);
 	FinishGameDTOJson->SetNumberField("score", FinishGameRequestDTO->Score);
-	FinishGameDTOJson->SetNumberField("labyrinthComplexity", FinishGameRequestDTO->LabyrinthComplexity);
+	FinishGameDTOJson->SetNumberField("level", FinishGameRequestDTO->Level);
 	
 	FString JsonString;
 	TSharedRef<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&JsonString);
