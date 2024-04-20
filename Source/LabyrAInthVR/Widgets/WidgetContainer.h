@@ -8,6 +8,7 @@
 #include "LobbyWidget.h"
 #include "SettingsWidget.h"
 #include "LoadingWidget.h"
+#include "StatisticsWidget.h"
 #include "WidgetContainer.generated.h"
 
 class AWidgetController;
@@ -33,6 +34,9 @@ public:
 	TSubclassOf<USettingsWidget> SettingsWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UStatisticsWidget> StatisticsWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<ULoadingWidget> LoadingWidgetClass;
 	
 	UPROPERTY()
@@ -40,6 +44,9 @@ public:
 	
 	UPROPERTY()
 	USettingsWidget* SettingsWidget = nullptr;
+
+	UPROPERTY()
+	UStatisticsWidget* StatisticsWidget = nullptr;
 
 	UPROPERTY()
 	ULoadingWidget* LoadingWidget = nullptr;

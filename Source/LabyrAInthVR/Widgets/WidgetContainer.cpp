@@ -119,16 +119,20 @@ void AWidgetContainer::NewGameButtonClicked() const
 
 FString AWidgetContainer::HideMainMenuUI()
 {
-	if (LobbyWidgetClass)
+	if (StatisticsWidgetClass)
 	{
 		if (!bIsInVR)  // Non-VR widgets should be displayed on the screen
 		{
 			UUserWidget* AnyWidget = Cast<UUserWidget>(Widget->GetUserWidgetObject());
 			if (!AnyWidget) return "No Widget found in Main Menu Container!";
 			AnyWidget->RemoveFromParent();
+			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+			StatisticsWidget = CreateWidget<UStatisticsWidget>(PlayerController, StatisticsWidgetClass);
+			if (!StatisticsWidget) return "No StatisticsWidget found!";
+			StatisticsWidget->AddToViewport(0);
 		}
-		Widget->SetWidgetClass(LobbyWidgetClass);
+		// Widget->SetWidgetClass(LobbyWidgetClass);
 		return "";
 	}
-	return "No LobbyWidgetClass set!";
+	return "No StatisticsWidgetClass set!";
 }

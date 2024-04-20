@@ -5,6 +5,7 @@
 #include "PlayerStatsSubSystem.h"
 #include <Kismet/GameplayStatics.h>
 
+DEFINE_LOG_CATEGORY(LogVR2);
 
 FName parseStatistics(EStatsMapping Stat) {
 	FName result = "";
@@ -18,7 +19,7 @@ FName parseStatistics(EStatsMapping Stat) {
 			break;
 
 		case EStatsMapping::Esm_Resistance:
-			result = "Resistance";
+			result = "Shield";
 			break;
 	}
 	return result;
@@ -61,8 +62,14 @@ void UStatsChangerComponent::ChangeStats(TArray<FStatsType> Stats)
 	for (int32 i = 0; i < Stats.Num(); i++) {
 		PlayerStatisticsSubsystem->AddToCounter(parseStatistics(Stats[i].Stats), Stats[i].Bonus);
 	}
-	/*PlayerStatisticsSubsystem->AddToCounter(FName("Health"), BonusHealth);
-	PlayerStatisticsSubsystem->AddToCounter(FName("Speed"), BonusSpeed);
-	PlayerStatisticsSubsystem->AddToCounter(FName("Resistance"), BonusResistance);*/
+	bool found;
+	float value;
+	PlayerStatisticsSubsystem->GetStatNumberValue(FName("Resistance"), found, value);
+	UE_LOG(LogVR2, Warning, TEXT("RESISTANCEEEEE: %f"), value);
+	PlayerStatisticsSubsystem->GetStatNumberValue(FName("Shield"), found, value);
+	UE_LOG(LogVR2, Warning, TEXT("SHIEEELDDD: %f"), value);
+	// PlayerStatisticsSubsystem->AddToCounter(FName("Health"), BonusHealth);
+	// PlayerStatisticsSubsystem->AddToCounter(FName("Speed"), BonusSpeed);
+	// PlayerStatisticsSubsystem->AddToCounter(FName("Resistance"), BonusResistance);
 }
 

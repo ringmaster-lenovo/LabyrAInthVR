@@ -41,19 +41,19 @@ void UStatisticsWidget::SetStatisticsValues(int SpeedValue, int ArmorValue, int 
 {
     if(speed)
     {
-        FString SpeedText = FString::Printf(TEXT("Speed: %d"), SpeedValue);
+        FString SpeedText = FString::Printf(TEXT("Speed:%d"), SpeedValue);
         speed->SetText(FText::FromString(SpeedText));
     }
 
     if(armor)
     {
-        FString ArmorText = FString::Printf(TEXT("Armor: %d"), ArmorValue);
+        FString ArmorText = FString::Printf(TEXT("Armor:%d"), ArmorValue);
         armor->SetText(FText::FromString(ArmorText));
     }
 
     if(damage)
     {
-        FString DamageText = FString::Printf(TEXT("Damage: %d"), DamageValue);
+        FString DamageText = FString::Printf(TEXT("Damage:%d"), DamageValue);
         damage->SetText(FText::FromString(DamageText));
     }
 
