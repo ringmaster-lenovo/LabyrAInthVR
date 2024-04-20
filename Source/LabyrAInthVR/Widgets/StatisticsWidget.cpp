@@ -13,7 +13,7 @@ void UStatisticsWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 			
-	StartTimer(65); //mocked starting time
+	StartTimer(time); //mocked starting time
 	// SetStatisticsValues(100, 20, 34, 0.68); //mocked stats
 }
 

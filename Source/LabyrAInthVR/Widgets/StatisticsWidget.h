@@ -40,6 +40,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetStatisticsValues(int SpeedValue, int ArmorValue, int DamageValue, float healthPercentage);
 
+	int32 time = 0;
+
 	UFUNCTION(BlueprintCallable)
 	void UpdateTimer();
 

@@ -127,8 +127,14 @@ FString AWidgetContainer::HideMainMenuUI()
 			if (!AnyWidget) return "No Widget found in Main Menu Container!";
 			AnyWidget->RemoveFromParent();
 			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+			
 			StatisticsWidget = CreateWidget<UStatisticsWidget>(PlayerController, StatisticsWidgetClass);
 			if (!StatisticsWidget) return "No StatisticsWidget found!";
+			AMainCharacter* Character = Cast<AMainCharacter>(PlayerController->GetCharacter());
+			if(Character)
+			{
+				StatisticsWidget->time = Character->time;
+			}
 			StatisticsWidget->AddToViewport(0);
 		}
 		// Widget->SetWidgetClass(LobbyWidgetClass);
