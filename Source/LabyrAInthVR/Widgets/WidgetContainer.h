@@ -8,6 +8,8 @@
 #include "LobbyWidget.h"
 #include "SettingsWidget.h"
 #include "LoadingWidget.h"
+#include "WinWidget.h"
+#include "DeadWidget.h"
 #include "StatisticsWidget.h"
 #include "WidgetContainer.generated.h"
 
@@ -38,6 +40,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<ULoadingWidget> LoadingWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UWinWidget> WinWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UDeadWidget> DeadWidgetClass;
 	
 	UPROPERTY()
 	ULobbyWidget* LobbyWidget = nullptr;
@@ -50,6 +58,12 @@ public:
 
 	UPROPERTY()
 	ULoadingWidget* LoadingWidget = nullptr;
+
+	UPROPERTY()
+	UWinWidget* WinWidget = nullptr;
+
+	UPROPERTY()
+	UDeadWidget* DeadWidget = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* Root;
