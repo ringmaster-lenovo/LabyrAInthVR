@@ -18,9 +18,23 @@ void UDeadWidget::NativeConstruct()
 			RestartButtonWidget->OnClicked.AddDynamic(this, &UDeadWidget::OnRestartClicked);
 		}
 	}
+
+	if (MainMenuButton)
+	{
+		UButton* MainMenuButtonWidget = Cast<UButton>(MainMenuButton->GetWidgetFromName(TEXT("ButtonHit")));
+		if (MainMenuButtonWidget)
+		{
+			MainMenuButtonWidget->OnClicked.AddDynamic(this, &UDeadWidget::OnMainMenuClicked);
+		}
+	}
 }
 
 void UDeadWidget::OnRestartClicked()
+{
+	
+}
+
+void UDeadWidget::OnMainMenuClicked()
 {
 	
 }

@@ -30,11 +30,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* RestartButton;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UUserWidget* MainMenuButton;
+
 	UFUNCTION()
 	void OnNextLevelClicked();
 
 	UFUNCTION()
 	void OnRestartClicked();
+
+	UFUNCTION()
+	void OnMainMenuClicked();
 
 	UFUNCTION()
 	void SetTime(int32 time);

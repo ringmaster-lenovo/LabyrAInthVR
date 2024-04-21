@@ -19,6 +19,7 @@ FString AVRPlayerController::TeleportPlayer(const FVector& Position, const FRota
 			VRCharacter->StartTimer();
 			VRCharacter->StopWidgetInteraction();
 			VRCharacter->DestroyPointer();
+			VRCharacter->DestroyPointerLeft();
 		}
 		return "";
 	}

@@ -36,6 +36,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void DestroyPointer();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void DestroyPointerLeft();
 	
 
 private:

@@ -32,6 +32,15 @@ void UWinWidget::NativeConstruct()
 			RestartButtonWidget->OnClicked.AddDynamic(this, &UWinWidget::OnRestartClicked);
 		}
 	}
+
+	if (MainMenuButton)
+	{
+		UButton* MainMenuButtonWidget = Cast<UButton>(MainMenuButton->GetWidgetFromName(TEXT("ButtonHit")));
+		if (MainMenuButtonWidget)
+		{
+			MainMenuButtonWidget->OnClicked.AddDynamic(this, &UWinWidget::OnMainMenuClicked);
+		}
+	}
 }
 
 void UWinWidget::SetTime(int32 time)
@@ -57,6 +66,11 @@ void UWinWidget::OnRestartClicked()
 }
 
 void UWinWidget::OnNextLevelClicked()
+{
+	
+}
+
+void UWinWidget::OnMainMenuClicked()
 {
 	
 }
