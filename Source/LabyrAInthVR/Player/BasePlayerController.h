@@ -22,4 +22,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivate))
 	bool bIsInputsEnabled = true;
+
+	UFUNCTION(Category = "GameLogic")
+	FString TeleportPlayer(const FVector& Position, const FRotator& Rotation, const bool InGame = true) const;
+
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void CollidedWithEndPortal();
+
+	DECLARE_MULTICAST_DELEGATE(FOnCollisionWithEndPortal);
+	FOnCollisionWithEndPortal OnCollisionWithEndPortal;
 };

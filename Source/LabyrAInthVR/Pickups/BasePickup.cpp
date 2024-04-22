@@ -26,7 +26,7 @@ void ABasePickup::BeginPlay()
 void ABasePickup::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Start overlap"));
+	UE_LOG(LogTemp, Warning, TEXT("Start overlap: %s"), *GetName());
 	AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor);
 	if(!IsValid(MainCharacter)) return;
 	MainCharacter->SetOverlappedPickup(this);
@@ -35,7 +35,7 @@ void ABasePickup::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
 void ABasePickup::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("End overlap"));
+	UE_LOG(LogTemp, Warning, TEXT("End overlap: %s"), *GetName());
 	AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor);
 	if(!IsValid(MainCharacter)) return;
 	MainCharacter->SetOverlappedPickup(nullptr);

@@ -9,12 +9,15 @@
 UENUM(BlueprintType)
 enum class EGameState : uint8
 {
-	Egs_InMainMenu           = 0 UMETA(DisplayName = "In Main Menu"),
-	Egs_WaitingForLabyrinth  = 1 UMETA(DisplayName = "Waiting For Labyrinth"),
-	Egs_Playing              = 2 UMETA(DisplayName = "Playing"),
-	Egs_Pausing              = 3 UMETA(DisplayName = "Pausing"),
-	Egs_Restarting           = 4 UMETA(DisplayName = "Restarting"),
-	Egs_Closing              = 5 UMETA(DisplayName = "Closing")
+	Egs_NotYetStarted         = 0 UMETA(DisplayName = "Game not yet started"),
+	Egs_InMainMenu            = 1 UMETA(DisplayName = "In Main Menu"),
+	Egs_WaitingForLabyrinth   = 2 UMETA(DisplayName = "Waiting For Labyrinth"),
+	Egs_WaitingForSceneBuild  = 3 UMETA(DisplayName = "Waiting For Scene Build"),
+	Egs_Playing               = 4 UMETA(DisplayName = "Playing"),
+	Egs_Pausing               = 5 UMETA(DisplayName = "Pausing"),
+	Egs_Restarting            = 6 UMETA(DisplayName = "Restarting"),
+	Egs_Ending                = 7 UMETA(DisplayName = "Ending"),
+	Egs_ClosingGame           = 8 UMETA(DisplayName = "ClosingGame")
 };
 
 /**
@@ -26,7 +29,7 @@ class LABYRAINTHVR_API AVRGameState : public AGameStateBase
 	GENERATED_BODY()
 
 private:
-	EGameState CurrentStateOfTheGame;
+	EGameState CurrentStateOfTheGame = EGameState::Egs_NotYetStarted;
 	
 	uint8 CurrentLevel = 0;
 	

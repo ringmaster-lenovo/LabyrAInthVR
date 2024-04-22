@@ -15,11 +15,14 @@ DEFINE_LOG_CATEGORY(LabyrAInthVR_Core_Log);
 AVRGameMode::AVRGameMode()
 {
 	// Set default classes for player controller
-	PlayerControllerClass = AVRPlayerController::StaticClass();
-	VRPlayerController = nullptr;
+	PlayerControllerClass = ABasePlayerController::StaticClass();
+	BasePlayerController = nullptr;
 
 	CharacterVRClass = AVRMainCharacter::StaticClass();
 	Character3DClass = AMain3DCharacter::StaticClass();
+	Character3D = nullptr;
+	CharacterVR = nullptr;
+	bIsVRHMDConnected = false;
 
 	// static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRCore/Blueprint/VR/VRCharacter"));
 	// DefaultPawnClass = PlayerPawnBPClass.Class;
@@ -44,43 +47,34 @@ void AVRGameMode::BeginPlay()
 	if (!bIsVRHMDConnected)
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("No VR HMD connected: Switching to non-VR mode"));
-		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("No VR HMD connected: Switching to non-VR mode"));
-		VRPlayerController = Cast<AVRPlayerController>(GetWorld()->GetFirstPlayerController());
-		if (!IsValid(VRPlayerController))
-		{
-			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of PlayerController"));
-			throw "Invalid creation of PlayerController";
-		}
+		
 		DefaultPawnClass = Character3DClass;
 		Character3D = Cast<AMain3DCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 		if (!IsValid(Character3D))
 		{
-			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn"));
-			throw "Invalid creation of Pawn";
+			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn: change default pawn in GM_VRGameMode"));
+			// throw "Invalid creation of Pawn";
 		}
 	}
 	else
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("VR HMD connected: Starting VR mode"));
-		
-		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("VR HMD connected: Starting VR mode"));
-		
-		// Store references to the default player controller and pawn
-		VRPlayerController = Cast<AVRPlayerController>(GetWorld()->GetFirstPlayerController());
-		if (!IsValid(VRPlayerController))
-		{
-			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of PlayerController"));
-			throw "Invalid creation of PlayerController";
-		}
 
 		// static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/VRCore/Blueprint/VR/VRCharacter"));
 		DefaultPawnClass = CharacterVRClass;
 		CharacterVR = Cast<AVRMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 		if (!IsValid(CharacterVR))
 		{
-			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn"));
-			throw "Invalid creation of Pawn";
+			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn, change default pawn in GM_VRGameMode"));
+			// throw "Invalid creation of Pawn";
 		}
+	}
+
+	BasePlayerController = Cast<ABasePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (!IsValid(BasePlayerController))
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of PlayerController"));
+		throw "Invalid creation of PlayerController";
 	}
 	
 	// Spawn and set up network manager
@@ -137,27 +131,39 @@ void AVRGameMode::BeginPlay()
 		throw "Invalid creation of LabyrinthDTO";
 	}
 
-	MainMenuLogicHandler();
+	StartLobby();
 }
 
-void AVRGameMode::MainMenuLogicHandler()
+void AVRGameMode::StartLobby()
 {
+	if (VRGameState->GetCurrentStateOfTheGame() == EGameState::Egs_InMainMenu)
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Start Lobby, but game is already in Main Menu"));
+		return;
+	}
 	// Set up the game to be in Main Menu
 	VRGameState->SetStateOfTheGame(EGameState::Egs_InMainMenu);
-	WidgetController->OnNewGameButtonClicked.AddUObject(this, &AVRGameMode::OnNewGameButtonClicked);
+	
+	WidgetController->OnNewGameButtonClicked.AddUObject(this, &AVRGameMode::NewGameButtonClicked);
 	WidgetController->ShowMainMenu();
 	MusicController->StartAmbienceMusic(true);
 }
 
-void AVRGameMode::OnNewGameButtonClicked()
+void AVRGameMode::NewGameButtonClicked()
 {
+	if (VRGameState->GetCurrentStateOfTheGame() >= EGameState::Egs_WaitingForLabyrinth)
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("New Game button clicked, but game is already waiting for labyrinth"));
+		return;
+	}
 	// Set up the game to be in Waiting For Labyrinth state
 	VRGameState->SetStateOfTheGame(EGameState::Egs_WaitingForLabyrinth);
 	
 	WidgetController->ShowLoadingScreen();
-	NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
-	NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
-	NetworkController->GetLabyrinthFromBE(LabyrinthDTO);
+	MockNetwork();
+	// NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
+	// NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
+	// NetworkController->GetLabyrinthFromBE(LabyrinthDTO);
 }
 
 void AVRGameMode::MockNetwork()
@@ -170,6 +176,14 @@ void AVRGameMode::MockNetwork()
 
 void AVRGameMode::PrepareGame()
 {
+	if (VRGameState->GetCurrentStateOfTheGame() >= EGameState::Egs_WaitingForSceneBuild)
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Prepare Game, but game is already waiting for scene build"));
+		return;
+	}
+	// Set up the game to be in Waiting For Labyrinth state
+	VRGameState->SetStateOfTheGame(EGameState::Egs_WaitingForSceneBuild);
+	
 	SceneController->OnSceneReady.AddUObject(this, &AVRGameMode::StartGame);
 	const FString ErrorMessage = SceneController->SetupLevel(LabyrinthDTO);
 	if (ErrorMessage != "")
@@ -185,32 +199,39 @@ void AVRGameMode::PrepareGame()
 
 void AVRGameMode::StartGame()
 {
+	if (VRGameState->GetCurrentStateOfTheGame() >= EGameState::Egs_Playing)
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Start Game, but game is already playing"));
+		return;
+	}
 	// Set up the game to be in Playing state
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Playing);
+	
 	WidgetController->ShowGameUI();
 	MusicController->StartAmbienceMusic(false);
+	// MusicController->StopCombatMusic();
 	
 	FVector PlayerStartPosition;
 	FRotator PlayerStartRotation;
 	SceneController->GetPlayerStartPositionAndRotation(PlayerStartPosition, PlayerStartRotation);
-	const FString ErrorMessage = VRPlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation);
+	const FString ErrorMessage = BasePlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation, true);
 	if (ErrorMessage != "")
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal PLayer error: %s"), *ErrorMessage);
 		throw ErrorMessage;
 	}
-	VRPlayerController->EnableInputs(true);
+	BasePlayerController->OnCollisionWithEndPortal.AddUObject(this, &AVRGameMode::EndGame);
 }
 
-void AVRGameMode::OnPauseButtonClicked()
+void AVRGameMode::PauseButtonClicked()
 {
 }
 
-void AVRGameMode::OnEndGameButtonClicked()
+void AVRGameMode::EndGameButtonClicked()
 {
 }
 
-void AVRGameMode::OnRestartGameButtonClicked()
+void AVRGameMode::RestartGameButtonClicked()
 {
 }
 
@@ -220,6 +241,36 @@ void AVRGameMode::PauseGame()
 
 void AVRGameMode::EndGame()
 {
+	if (VRGameState->GetCurrentStateOfTheGame() >= EGameState::Egs_Ending)
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("End Game, but game is already ending"));
+		return;
+	}
+	// Set up the game to be in Ending state
+	VRGameState->SetStateOfTheGame(EGameState::Egs_Ending);
+	
+	SceneController->OnSceneCleanedUp.AddUObject(this, &AVRGameMode::StartLobby);
+	FString ErrorMessage = SceneController->CleanUpLevel();
+	if (ErrorMessage != "")
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Error: cannot clean scene at the end of a game"));
+		throw(ErrorMessage);
+	}
+	
+	AActor* StartActor = FindPlayerStart(BasePlayerController, "LobbyStart");
+	FVector PlayerStartPosition = StartActor->GetActorLocation();
+	FRotator PlayerStartRotation = StartActor->GetActorRotation();
+	ErrorMessage = BasePlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation, false);
+	if (ErrorMessage != "")
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Error: cannot teleport player back to lobby"));
+		// throw(ErrorMessage);
+	}
+	if (bIsVRHMDConnected)
+	{
+		AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(BasePlayerController->GetCharacter());
+		VRCharacter->IsInLobby = true;
+	}
 }
 
 void AVRGameMode::RestartGame()

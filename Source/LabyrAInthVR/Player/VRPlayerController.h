@@ -21,7 +21,4 @@ public:
 	//
 	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivate))
 	// bool bIsInputsEnabled = true;
-
-	UFUNCTION(Category = "GameLogic")
-	FString TeleportPlayer(const FVector& Position, const FRotator& Rotation) const;
 };

@@ -3,30 +3,4 @@
 
 #include "VRPlayerController.h"
 
-#include "VRMainCharacter.h"
-#include "GameFramework/Character.h"
 
-DEFINE_LOG_CATEGORY(LabyrAInthVR_Player_Log);
-
-FString AVRPlayerController::TeleportPlayer(const FVector& Position, const FRotator& Rotation) const
-{
-	if (GetCharacter()->TeleportTo(Position, Rotation))
-	{
-		AMainCharacter* Character = Cast<AMainCharacter>(GetCharacter());
-		if (Character)
-		{
-			Character->StartTimer();
-		}
-		AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(GetCharacter());
-		if (VRCharacter != nullptr)
-		{
-			VRCharacter->IsInLobby = false;
-			VRCharacter->StopWidgetInteraction();
-			VRCharacter->DestroyPointer();
-			VRCharacter->DestroyPointerLeft();
-		}
-		return "";
-	}
-	UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot teleport player, game cannot start"));
-	return "Cannot teleport player, game cannot start";
-}

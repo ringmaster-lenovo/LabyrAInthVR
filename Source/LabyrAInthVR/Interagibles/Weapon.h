@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "LabyrAInthVR/Interfaces/SpawnableActor.h"
 #include "LabyrAInthVR/Projectiles/Projectile.h"
 #include "Weapon.generated.h"
 
+class ABasePickup;
 class UStatsChangerComponent;
 
 UCLASS()
-class LABYRAINTHVR_API AWeapon : public AActor
+class LABYRAINTHVR_API AWeapon : public AActor, public ISpawnableActor
 {
 	GENERATED_BODY()
 
@@ -29,6 +31,8 @@ public:
 	FORCEINLINE TSubclassOf<AProjectile> GetProjectileTemplate() {return ProjectileClass; }
 	FORCEINLINE UParticleSystem* GetMuzzleEffect() {return MuzzleEffect; }
 	FORCEINLINE UAnimationAsset* GetAnimation() { return FireAnimation; }
+	FORCEINLINE void SetPickup(ABasePickup* BasePickup) { Pickup = BasePickup; }
+	FORCEINLINE ABasePickup* GetPickup() {return Pickup; }
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	double Damage = 20;
@@ -47,4 +51,7 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UAnimationAsset* FireAnimation;
+
+	UPROPERTY()
+	ABasePickup* Pickup;
 };
