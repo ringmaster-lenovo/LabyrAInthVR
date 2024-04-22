@@ -12,11 +12,15 @@ FString AVRPlayerController::TeleportPlayer(const FVector& Position, const FRota
 {
 	if (GetCharacter()->TeleportTo(Position, Rotation))
 	{
+		AMainCharacter* Character = Cast<AMainCharacter>(GetCharacter());
+		if (Character)
+		{
+			Character->StartTimer();
+		}
 		AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(GetCharacter());
 		if (VRCharacter != nullptr)
 		{
 			VRCharacter->IsInLobby = false;
-			VRCharacter->StartTimer();
 			VRCharacter->StopWidgetInteraction();
 			VRCharacter->DestroyPointer();
 			VRCharacter->DestroyPointerLeft();
