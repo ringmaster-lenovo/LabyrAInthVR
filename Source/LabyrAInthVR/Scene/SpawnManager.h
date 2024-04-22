@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "LabyrAInthVR/Interfaces/SpawnableActor.h"
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "SpawnManager.generated.h"
 
@@ -48,7 +49,7 @@ enum class EEnemyTypes : uint8
 };
 
 UCLASS()
-class LABYRAINTHVR_API ASpawnManager : public AActor
+class LABYRAINTHVR_API ASpawnManager : public AActor, public ISpawnableActor
 {
 	GENERATED_BODY()
 

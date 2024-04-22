@@ -136,8 +136,14 @@ void AVRGameMode::BeginPlay()
 
 void AVRGameMode::StartLobby()
 {
+	if (VRGameState->GetCurrentStateOfTheGame() == EGameState::Egs_InMainMenu)
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Start Lobby, but game is already in Main Menu"));
+		return;
+	}
 	// Set up the game to be in Main Menu
 	VRGameState->SetStateOfTheGame(EGameState::Egs_InMainMenu);
+	
 	WidgetController->OnNewGameButtonClicked.AddUObject(this, &AVRGameMode::NewGameButtonClicked);
 	WidgetController->ShowMainMenu();
 	MusicController->StartAmbienceMusic(true);
@@ -145,6 +151,11 @@ void AVRGameMode::StartLobby()
 
 void AVRGameMode::NewGameButtonClicked()
 {
+	if (VRGameState->GetCurrentStateOfTheGame() >= EGameState::Egs_WaitingForLabyrinth)
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("New Game button clicked, but game is already waiting for labyrinth"));
+		return;
+	}
 	// Set up the game to be in Waiting For Labyrinth state
 	VRGameState->SetStateOfTheGame(EGameState::Egs_WaitingForLabyrinth);
 	
@@ -165,6 +176,14 @@ void AVRGameMode::MockNetwork()
 
 void AVRGameMode::PrepareGame()
 {
+	if (VRGameState->GetCurrentStateOfTheGame() >= EGameState::Egs_WaitingForSceneBuild)
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Prepare Game, but game is already waiting for scene build"));
+		return;
+	}
+	// Set up the game to be in Waiting For Labyrinth state
+	VRGameState->SetStateOfTheGame(EGameState::Egs_WaitingForSceneBuild);
+	
 	SceneController->OnSceneReady.AddUObject(this, &AVRGameMode::StartGame);
 	const FString ErrorMessage = SceneController->SetupLevel(LabyrinthDTO);
 	if (ErrorMessage != "")
@@ -180,8 +199,14 @@ void AVRGameMode::PrepareGame()
 
 void AVRGameMode::StartGame()
 {
+	if (VRGameState->GetCurrentStateOfTheGame() >= EGameState::Egs_Playing)
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Start Game, but game is already playing"));
+		return;
+	}
 	// Set up the game to be in Playing state
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Playing);
+	
 	WidgetController->ShowGameUI();
 	MusicController->StartAmbienceMusic(false);
 	// MusicController->StopCombatMusic();
@@ -216,6 +241,14 @@ void AVRGameMode::PauseGame()
 
 void AVRGameMode::EndGame()
 {
+	if (VRGameState->GetCurrentStateOfTheGame() >= EGameState::Egs_Ending)
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("End Game, but game is already ending"));
+		return;
+	}
+	// Set up the game to be in Ending state
+	VRGameState->SetStateOfTheGame(EGameState::Egs_Ending);
+	
 	SceneController->OnSceneCleanedUp.AddUObject(this, &AVRGameMode::StartLobby);
 	FString ErrorMessage = SceneController->CleanUpLevel();
 	if (ErrorMessage != "")
