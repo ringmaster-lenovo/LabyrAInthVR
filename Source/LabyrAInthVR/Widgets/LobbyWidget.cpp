@@ -5,7 +5,7 @@
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/Button.h"
-#include "WidgetContainer.h"
+#include "WidgetController.h"
 
 
 void ULobbyWidget::NativeConstruct()
@@ -61,7 +61,7 @@ void ULobbyWidget::NativeConstruct()
 
 void ULobbyWidget::OnNewGameButtonClicked()
 {
-	WidgetContainer->NewGameButtonClicked();
+	WidgetController->NewGameButtonClicked();
 }
 
 void ULobbyWidget::OnLoadGameClicked()
@@ -76,7 +76,7 @@ void ULobbyWidget::OnRankingsClicked()
 
 void ULobbyWidget::OnSettingsClicked()
 {
-	WidgetContainer->ShowSettings();
+	// WidgetController->ShowSettings();
 }
 
 void ULobbyWidget::OnQuitClicked()

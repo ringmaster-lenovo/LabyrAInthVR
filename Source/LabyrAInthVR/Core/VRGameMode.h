@@ -56,6 +56,9 @@ private:
 	UPROPERTY()
 	AWidgetController* WidgetController;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Game Mode")
+	TSubclassOf<AWidgetController> BP_WidgetController;
+
 	UPROPERTY()
 	AVRGameState* VRGameState;
 

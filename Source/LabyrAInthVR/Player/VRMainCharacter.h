@@ -34,7 +34,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void StopWidgetInteraction();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SpawnPointer();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void DestroyPointer();
 
 	UFUNCTION(BlueprintImplementableEvent)

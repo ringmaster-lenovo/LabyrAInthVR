@@ -6,7 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "LobbyWidget.generated.h"
 
-class AWidgetContainer;
+class AWidgetController;
+// class AWidgetContainer;
 /**
  * 
  */
@@ -18,8 +19,11 @@ class LABYRAINTHVR_API ULobbyWidget : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
+	// UPROPERTY()
+	// AWidgetContainer* WidgetContainer;
+
 	UPROPERTY()
-	AWidgetContainer* WidgetContainer;
+	AWidgetController* WidgetController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* NewGameButton;

@@ -96,7 +96,7 @@ void AVRGameMode::BeginPlay()
 	GameState = VRGameState;
     
 	// Spawn and set up widget controller
-	WidgetController = GetWorld()->SpawnActor<AWidgetController>();
+	WidgetController = GetWorld()->SpawnActor<AWidgetController>(BP_WidgetController);
 	if (!IsValid(WidgetController))
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of WidgetController"));
@@ -270,6 +270,7 @@ void AVRGameMode::EndGame()
 	{
 		AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(BasePlayerController->GetCharacter());
 		VRCharacter->IsInLobby = true;
+		VRCharacter->SpawnPointer();
 	}
 }
 
