@@ -179,7 +179,7 @@ void AVRGameMode::PrepareGame()
 	}
 	// UFinishGameRequestDTO* FinishGameRequestDto = NewObject<UFinishGameRequestDTO>();
 	// FinishGameRequestDto->Username = TEXT("moli");
-	// FinishGameRequestDto->Score = 100;
+	// FinishGameRequestDto->Time = 100;
 	// FinishGameRequestDto->Level = 3;
 	// UFinishGameResponseDTO* FinishGameResponseDto = NewObject<UFinishGameResponseDTO>();
 	// NetworkController->FinishGame(FinishGameRequestDto, FinishGameResponseDto);

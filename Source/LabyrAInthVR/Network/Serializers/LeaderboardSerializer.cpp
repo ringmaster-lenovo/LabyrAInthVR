@@ -20,10 +20,10 @@ bool LeaderboardSerializer::DeSerializeLeaderboard(TSharedPtr<FJsonObject> Leade
 		return false;
 	}
 
-	// Get the score field from the Json object
-	if (!LeaderboardObject->TryGetNumberField(TEXT("score"), LeaderboardDTO->Score))
+	// Get the time field from the Json object
+	if (!LeaderboardObject->TryGetNumberField(TEXT("time"), LeaderboardDTO->Time))
 	{
-		UE_LOG(LabyrAInthVR_LeaderboardSerializer_Log, Error, TEXT("Error during Score Deserialization: 'score' field not found or not an array."));
+		UE_LOG(LabyrAInthVR_LeaderboardSerializer_Log, Error, TEXT("Error during Time Deserialization: 'time' field not found or not an array."));
 		return false;
 	}
 
@@ -45,7 +45,7 @@ FString LeaderboardSerializer::SerializeLeaderboard(ULeaderBoardDTO* Leaderboard
 	
 	// Set the leaderboard fields
 	LeaderboardDTOJson->SetStringField(TEXT("username"), LeaderboardDTO->Username);
-	LeaderboardDTOJson->SetNumberField(TEXT("score"), LeaderboardDTO->Score);
+	LeaderboardDTOJson->SetNumberField(TEXT("time"), LeaderboardDTO->Time);
 	LeaderboardDTOJson->SetNumberField(TEXT("level"), LeaderboardDTO->Level);
 	
 	// Serialize the Json object to a string

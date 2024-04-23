@@ -36,7 +36,6 @@ bool FinishGameDeserializer::DeSerializeFinishGameResponse(FString FinishGameRes
 		ULeaderBoardDTO* LeaderBoardDTO = NewObject<ULeaderBoardDTO>();
 		if (LeaderboardSerializer::DeSerializeLeaderboard(Leaderboard->AsObject(), LeaderBoardDTO))
 		{
-			// TODO: decommentare che al momento non builda, capire perchè
 			FinishGameResponseDTO->Leaderboard.Add(LeaderBoardDTO);
 		}
 		

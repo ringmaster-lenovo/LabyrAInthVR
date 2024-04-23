@@ -109,7 +109,8 @@ void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 					UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Cannot Deserialize Json Response"));
 				}
 			} 
-			else {
+			else
+			{
 			   switch (pRequest->GetStatus())
 				{
 					case EHttpRequestStatus::Failed_ConnectionError:
@@ -122,9 +123,9 @@ void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 						UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Request failed. "));
 						break;
 					}
-			   		}
+				}
 				OnNetworkError.Broadcast();
-			   }
+			  }
 		});
 	UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Starting the request for the labyrinth."));
 	// Finally, submit the request for processing
@@ -137,7 +138,7 @@ void ANetworkController::FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO,
 	
 	TSharedPtr<FJsonObject> FinishGameDTOJson = MakeShareable(new FJsonObject);
 	FinishGameDTOJson->SetStringField("username", FinishGameRequestDTO->Username);
-	FinishGameDTOJson->SetNumberField("score", FinishGameRequestDTO->Score);
+	FinishGameDTOJson->SetNumberField("time", FinishGameRequestDTO->Time);
 	FinishGameDTOJson->SetNumberField("level", FinishGameRequestDTO->Level);
 	
 	FString JsonString;
@@ -167,7 +168,8 @@ void ANetworkController::FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO,
 					OnFinishGameError.Broadcast();
 				}
 			} 
-			else {
+			else
+			{
 			   switch (pRequest->GetStatus())
 				{
 					case EHttpRequestStatus::Failed_ConnectionError:
@@ -182,7 +184,7 @@ void ANetworkController::FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO,
 					}
 				}
 				OnFinishGameError.Broadcast();
-			   }
+			}
 		});
 	UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Starting the request for the FinishGame."));
 	// Finally, submit the request for processing
