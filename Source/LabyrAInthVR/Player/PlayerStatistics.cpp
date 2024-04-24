@@ -13,7 +13,8 @@ UPlayerStatistics::UPlayerStatistics()
 void UPlayerStatistics::BeginPlay()
 {
 	Super::BeginPlay();
-	DefaultSpeed = Speed;
+	if(!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
+	DefaultSpeed = MainCharacter->GetCharacterMovement()->MaxWalkSpeed;
 }
 
 void UPlayerStatistics::TickComponent(float DeltaTime, ELevelTick TickType,
