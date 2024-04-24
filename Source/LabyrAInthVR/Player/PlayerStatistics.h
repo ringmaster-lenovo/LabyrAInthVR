@@ -13,6 +13,7 @@ enum EStatModifier : uint8
 {
 	Esm_Health UMETA(DisplayName = "Health"),
 	Esm_Speed UMETA(DisplayName = "Speed"),
+	Esm_Armor UMETA(DisplayName = "Armor")
 };
 
 USTRUCT(Blueprintable)
@@ -82,6 +83,9 @@ private:
 public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeStat(EStatModifier Stat, float Amount);
+
+	UFUNCTION(BlueprintCallable)
+	void ChangeStat(EStatModifier Stat, bool bEnable);
 
 	UFUNCTION(BlueprintCallable)
 	void ChangeStat(EStatModifier Stat, float Amount, float Time);

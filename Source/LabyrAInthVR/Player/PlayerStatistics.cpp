@@ -32,11 +32,23 @@ void UPlayerStatistics::ChangeStat(EStatModifier Stat, float Amount)
 		Health += Amount;
 		if (Health <= 0.f) OnPlayerDied.Broadcast();
 		break;
-	case Esm_Speed:
+	/*case Esm_Speed:
 		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Changing untimed Speed from %f to %f"),
 		       *GetName(), Speed, Speed + Amount)
 		Speed += Amount;
-		
+		break;*/
+	default: ;
+	}
+}
+
+void UPlayerStatistics::ChangeStat(EStatModifier Stat, bool bEnable)
+{
+	switch (Stat)
+	{
+	case Esm_Armor:
+		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Changing untimed Armor from %s to %s"),
+			   *GetName(), bHasShield ? *FString("True") : *FString("False"), bEnable ?  *FString("True") : *FString("False"))
+		bHasShield = bEnable;
 		break;
 	default: ;
 	}
