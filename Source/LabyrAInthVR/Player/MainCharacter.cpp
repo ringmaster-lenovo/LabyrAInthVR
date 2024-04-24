@@ -60,6 +60,11 @@ void AMainCharacter::StartTimer()
 	PlayerStats->StartRawTimer();
 }
 
+UPlayerStatistics* AMainCharacter::GetPlayerStatistics()
+{
+	return PlayerStats;
+}
+
 void AMainCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
                                    AController* InstigatedBy, AActor* DamageCauser)
 {

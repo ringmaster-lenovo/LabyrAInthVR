@@ -80,8 +80,12 @@ private:
 
 	void UpdateSpeed(float NewSpeed);
 public:
+	UFUNCTION(BlueprintCallable)
 	void ChangeStat(EStatModifier Stat, float Amount);
+
+	UFUNCTION(BlueprintCallable)
 	void ChangeStat(EStatModifier Stat, float Amount, float Time);
+	
 	float GetStat(EStatModifier Stat);
 	void StartRawTimer();
 	FPlayerTime GetPlayerTime();

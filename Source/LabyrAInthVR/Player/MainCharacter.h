@@ -32,6 +32,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void StartTimer();
+
+	UFUNCTION(BlueprintCallable)
+	UPlayerStatistics* GetPlayerStatistics();
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -48,5 +51,4 @@ protected:
 	
 public:
 	FORCEINLINE void SetOverlappedPickup(ABasePickup* Pickup) {OverlappingPickup = Pickup; }
-	FORCEINLINE UPlayerStatistics* GetPlayerStatistics() {return PlayerStats; }
 };
