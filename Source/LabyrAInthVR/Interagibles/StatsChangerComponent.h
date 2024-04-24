@@ -23,7 +23,7 @@ struct FStatsType{
 	float Bonus;
 };
 
-DECLARE_LOG_CATEGORY_EXTERN(LogVR2, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Interagibles_Log, Log, All);
 
 UCLASS(Blueprintable, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class LABYRAINTHVR_API UStatsChangerComponent : public UActorComponent

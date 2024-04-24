@@ -86,14 +86,7 @@ FString ASpawnManager::SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReferen
 {
 	LabyrinthDTO = LabyrinthDTOReference;
 	
-	// start a timer to measure the time it takes to spawn the actors
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, 1.0f, false);
-
-	int PowerUpsToSpawn = 0;
-	int TrapsToSpawn = 0;
-	int EnemiesToSpawn = 0;
-	FString ErrorMessage = DifficultyDecider(PowerUpsToSpawn, TrapsToSpawn, EnemiesToSpawn);
+	FString ErrorMessage = DifficultyDecider();
 	if (ErrorMessage != "")
 	{
 		return ErrorMessage;
@@ -281,12 +274,9 @@ FString ASpawnManager::ChooseRandomSpawnLocation(const int NumOfActorsToSpawn, T
  * The difficulty decides the number of power-ups, traps and enemies to spawn.
  * The power-ups and traps are always equal in number and increment by 1 every 5 levels.
  * The enemies increment by 1 every 10 levels.
- * @param PowerUpsToSpawn the number of power-ups to spawn
- * @param TrapsToSpawn the number of traps to spawn
- * @param EnemiesToSpawn the number of enemies to spawn
  * @return an error message if the labyrinth data transfer object is null
  */
-FString ASpawnManager::DifficultyDecider(int& PowerUpsToSpawn, int& TrapsToSpawn, int& EnemiesToSpawn) const
+FString ASpawnManager::DifficultyDecider()
 {
 	if (LabyrinthDTO == nullptr) return "LabyrinthDTO is null";
 	
@@ -409,7 +399,7 @@ FString ASpawnManager::SpawnWeapons() const
 	}
 	SpawnPoint = FVector { InX, InY,Weapons::SpawnHeight };
 	const UClass* ObjectClass = WeaponsClasses[0]->GetSuperClass();
-	AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(WeaponsClasses[0], SpawnPoint, FRotator(0, 0, 0));
+	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(WeaponsClasses[0], SpawnPoint, FRotator(0, 0, 0));
 	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 	else
 	{

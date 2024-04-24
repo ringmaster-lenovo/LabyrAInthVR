@@ -43,11 +43,15 @@ public:
 	void SetStateOfTheGame(EGameState NewState);
 	
 	UFUNCTION(Category = "Game State")
-	EGameState GetCurrentStateOfTheGame();
+	EGameState GetCurrentStateOfTheGame() const;
 
+	UFUNCTION()
+	FString GetCurrentStateOfTheGameAsString() const;
+	
 	UFUNCTION(Category = "Game State")
 	void SetCurrentLevel(uint8 NewLevel);
 
 	UFUNCTION(Category = "Game State")
-	uint8 GetCurrentLevel();
+	uint8 GetCurrentLevel() const;
+
 };

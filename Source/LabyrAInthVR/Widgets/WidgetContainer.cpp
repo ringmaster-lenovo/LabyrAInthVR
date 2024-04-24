@@ -130,10 +130,10 @@ FString AWidgetContainer::HideMainMenuUI()
 			
 			StatisticsWidget = CreateWidget<UStatisticsWidget>(PlayerController, StatisticsWidgetClass);
 			if (!StatisticsWidget) return "No StatisticsWidget found!";
-			AMainCharacter* Character = Cast<AMainCharacter>(PlayerController->GetCharacter());
-			if(Character)
+			AMainCharacter* MainCharacter = Cast<AMainCharacter>(PlayerController->GetCharacter());
+			if (MainCharacter)
 			{
-				StatisticsWidget->time = Character->time;
+				StatisticsWidget->time = MainCharacter->GetTimeOnCurrentLevel();
 			}
 			StatisticsWidget->AddToViewport(0);
 		}

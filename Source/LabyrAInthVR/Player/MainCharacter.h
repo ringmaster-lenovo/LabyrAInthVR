@@ -9,7 +9,6 @@
 #include "MainCharacter.generated.h"
 
 class ABasePickup;
-DECLARE_LOG_CATEGORY_EXTERN(LogVR, Log, All);
 
 UCLASS()
 class LABYRAINTHVR_API AMainCharacter : public ACharacter, public IDamageableActor
@@ -42,24 +41,29 @@ public:
 	virtual void ReceiveDamage(float Damage, AActor* DamageCauser);
 
 	UFUNCTION(BlueprintCallable)
-	void StartTimer();
+	void StartLevelTimer();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
-	double MovementSpeed = 400;
+	UFUNCTION(BlueprintCallable)
+	void StopAllTimers();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
-	bool Shield = false;
+	UFUNCTION(BlueprintCallable)
+	void SetPlayerName(const FString& Name) { PlayerName = Name; }
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
-	double Life = 100;
+	UFUNCTION(BlueprintCallable)
+	void ChangeSpeed(double SpeedIncrement, int32 Timer);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
-	double Armor = 80;
+	UFUNCTION(BlueprintCallable)
+	bool IsShieldActive() const { return Shield; }
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
-	int32 time = 0;
+	UFUNCTION(BlueprintCallable)
+	int32 GetTimeOnCurrentLevel() const { return TimeOnCurrentLevel; }
 
+	UFUNCTION(BlueprintCallable)
+	FString GetPlayerName() const { return PlayerName; }
 
+	UFUNCTION(BlueprintCallable)
+	void ResetStats();
+	
 protected:
 	
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
@@ -78,14 +82,35 @@ protected:
 	int CurrentSeconds = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	FString name;
+	FString PlayerName;
 
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
+	double BaseSpeed = 400;
 
-	FTimerHandle TimerHandle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
+	double RunningSpeed = 600;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
+	bool Shield = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
+	double Life = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
+	int32 TimeOnCurrentLevel = 0;
+
+	int32 SpeedTimer = 0;
+
+	int32 SpeedTimerGoesOff = 0;
+
+	FTimerHandle TimerOnLevelHandle;
+
+	FTimerHandle SpeedTimerHandle;
 
 	UFUNCTION(BlueprintCallable)
-	void UpdateTimer();
+	void UpdateTimeOnCurrentLevel();
+
+	void UpdateSpeedTimer();
 	
 	UPROPERTY()
 	ABasePickup* OverlappingPickup;
