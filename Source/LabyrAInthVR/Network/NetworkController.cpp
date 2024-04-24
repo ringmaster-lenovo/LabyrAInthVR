@@ -109,21 +109,23 @@ void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
 					UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Cannot Deserialize Json Response"));
 				}
 			} 
-			else {
-			   switch (pRequest->GetStatus()) {
+			else
+			{
+			   switch (pRequest->GetStatus())
+				{
 					case EHttpRequestStatus::Failed_ConnectionError:
-						{
-			   				UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Connection failed."));
-							break;
-						}
+					{
+			   			UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Connection failed."));
+						break;
+					}
 					default:
-						{
-							UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Request failed. "));
-							break;
-						}
-			   		}
+					{
+						UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("Request failed. "));
+						break;
+					}
+				}
 				OnNetworkError.Broadcast();
-			   }
+			  }
 		});
 	UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Starting the request for the labyrinth."));
 	// Finally, submit the request for processing
@@ -136,8 +138,8 @@ void ANetworkController::FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO,
 	
 	TSharedPtr<FJsonObject> FinishGameDTOJson = MakeShareable(new FJsonObject);
 	FinishGameDTOJson->SetStringField("username", FinishGameRequestDTO->Username);
-	FinishGameDTOJson->SetNumberField("score", FinishGameRequestDTO->Score);
-	FinishGameDTOJson->SetNumberField("labyrinthComplexity", FinishGameRequestDTO->LabyrinthComplexity);
+	FinishGameDTOJson->SetNumberField("time", FinishGameRequestDTO->Time);
+	FinishGameDTOJson->SetNumberField("level", FinishGameRequestDTO->Level);
 	
 	FString JsonString;
 	TSharedRef<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&JsonString);
@@ -159,27 +161,30 @@ void ANetworkController::FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO,
 
 				if (FinishGameDeserializer::DeSerializeFinishGameResponse(pResponse->GetContentAsString(), FinishGameResponseDTO))
 				{
-					// TODO: call the event for the leaderboard received
+					OnFinishGameResponseReceived.Broadcast();
 				}
 				else
 				{
-					// TODO: call the error message
+					OnFinishGameError.Broadcast();
 				}
 			} 
-			else {
-			   switch (pRequest->GetStatus()) {
+			else
+			{
+			   switch (pRequest->GetStatus())
+				{
 					case EHttpRequestStatus::Failed_ConnectionError:
-						{
-			   				UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("FinishGame: Connection failed."));
-							break;
-						}
+					{
+			   			UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("FinishGame: Connection failed."));
+						break;
+					}
 					default:
-						{
-							UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("FinishGameRequest failed. "));
-							break;
-						}
-			   		}
-			   }
+					{
+						UE_LOG(LabyrAInthVR_Network_Log, Error, TEXT("FinishGameRequest failed. "));
+						break;
+					}
+				}
+				OnFinishGameError.Broadcast();
+			}
 		});
 	UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Starting the request for the FinishGame."));
 	// Finally, submit the request for processing

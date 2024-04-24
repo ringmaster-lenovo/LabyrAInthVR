@@ -12,6 +12,6 @@ public:
 	ULeaderBoardDTO(){}
 
 	FString Username;
-	int16 Score;
-	int8 LabyrinthComplexity;
+	uint16 Time;
+	uint8 Level;
 };
