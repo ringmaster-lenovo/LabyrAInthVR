@@ -22,9 +22,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	USoundBase* CollectSound;
 
-	/** PowerUp the character */
-	UFUNCTION(BlueprintCallable, Category = "PowerUp")
-	void OnCollect(TArray<FStatsType> Stats, UStatsChangerComponent* StatsChanger);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

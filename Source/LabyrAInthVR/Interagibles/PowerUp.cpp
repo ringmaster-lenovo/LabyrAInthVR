@@ -3,7 +3,6 @@
 
 #include "PowerUp.h"
 #include <Kismet/GameplayStatics.h>
-#include "StatsChangerComponent.h"
 
 // Sets default values
 APowerUp::APowerUp()
@@ -25,14 +24,5 @@ void APowerUp::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-}
-
-void APowerUp::OnCollect(TArray<FStatsType> Stats, UStatsChangerComponent* StatsChanger) {
-	// Try and play the sound if specified
-	if (CollectSound != nullptr)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, CollectSound, this->GetActorLocation());
-	}
-	StatsChanger->ChangeStats(Stats);
 }
 
