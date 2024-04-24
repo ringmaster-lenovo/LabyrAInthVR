@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "LabyrAInthVR/Interagibles/StatsChangerComponent.h"
 #include "LabyrAInthVR/Interfaces/DamageableActor.h"
+#include "LabyrAInthVR/Interfaces/MovableActor.h"
 #include "LabyrAInthVR/Interfaces/SpawnableActor.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "BaseEnemy.generated.h"
@@ -62,7 +63,7 @@ struct FEnemyDirection
 };
 
 UCLASS()
-class LABYRAINTHVR_API ABaseEnemy : public ACharacter, public IDamageableActor, public ISpawnableActor
+class LABYRAINTHVR_API ABaseEnemy : public ACharacter, public IDamageableActor, public ISpawnableActor, public IMovableActor
 {
 	GENERATED_BODY()
 

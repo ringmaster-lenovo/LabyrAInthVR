@@ -115,6 +115,23 @@ void AWidgetController::ShowGameUI()
 	}
 }
 
+void AWidgetController::ShowWinScreen()
+{
+	// TODO: Implement
+	// the player wins the game and can choose to open the ranking widgets or return to the main menu
+	OnReturnToMainMenuEvent.Broadcast();
+}
+
+void AWidgetController::ShowLoseScreen()
+{
+	// TODO: Implement
+	// if the player loses he can choose whether to restart the level or return to the main menu
+	// if he chooses to restart
+	OnRestartLevelEvent.Broadcast();
+	// if he chooses to return to the main menu
+	// OnReturnToMainMenuEvent.Broadcast();
+}
+
 void AWidgetController::NewGameButtonClicked()
 {
 	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("New Game Button Clicked!"));

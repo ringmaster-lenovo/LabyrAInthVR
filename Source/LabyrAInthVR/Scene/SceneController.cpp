@@ -57,10 +57,10 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 	return "";
 }
 
-FString ASceneController::CleanUpLevel()
+FString ASceneController::CleanUpLevel() const
 {
 	// Get a reference to the game world
-	UWorld* World = GetWorld();
+	const UWorld* World = GetWorld();
 	if (!World)
 	{
 		return "No valid world found";
@@ -77,6 +77,34 @@ FString ASceneController::CleanUpLevel()
 		}
 	}
 	OnSceneCleanedUp.Broadcast();
+	return "";
+}
+
+FString ASceneController::RespawnMovableActors(ULabyrinthDTO* LabyrinthDTO)
+{
+	// Get a reference to the game world
+	const UWorld* World = GetWorld();
+	if (!World)
+	{
+		return "No valid world found";
+	}
+	for (TActorIterator<AActor> ActorItr(World); ActorItr; ++ActorItr)
+	{
+		AActor* Actor = *ActorItr;
+		if (Actor == nullptr) continue;
+
+		// Check if the actor's class matches any of the classes to destroy
+		if (Actor->Implements<UMovableActor>())
+		{
+			Actor->Destroy();
+		}
+	}
+	FString ErrorMessage = SpawnManager->SpawnActorsInLabyrinth(LabyrinthDTO);
+	if (ErrorMessage != "")
+	{
+		return ErrorMessage;
+	}
+	OnActorsRespawned.Broadcast();
 	return "";
 }
 

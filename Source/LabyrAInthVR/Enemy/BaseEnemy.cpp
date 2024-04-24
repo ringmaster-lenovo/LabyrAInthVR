@@ -21,14 +21,14 @@ ABaseEnemy::ABaseEnemy()
 
 	PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComponent"));
 
-	if(!IsValid(PawnSensingComponent)) return;
+	if (!IsValid(PawnSensingComponent)) return;
 	
 	PawnSensingComponent->HearingThreshold = 1500.f;
 	PawnSensingComponent->SetPeripheralVisionAngle(60.f);
 	PawnSensingComponent->SightRadius = 5000.f;
 	PawnSensingComponent->bOnlySensePlayers = false;
 	
-	if(!IsValid(GetCharacterMovement())) return;
+	if (!IsValid(GetCharacterMovement())) return;
 
 	GetCharacterMovement()->MaxAcceleration = 450.f;
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
@@ -89,7 +89,7 @@ void ABaseEnemy::PatrollingTimerFinished()
 {
 	if (EnemyState == EES_Attacking || !IsValid(AIController)) return;
 
-	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s: Patrolling timer finished"), *GetName());
+	if (EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s: Patrolling timer finished"), *GetName());
 
 	EnemyState = EES_Patrolling;
 
@@ -104,13 +104,13 @@ void ABaseEnemy::OnSeePawn(APawn* Pawn)
 {
 	if (EnemyState > EES_Patrolling) return;
 
-	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> seen pawn: %s"), *GetName(),  *Pawn->GetName());
+	if (EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> seen pawn: %s"), *GetName(),  *Pawn->GetName());
 	
 	SeenCharacter = SeenCharacter == nullptr ? Cast<AMainCharacter>(Pawn) : SeenCharacter;
 	
 	if (!IsValid(SeenCharacter) || !IsCharacterOnNavMesh() || !SeenCharacter->IsAlive()) return;
 
-	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Initiating chase action to: %s from ABaseEnemy::OnSeePawn"), *GetName(),  *SeenCharacter->GetName());
+	if (EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Initiating chase action to: %s from ABaseEnemy::OnSeePawn"), *GetName(),  *SeenCharacter->GetName());
 	Chase();
 }
 
@@ -219,7 +219,7 @@ bool ABaseEnemy::IsFacing()
 
 bool ABaseEnemy::IsCharacterOnNavMesh()
 {
-	if(!IsValid(NavigationSystemV1)) return false;
+	if (!IsValid(NavigationSystemV1)) return false;
 	FNavLocation NavLocation;
 	return NavigationSystemV1->ProjectPointToNavigation(SeenCharacter->GetActorLocation(), NavLocation);
 }
@@ -242,9 +242,9 @@ void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamage
 {
 	if (EnemyState == EES_Dead || !IsValid(DamageCauser)) return;
 
-	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Received %f damage by: %s"), *GetName(), Damage, *DamageCauser->GetName());
+	if (EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Received %f damage by: %s"), *GetName(), Damage, *DamageCauser->GetName());
 	
-	if(bHasShield)
+	if (bHasShield)
 	{
 		DectivateShield();
 		if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Received damage but had shield, shield is destroyed"), *GetName());
@@ -273,7 +273,7 @@ void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamage
 
 FVector ABaseEnemy::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirection& LastDirection)
 {
-	if(!IsValid(LabyrinthDTO))
+	if (!IsValid(LabyrinthDTO))
 	{
 		return FVector{};
 	}
@@ -311,7 +311,7 @@ FVector ABaseEnemy::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirectio
 	default: ;
 	}
 
-	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Chosen direction: %s"), *GetName(), *UEnum::GetValueAsString(ChosenDirection));
+	if (EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Chosen direction: %s"), *GetName(), *UEnum::GetValueAsString(ChosenDirection));
 
 	// Find the (X,Y) for the chosen direction, stop at intersections
 	uint8 TravellingRow{Row};
@@ -415,7 +415,7 @@ void ABaseEnemy::FillFreeDirections(uint8 Row, uint8 Column, TArray<EEnemyDirect
 
 
 	const bool bDiagonal = IsDiagonal(Row, Column);
-	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Diagonal presence: %s"), *GetName(), bDiagonal ? *FString("True") : *FString("False"));
+	if (EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Diagonal presence: %s"), *GetName(), bDiagonal ? *FString("True") : *FString("False"));
 
 	if (bDiagonal) FreeEnemyDirections.Add(EEnemyDirection::EED_Diagonal);
 }
@@ -529,7 +529,7 @@ bool ABaseEnemy::IsIntersection(uint8 Row, uint8 Column) const
 
 void ABaseEnemy::SetLabyrinthMatrix(ULabyrinthDTO* LabyrinthDTOReference)
 {
-	if(!IsValid(LabyrinthDTOReference))
+	if (!IsValid(LabyrinthDTOReference))
 	{
 		if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Error, TEXT("%s -> LabyrinthDTO in ABaseEnemy::SetLabyrinthMatrix is NULL"), *GetName());
 		return;

@@ -62,19 +62,23 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+
+	int PowerUpsToSpawn = 0;
+	int TrapsToSpawn = 0;
+	int EnemiesToSpawn = 0;
 	
 	int NumOfPowerUpsSpawned = 0;
 	int NumOfTrapsSpawned = 0;
 	int NumOfEnemiesSpawned = 0;
 	
+	TArray<int> PotentialPowerUpSpawnLocations = {};
+	TArray<int> PotentialTrapSpawnLocations = {};
+	TArray<int> PotentialEnemySpawnLocations = {};
+	
 	TArray<int> PowerUpsLocations = {};
 	TArray<int> TrapsLocations = {};
 	TArray<int> EnemiesLocations = {};
 	
-	TArray<int> PotentialPowerUpSpawnLocations = {};
-	TArray<int> PotentialTrapSpawnLocations = {};
-	TArray<int> PotentialEnemySpawnLocations = {};
-
 	int PlayerStartIndexPosition = -1;
 	int PortalIndexPosition = -1;
 
@@ -119,7 +123,7 @@ public:
 	
 	FString ChooseRandomSpawnLocation(int NumOfActorsToSpawn, TArray<int>& ActorsSpawnLocations,  TArray<int>& PotentialLocations, uint8 ConventionalValueInTheMatrix) const;
 
-	FString DifficultyDecider(int& PowerUpsToSpawn, int& TrapsToSpawn, int& EnemiesToSpawn) const;
+	FString DifficultyDecider();
 
 	FString SpawnActors(const TArray<int>& SpawnLocations, const TArray<TSubclassOf<AActor>>& SpawnableActors) const;
 

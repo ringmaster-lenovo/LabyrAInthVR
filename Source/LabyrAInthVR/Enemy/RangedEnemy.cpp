@@ -58,7 +58,7 @@ void ARangedEnemy::ShootProjectile()
 {
 	FVector SocketLocation = GetMesh()->GetSocketTransform(AmmoEjectSocketName).GetLocation();
 	
-	if(MuzzleEffectParticle == nullptr) return;
+	if (MuzzleEffectParticle == nullptr) return;
 	
 	UGameplayStatics::SpawnEmitterAtLocation(this, MuzzleEffectParticle, SocketLocation);
 	

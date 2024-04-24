@@ -79,6 +79,18 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FNewGameEvent);
 	FNewGameEvent OnNewGameButtonClicked;
 
+	DECLARE_MULTICAST_DELEGATE(FReturnToMainMenuEvent);
+	FReturnToMainMenuEvent OnReturnToMainMenuEvent;
+
+	DECLARE_MULTICAST_DELEGATE(FRestartLevelEvent);
+	FRestartLevelEvent OnRestartLevelEvent;
+
+	DECLARE_MULTICAST_DELEGATE(FPauseEvent);
+	FPauseEvent OnPauseEvent;
+
+	DECLARE_MULTICAST_DELEGATE(FResumeGameEvent);
+	FResumeGameEvent OnResumeGameEvent;
+
 	DECLARE_MULTICAST_DELEGATE(FWidgetsErrorEvent);
 	FWidgetsErrorEvent OnWidgetSError;
 
@@ -90,6 +102,12 @@ public:
 
 	UFUNCTION(Category = "Widgets")
 	void ShowGameUI();
+
+	UFUNCTION(Category = "Widgets")
+	void ShowWinScreen();
+
+	UFUNCTION(Category = "Widgets")
+	void ShowLoseScreen();
 
 	UFUNCTION(Category = "Widgets")
 	void NewGameButtonClicked();

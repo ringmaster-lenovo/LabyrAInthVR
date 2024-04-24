@@ -4,6 +4,7 @@
 #include "MainCharacter.h"
 
 
+#include "BasePlayerController.h"
 #include "PlayerStatsSubSystem.h"
 #include "Engine/World.h"
 #include "Components/PostProcessComponent.h"
@@ -11,8 +12,6 @@
 #include "Delegates/DelegateSignatureImpl.inl"
 #include "Kismet/GameplayStatics.h"
 #include "LabyrAInthVR/Widgets/StatisticsWidget.h"
-
-DEFINE_LOG_CATEGORY(LogVR);
 
 // This is the main character class for the VR game mode. It handles the VR camera, the VR controllers, and the VR movement.
 AMainCharacter::AMainCharacter()
@@ -33,9 +32,7 @@ void AMainCharacter::BeginPlay()
 	bool found = true;
 	float value;
 	PlayerStatisticsSubsystem->GetStatNumberValue(FName("Health"), found, value);
-	UE_LOG(LogVR, Warning, TEXT("VITA INIZIALIZZATA A: %f"), value);
-
-	
+	UE_LOG(LabyrAInthVR_Player_Log, Warning, TEXT("VITA INIZIALIZZATA A: %f"), value);	
 }
 
 
@@ -58,42 +55,83 @@ void AMainCharacter::ReceiveDamage(float Damage, AActor* DamageCauser)
 	bool found = true;
 	float value;
 	PlayerStatisticsSubsystem->GetStatNumberValue(FName("Health"), found, value);
-	UE_LOG(LogVR, Warning, TEXT("ECCO LA VITAAAA: %f"), value);
+	UE_LOG(LabyrAInthVR_Player_Log, Display, TEXT("Player Health Before Damage: %f"), value);
 
-	if (Life == 0) return;
-
-	UE_LOG(LogTemp, Warning, TEXT("Player received damage by: %s"), *DamageCauser->GetName())
+	UE_LOG(LabyrAInthVR_Player_Log, Display, TEXT("Player received damage by: %s"), *DamageCauser->GetName())
 	
-	if(Shield)
+	if (Shield)
 	{
 		DectivateShield();
-		UE_LOG(LogTemp, Warning, TEXT("Player received damage but has shield, shield is destroyed"))
+		UE_LOG(LabyrAInthVR_Player_Log, Display, TEXT("Player received damage but has shield, shield is destroyed"))
 		return;
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("Received damage"))
-	// Life -= Damage;
+	Life -= Damage;
 	
 	PlayerStatisticsSubsystem->AddToCounter("Health", -1 * Damage);
 	
 	PlayerStatisticsSubsystem->GetStatNumberValue(FName("Health"), found, value);
-	UE_LOG(LogVR, Warning, TEXT("ECCO LA VITAAAA AFTER DAMAGE: %f"), value);
+	UE_LOG(LabyrAInthVR_Player_Log, Display, TEXT("Player Health After Damage: %f"), value);
 
-	if (Life > 0) return;
-	
-	//TODO: PLAYER IS DEAD, WHAT TO DO?
-	//Teleport to lobby, set lobby a true, fare widget "SEI MORTO" (passa per la GameMode, chiama evento)
+	if (Life <= 0)  // Player has died
+	{
+		ABasePlayerController* PlayerController = Cast<ABasePlayerController>(GetController());
+		if (PlayerController)
+		{
+			PlayerController->PlayerHasDied();
+		}
+		else
+		{
+			UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("PlayerController not found"));
+		}
+	}
 }
 
-void AMainCharacter::StartTimer()
+void AMainCharacter::StartLevelTimer()
 {
 	//START CHRONOMETER
-	const float TimerInterval = 1.0f; // Update every second
 	if (!GetWorld()) return; // Ensure we have a valid world context before starting the timer
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMainCharacter::UpdateTimer, TimerInterval, true);
+	GetWorld()->GetTimerManager().SetTimer(TimerOnLevelHandle, this, &AMainCharacter::UpdateTimeOnCurrentLevel, 1.0f, true);
 }
 
-void AMainCharacter::UpdateTimer()
+void AMainCharacter::StopAllTimers()
 {
-	++time;
+	//STOP CHRONOMETER
+	if (!GetWorld()) return; // Ensure we have a valid world context before stopping the timer
+	GetWorld()->GetTimerManager().ClearTimer(TimerOnLevelHandle);
+	GetWorld()->GetTimerManager().ClearTimer(SpeedTimerHandle);
+}
+
+void AMainCharacter::ChangeSpeed(double SpeedIncrement, int32 Timer)
+{
+	BaseSpeed *= SpeedIncrement;
+	RunningSpeed *= SpeedIncrement;
+	SpeedTimerGoesOff = Timer;
+	GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AMainCharacter::UpdateSpeedTimer, 1.0f, true);
+}
+
+void AMainCharacter::ResetStats()
+{
+	Life = 100;
+	Shield = false;
+	TimeOnCurrentLevel = 0;
+	PlayerName = "";
+	BaseSpeed = 400;
+	RunningSpeed = 600;
+}
+
+void AMainCharacter::UpdateTimeOnCurrentLevel()
+{
+	++TimeOnCurrentLevel;
+}
+
+void AMainCharacter::UpdateSpeedTimer()
+{
+	++SpeedTimer;
+	if (SpeedTimer >= SpeedTimerGoesOff)
+	{
+		BaseSpeed = 400;
+		RunningSpeed = 600;
+		GetWorld()->GetTimerManager().ClearTimer(SpeedTimerHandle);
+	}
 }
