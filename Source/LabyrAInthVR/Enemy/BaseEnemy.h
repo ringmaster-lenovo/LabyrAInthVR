@@ -69,7 +69,6 @@ public:
 	ABaseEnemy();
 	void SetMatrixPosition(uint8 Row, uint8 Column);
 	float GetSpeed();
-
 protected:
 	virtual void BeginPlay() override;
 	void StartPatrolling();

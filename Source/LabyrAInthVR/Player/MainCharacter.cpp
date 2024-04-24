@@ -1,59 +1,78 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "MainCharacter.h"
-
-
-#include "PlayerStatsSubSystem.h"
+#include "PlayerStatistics.h"
 #include "Engine/World.h"
-#include "Components/PostProcessComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Delegates/DelegateSignatureImpl.inl"
-#include "Kismet/GameplayStatics.h"
-#include "LabyrAInthVR/Widgets/StatisticsWidget.h"
 
-DEFINE_LOG_CATEGORY(LogVR);
+DEFINE_LOG_CATEGORY(LabyrAInthVR_Character_Log);
 
 // This is the main character class for the VR game mode. It handles the VR camera, the VR controllers, and the VR movement.
 AMainCharacter::AMainCharacter()
 {
  	// Set this character to call Tick() every frame. You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	PlayerStats = CreateDefaultSubobject<UPlayerStatistics>(TEXT("PlayerStatistics"));
 }
 
 // Called when the game starts or when spawned
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	UWorld* World = GetWorld();
-	if (!World) { return; }
-	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
-	UPlayerStatsSubSystem* PlayerStatisticsSubsystem = GameInstance->GetSubsystem<UPlayerStatsSubSystem>();
-	PlayerStatisticsSubsystem->SetCounter("Health", Life);
-	bool found = true;
-	float value;
-	PlayerStatisticsSubsystem->GetStatNumberValue(FName("Health"), found, value);
-	UE_LOG(LogVR, Warning, TEXT("VITA INIZIALIZZATA A: %f"), value);
-
-	
+	OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
+	//UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	//UPlayerStatsSubSystem* PlayerStatisticsSubsystem = GameInstance->GetSubsystem<UPlayerStatsSubSystem>();
+	//PlayerStatisticsSubsystem->SetCounter("Health", Life);
+	//bool found = true;
+	//float value;
+	//PlayerStatisticsSubsystem->GetStatNumberValue(FName("Health"), found, value);
+	//UE_LOG(LogVR, Warning, TEXT("VITA INIZIALIZZATA A: %f"), value);
 }
 
+void AMainCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	if(!IsValid(PlayerStats)) return;
 
-// Called every frame
+	PlayerStats->MainCharacter = this;
+}
+
+bool AMainCharacter::IsAlive()
+{
+	if(!IsValid(PlayerStats)) return false;
+
+	return PlayerStats->IsAlive();
+}
+
 void AMainCharacter::Tick(float const DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-// Called to bind functionality to input
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void AMainCharacter::ReceiveDamage(float Damage, AActor* DamageCauser)
+void AMainCharacter::StartTimer()
 {
-	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	if(!IsValid(PlayerStats)) return;
+
+	PlayerStats->StartRawTimer();
+}
+
+void AMainCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+	AController* InstigatedBy, AActor* DamageCauser)
+{
+	UE_LOG(LabyrAInthVR_Character_Log, Display, TEXT("%s -> Taken %f damage by: %s"), *GetName(), Damage, *DamageCauser->GetName())
+
+	if(!IsValid(PlayerStats) || !IsAlive()) return;
+
+	PlayerStats->ChangeStat(Esm_Health, -Damage);
+}
+
+/*void AMainCharacter::ReceiveDamage(float Damage, AActor* DamageCauser)
+{
+	/*UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
 	UPlayerStatsSubSystem* PlayerStatisticsSubsystem = GameInstance->GetSubsystem<UPlayerStatsSubSystem>();
 	bool found = true;
 	float value;
@@ -82,18 +101,5 @@ void AMainCharacter::ReceiveDamage(float Damage, AActor* DamageCauser)
 	if (Life > 0) return;
 	
 	//TODO: PLAYER IS DEAD, WHAT TO DO?
-	//Teleport to lobby, set lobby a true, fare widget "SEI MORTO" (passa per la GameMode, chiama evento)
-}
-
-void AMainCharacter::StartTimer()
-{
-	//START CHRONOMETER
-	const float TimerInterval = 1.0f; // Update every second
-	if (!GetWorld()) return; // Ensure we have a valid world context before starting the timer
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMainCharacter::UpdateTimer, TimerInterval, true);
-}
-
-void AMainCharacter::UpdateTimer()
-{
-	++time;
-}
+	//Teleport to lobby, set lobby a true, fare widget "SEI MORTO" (passa per la GameMode, chiama evento)#1#
+}*/
