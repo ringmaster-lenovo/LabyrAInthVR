@@ -84,6 +84,9 @@ private:
 	void PrepareGame();
 
 	UFUNCTION()
+	void NewGameButtonClicked();
+
+	UFUNCTION()
 	void MockNetwork();
 	
 	UFUNCTION()
@@ -106,13 +109,12 @@ private:
 
 	UFUNCTION()
 	bool IsVRHMDConnected();
+	
+	void CrashCloseGame() const;
 
-	UFUNCTION()
-	void CrashCloseGame();
+	void CloseGame() const;
 
 public:
-	UFUNCTION(BlueprintCallable)
-	void NewGameButtonClicked();
 
 	UFUNCTION(BlueprintCallable)
 	bool IsInVR() { return bIsVRHMDConnected; }

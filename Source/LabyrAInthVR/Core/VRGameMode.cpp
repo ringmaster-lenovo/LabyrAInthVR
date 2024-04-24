@@ -47,7 +47,7 @@ void AVRGameMode::BeginPlay()
 	if (!IsValid(BasePlayerController))
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of PlayerController"));
-		throw "Invalid creation of PlayerController";
+		CrashCloseGame();
 	}
 
 	bIsVRHMDConnected = IsVRHMDConnected();
@@ -61,7 +61,6 @@ void AVRGameMode::BeginPlay()
 		{
 			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn: change default pawn in GM_VRGameMode"));
 			CrashCloseGame();
-			// throw "Invalid creation of Pawn";
 		}
 		BasePlayerController->SetControlledCharacter(Character3D);
 	}
@@ -76,7 +75,6 @@ void AVRGameMode::BeginPlay()
 		{
 			UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of Pawn, change default pawn in GM_VRGameMode"));
 			CrashCloseGame();
-			// throw "Invalid creation of Pawn";
 		}
 		BasePlayerController->SetControlledCharacter(CharacterVR);
 	}
@@ -86,7 +84,7 @@ void AVRGameMode::BeginPlay()
 	if (!IsValid(NetworkController))
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of NetworkController"));
-		throw "Invalid creation of NetworkController";
+		CrashCloseGame();
 	}
     
 	// Spawn and set up game state
@@ -95,7 +93,7 @@ void AVRGameMode::BeginPlay()
 	if (!IsValid(VRGameState))
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of VRGameState"));
-		throw "Invalid creation of VRGameState";
+		CrashCloseGame();
 	}
 	GameState = VRGameState;
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
@@ -105,7 +103,7 @@ void AVRGameMode::BeginPlay()
 	if (!IsValid(WidgetController))
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of WidgetController"));
-		throw "Invalid creation of WidgetController";
+		CrashCloseGame();
 	}
 	WidgetController->OnWidgetSError.AddUObject(this, &AVRGameMode::CrashCloseGame);
 	
@@ -114,7 +112,7 @@ void AVRGameMode::BeginPlay()
 	if (!IsValid(SceneController))
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of SceneController"));
-		throw "Invalid creation of SceneController";
+		CrashCloseGame();
 	}
 
 	MusicController = GetWorld()->SpawnActor<AMusicController>(BP_MusicController);
@@ -133,7 +131,7 @@ void AVRGameMode::BeginPlay()
 	if (!IsValid(LabyrinthDTO))
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid creation of LabyrinthDTO"));
-		throw "Invalid creation of LabyrinthDTO";
+		CrashCloseGame();
 	}
 
 	StartLobby();
@@ -151,9 +149,12 @@ void AVRGameMode::StartLobby()
 	// Set up the game to be in Main Menu
 	VRGameState->SetStateOfTheGame(EGameState::Egs_InMainMenu);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
+
+	// bind all main menu events
+	WidgetController->OnNewGameButtonClicked.AddUObject(this, &AVRGameMode::NewGameButtonClicked);
+	WidgetController->OnQuitGameButtonClicked.AddUObject(this, &AVRGameMode::CloseGame);
 	
 	WidgetController->ShowMainMenu();
-	WidgetController->OnNewGameButtonClicked.AddUObject(this, &AVRGameMode::NewGameButtonClicked);
 	MusicController->StartAmbienceMusic(true);
 }
 
@@ -167,8 +168,10 @@ void AVRGameMode::NewGameButtonClicked()
 	// Set up the game to be in Waiting For Labyrinth state
 	VRGameState->SetStateOfTheGame(EGameState::Egs_WaitingForLabyrinth);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
-	
+
+	// unbind all main menu events
 	WidgetController->OnNewGameButtonClicked.RemoveAll(this);
+	WidgetController->OnQuitGameButtonClicked.RemoveAll(this);
 	
 	WidgetController->ShowLoadingScreen();
 	MockNetwork();
@@ -196,7 +199,8 @@ void AVRGameMode::PrepareGame()
 	// Set up the game to be in Waiting For Labyrinth state
 	VRGameState->SetStateOfTheGame(EGameState::Egs_WaitingForSceneBuild);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
-	
+
+	// unbind previous event
 	NetworkController->OnLabyrinthReceived.RemoveAll(this);
 	
 	SceneController->OnSceneReady.AddUObject(this, &AVRGameMode::StartGame);
@@ -204,7 +208,7 @@ void AVRGameMode::PrepareGame()
 	if (ErrorMessage != "")
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Scene error: %s"), *ErrorMessage);
-		throw ErrorMessage;
+		CloseGame();
 	}
 	// UFinishGameRequestDTO* FinishGameRequestDto = NewObject<UFinishGameRequestDTO>();
 	// FinishGameRequestDto->username = TEXT("moli");
@@ -223,7 +227,8 @@ void AVRGameMode::StartGame()
 	// Set up the game to be in Playing state
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Playing);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
-	
+
+	// unbind previous events
 	SceneController->OnSceneReady.RemoveAll(this);
 	SceneController->OnActorsRespawned.RemoveAll(this);
 	
@@ -238,7 +243,7 @@ void AVRGameMode::StartGame()
 	if (ErrorMessage != "")
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal PLayer error: %s"), *ErrorMessage);
-		throw ErrorMessage;
+		CloseGame();
 	}
 	WidgetController->OnPauseEvent.AddUObject(this, &AVRGameMode::PauseGame);
 	BasePlayerController->OnPLayerDeath.AddUObject(this, &AVRGameMode::EndGame, false);
@@ -254,7 +259,8 @@ void AVRGameMode::PauseGame()
 	}
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Pausing);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
-	
+
+	// unbind pause event and re-bind all pause widget events
 	WidgetController->OnPauseEvent.RemoveAll(this);
 	WidgetController->OnResumeGameEvent.AddUObject(this, &AVRGameMode::ResumeGame);
 	WidgetController->OnRestartLevelEvent.AddUObject(this, &AVRGameMode::RestartGame);
@@ -270,7 +276,8 @@ void AVRGameMode::ResumeGame()
 	}
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Playing);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
-	
+
+	// unbind all widgets events re-bind pause event
 	WidgetController->OnResumeGameEvent.RemoveAll(this);
 	WidgetController->OnRestartLevelEvent.RemoveAll(this);
 	WidgetController->OnReturnToMainMenuEvent.RemoveAll(this);
@@ -308,7 +315,10 @@ void AVRGameMode::EndGame(bool bIsWin)
 		// throw(ErrorMessage);
 		return;
 	}
+
+	// bind return to main menu event
 	WidgetController->OnReturnToMainMenuEvent.AddUObject(this, &AVRGameMode::RePrepareGame);
+	
 	if (bIsWin)
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has won the game"));
@@ -316,19 +326,17 @@ void AVRGameMode::EndGame(bool bIsWin)
 		int32 TimeOnLevel = BasePlayerController->GetPlayerTimeOnCurrentLevel();
 		FString PlayerName = BasePlayerController->GetPlayerName();
 		UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("%s finished the game in %d seconds"), *PlayerName, TimeOnLevel);
-		// WidgetController->ShowMainMenu();
 		WidgetController->ShowWinScreen();
-		// NetworkController->FinishGame(fill the DTOs);Y0
+		// NetworkController->FinishGame(fill the DTOs);
 	}
 	else
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has lost the game"));
 		MusicController->StartFinalResultMusic(false);
+		// bind restart level event
 		WidgetController->OnRestartLevelEvent.AddUObject(this, &AVRGameMode::RestartGame);
 		WidgetController->ShowLoseScreen();
 	}
-	
-
 }
 
 void AVRGameMode::RestartGame()
@@ -341,7 +349,8 @@ void AVRGameMode::RestartGame()
 	}
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Restarting);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
-	
+
+	// unbind all previous events
 	WidgetController->OnRestartLevelEvent.RemoveAll(this);
 	WidgetController->OnReturnToMainMenuEvent.RemoveAll(this);
 
@@ -359,6 +368,7 @@ void AVRGameMode::RePrepareGame()
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Restarting);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
 
+	// unbind all previous events
 	WidgetController->OnReturnToMainMenuEvent.RemoveAll(this);
 	WidgetController->OnRestartLevelEvent.RemoveAll(this);
 	
@@ -367,23 +377,44 @@ void AVRGameMode::RePrepareGame()
 	if (ErrorMessage != "")
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Error: cannot clean scene at the end of a game"));
-		throw(ErrorMessage);
+		CloseGame();
 	}
 }
 
-void AVRGameMode::CrashCloseGame()
+void AVRGameMode::CloseGame() const
 {
-	if (VRGameState->GetCurrentStateOfTheGame() == EGameState::Egs_ClosingGame)
+	if (VRGameState)
 	{
-		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Crash Close Game, but game is already closing"));
-		return;
+		if (VRGameState->GetCurrentStateOfTheGame() == EGameState::Egs_ClosingGame)
+		{
+			UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Crash Close Game, but game is already closing"));
+			return;
+		}
+		VRGameState->SetStateOfTheGame(EGameState::Egs_ClosingGame);
+		UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
 	}
-	VRGameState->SetStateOfTheGame(EGameState::Egs_ClosingGame);
-	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
+
+	// unbind quit game event
+	if (WidgetController) WidgetController->OnQuitGameButtonClicked.RemoveAll(this);
 	
+	// Stop the music
+	if (MusicController) MusicController->StopMusic();
+	
+	// Ottiene il World context
+	UWorld* World = GetWorld();
+	if (!World || !BasePlayerController)
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid World or PlayerController, cannot exit game gracefully"));
+		FGenericPlatformMisc::RequestExit(true);;
+	}
+
 	// Close the game
-	MusicController->StopMusic();
-	FGenericPlatformMisc::RequestExit(false);
+	UKismetSystemLibrary::QuitGame(World, BasePlayerController, EQuitPreference::Quit, true);
+}
+
+void AVRGameMode::CrashCloseGame() const
+{
+	FGenericPlatformMisc::RequestExit(true);;
 }
 
 bool AVRGameMode::IsVRHMDConnected()

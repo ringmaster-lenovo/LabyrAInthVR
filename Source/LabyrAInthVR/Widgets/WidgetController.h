@@ -79,6 +79,15 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FNewGameEvent);
 	FNewGameEvent OnNewGameButtonClicked;
 
+	DECLARE_MULTICAST_DELEGATE(FLoadGameEvent);
+	FLoadGameEvent OnLoadGameButtonClicked;
+
+	DECLARE_MULTICAST_DELEGATE(FRankingsEvent);
+	FRankingsEvent OnRankingsButtonClicked;
+
+	DECLARE_MULTICAST_DELEGATE(FQuitGameEvent);
+	FQuitGameEvent OnQuitGameButtonClicked;
+
 	DECLARE_MULTICAST_DELEGATE(FReturnToMainMenuEvent);
 	FReturnToMainMenuEvent OnReturnToMainMenuEvent;
 
@@ -111,5 +120,16 @@ public:
 
 	UFUNCTION(Category = "Widgets")
 	void NewGameButtonClicked();
-	
+
+	UFUNCTION(Category = "Widgets")
+	void LoadGameButtonClicked();
+
+	UFUNCTION(Category = "Widgets")
+	void RankingsButtonClicked();
+
+	UFUNCTION(Category = "Widgets")
+	void SettingsButtonClicked();
+
+	UFUNCTION(Category = "Widgets")
+	void QuitButtonClicked();
 };

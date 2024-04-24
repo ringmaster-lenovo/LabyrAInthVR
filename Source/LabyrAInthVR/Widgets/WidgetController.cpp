@@ -49,7 +49,7 @@ void AWidgetController::ShowMainMenu()
 {
 	if (LobbyWidgetClass)
 	{
-		if(bIsInVR)
+		if (bIsInVR)
 		{
 			WidgetContainer->Widget->SetWidgetClass(LobbyWidgetClass);
 			LobbyWidget = Cast<ULobbyWidget>(WidgetContainer->Widget->GetUserWidgetObject());
@@ -81,7 +81,7 @@ void AWidgetController::ShowMainMenu()
 
 void AWidgetController::ShowLoadingScreen()
 {
-	if(bIsInVR)
+	if (bIsInVR)
 	{
 		FString ErrorString = WidgetContainer->ShowWidget(LoadingWidgetClass);
 		if (ErrorString != "")
@@ -103,7 +103,7 @@ void AWidgetController::ShowLoadingScreen()
 
 void AWidgetController::ShowGameUI()
 {
-	if(!bIsInVR)
+	if (!bIsInVR)
 	{
 		RemoveAllWidgets(GetWorld());
 		if (StatisticsWidgetClass)
@@ -138,6 +138,30 @@ void AWidgetController::NewGameButtonClicked()
 	OnNewGameButtonClicked.Broadcast();
 }
 
+void AWidgetController::LoadGameButtonClicked()
+{
+	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Load Game Button Clicked!"));
+	OnLoadGameButtonClicked.Broadcast();
+}
+
+void AWidgetController::RankingsButtonClicked()
+{
+	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Rankings Button Clicked!"));
+	OnRankingsButtonClicked.Broadcast();
+}
+
+void AWidgetController::SettingsButtonClicked()
+{
+	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Settings Button Clicked!"));
+	// TODO: should open the settings widget
+}
+
+void AWidgetController::QuitButtonClicked()
+{
+	OnQuitGameButtonClicked.Broadcast();
+}
+
+
 void AWidgetController::RemoveAllWidgets(UObject* WorldContextObject)
 {
 	TArray<UUserWidget*> FoundWidgets;
@@ -147,7 +171,7 @@ void AWidgetController::RemoveAllWidgets(UObject* WorldContextObject)
 	{
 		if (Widget && Widget->IsInViewport())
 		{
-			Widget->RemoveFromViewport();
+			Widget->RemoveFromParent();
 		}
 	}
 }
