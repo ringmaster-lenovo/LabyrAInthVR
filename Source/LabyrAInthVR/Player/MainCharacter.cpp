@@ -61,7 +61,7 @@ void AMainCharacter::StartTimer()
 }
 
 void AMainCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
-	AController* InstigatedBy, AActor* DamageCauser)
+                                   AController* InstigatedBy, AActor* DamageCauser)
 {
 	UE_LOG(LabyrAInthVR_Character_Log, Display, TEXT("%s -> Taken %f damage by: %s"), *GetName(), Damage, *DamageCauser->GetName())
 

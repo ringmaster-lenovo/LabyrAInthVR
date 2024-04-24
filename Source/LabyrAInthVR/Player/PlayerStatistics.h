@@ -77,6 +77,8 @@ private:
 
 	UFUNCTION()
 	void ResetToDefaultValue(EStatModifier Stat);
+
+	void UpdateSpeed(float NewSpeed);
 public:
 	void ChangeStat(EStatModifier Stat, float Amount);
 	void ChangeStat(EStatModifier Stat, float Amount, float Time);
