@@ -60,14 +60,19 @@ void AMainCharacter::StartTimer()
 	PlayerStats->StartRawTimer();
 }
 
+UPlayerStatistics* AMainCharacter::GetPlayerStatistics()
+{
+	return PlayerStats;
+}
+
 void AMainCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
-	AController* InstigatedBy, AActor* DamageCauser)
+                                   AController* InstigatedBy, AActor* DamageCauser)
 {
 	UE_LOG(LabyrAInthVR_Character_Log, Display, TEXT("%s -> Taken %f damage by: %s"), *GetName(), Damage, *DamageCauser->GetName())
 
 	if(!IsValid(PlayerStats) || !IsAlive()) return;
 
-	PlayerStats->ChangeStat(Esm_Health, -Damage);
+	PlayerStats->ChangeStatFloat(Esm_Health, -Damage);
 }
 
 /*void AMainCharacter::ReceiveDamage(float Damage, AActor* DamageCauser)

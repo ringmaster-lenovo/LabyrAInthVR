@@ -1,5 +1,8 @@
 #include "PlayerStatistics.h"
 
+#include "MainCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 DEFINE_LOG_CATEGORY(LabyrAInthVR_PlayerStatistics_Log);
 
 UPlayerStatistics::UPlayerStatistics()
@@ -10,7 +13,8 @@ UPlayerStatistics::UPlayerStatistics()
 void UPlayerStatistics::BeginPlay()
 {
 	Super::BeginPlay();
-	DefaultSpeed = Speed;
+	if(!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
+	DefaultSpeed = MainCharacter->GetCharacterMovement()->MaxWalkSpeed;
 }
 
 void UPlayerStatistics::TickComponent(float DeltaTime, ELevelTick TickType,
@@ -19,7 +23,7 @@ void UPlayerStatistics::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UPlayerStatistics::ChangeStat(EStatModifier Stat, float Amount)
+void UPlayerStatistics::ChangeStatFloat(EStatModifier Stat, float Amount)
 {
 	switch (Stat)
 	{
@@ -29,16 +33,29 @@ void UPlayerStatistics::ChangeStat(EStatModifier Stat, float Amount)
 		Health += Amount;
 		if (Health <= 0.f) OnPlayerDied.Broadcast();
 		break;
-	case Esm_Speed:
+	/*case Esm_Speed:
 		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Changing untimed Speed from %f to %f"),
 		       *GetName(), Speed, Speed + Amount)
 		Speed += Amount;
-		break;
+		break;*/
 	default: ;
 	}
 }
 
-void UPlayerStatistics::ChangeStat(EStatModifier Stat, float Amount, float Time)
+void UPlayerStatistics::ChangeStatBool(EStatModifier Stat, bool bEnable)
+{
+	switch (Stat)
+	{
+	case Esm_Armor:
+		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Changing untimed Armor from %s to %s"),
+			   *GetName(), bHasShield ? *FString("True") : *FString("False"), bEnable ?  *FString("True") : *FString("False"))
+		bHasShield = bEnable;
+		break;
+		default: ;
+	}
+}
+
+void UPlayerStatistics::ChangeTimedStat(EStatModifier Stat, float Amount, float Time)
 {
 	FTimerDelegate Delegate;
 	
@@ -48,6 +65,7 @@ void UPlayerStatistics::ChangeStat(EStatModifier Stat, float Amount, float Time)
 		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display,
 		       TEXT("%s -> Changing timed Speed from %f to %f for %f seconds"), *GetName(), Speed, Speed + Amount, Time)
 		Speed += Amount;
+		UpdateSpeed(Speed);
 		Delegate.BindUObject(this, &ThisClass::ResetToDefaultValue, Esm_Speed);
 		GetWorld()->GetTimerManager().SetTimer(DefaultValueTimerHandle, Delegate, Time, false);
 		break;
@@ -105,7 +123,15 @@ void UPlayerStatistics::ResetToDefaultValue(EStatModifier Stat)
 		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Resetting Speed from %f to %f"), *GetName(),
 		       Speed, DefaultSpeed)
 		Speed = DefaultSpeed;
+		UpdateSpeed(Speed);
 		break;
 	default: ;
 	}
+}
+
+void UPlayerStatistics::UpdateSpeed(float NewSpeed)
+{
+	if(!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
+
+	MainCharacter->GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }

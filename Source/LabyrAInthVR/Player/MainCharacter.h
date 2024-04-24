@@ -23,7 +23,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
 	virtual void PostInitializeComponents() override;
-public:
 
 	bool IsAlive();
 	
@@ -33,6 +32,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void StartTimer();
+
+	UFUNCTION(BlueprintCallable)
+	UPlayerStatistics* GetPlayerStatistics();
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -46,7 +48,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	UPlayerStatistics* PlayerStats;
-
+	
 public:
 	FORCEINLINE void SetOverlappedPickup(ABasePickup* Pickup) {OverlappingPickup = Pickup; }
 };
