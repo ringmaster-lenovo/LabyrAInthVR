@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "LabyrAInthVR/Player/PlayerStatistics.h"
 #include "PowerUp.generated.h"
 
 class UStatsChangerComponent;

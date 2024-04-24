@@ -54,12 +54,29 @@ void AMain3DCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		EnhancedInputComponent->BindAction(FlashlightInputAction, ETriggerEvent::Triggered, this, &ThisClass::ToggleFlashlight);
 		EnhancedInputComponent->BindAction(PickupInputAction, ETriggerEvent::Triggered, this, &ThisClass::PickupObject);
+		EnhancedInputComponent->BindAction(ReleasePickupInputAction, ETriggerEvent::Triggered, this, &ThisClass::ReleasePickupObject);
 		EnhancedInputComponent->BindAction(ShootInputAction, ETriggerEvent::Triggered, this, &ThisClass::Shoot);
 
 		EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Started, this, &ThisClass::Sprint, true);
 		EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Canceled, this, &ThisClass::Sprint, false);
 		EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Completed, this, &ThisClass::Sprint, false);
 	}
+}
+
+void AMain3DCharacter::ReleasePickupObject()
+{
+	if(!IsValid(EquippedWeapon) || !IsValid(EquippedWeapon->GetPickup())) return;
+
+	ABasePickup* AuxPickup = EquippedWeapon->GetPickup();
+	
+	EquippedWeapon->Destroy();
+	bHasWeapon = false;
+
+	if(!IsValid(AuxPickup)) return;
+	
+	AuxPickup->SetActorHiddenInGame(false);
+	AuxPickup->SetActorEnableCollision(true);
+	AuxPickup->SetActorLocation(GetActorLocation() + (GetActorForwardVector() * 100.f));
 }
 
 void AMain3DCharacter::Move(const FInputActionValue& Value)

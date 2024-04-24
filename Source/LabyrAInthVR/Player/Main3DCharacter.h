@@ -24,7 +24,8 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+    
+    void ReleasePickupObject();
 private:
 	UPROPERTY(EditAnywhere, Category=Mesh)
 	USkeletalMeshComponent* FirstPersonMesh;
@@ -50,6 +51,9 @@ private:
 	UPROPERTY(EditAnywhere, Category=Input)
 	UInputAction* PickupInputAction;
 
+	UPROPERTY(EditAnywhere, Category=Input)
+	UInputAction* ReleasePickupInputAction;
+	
 	UPROPERTY(EditAnywhere, Category=Input)
 	UInputAction* ShootInputAction;
 

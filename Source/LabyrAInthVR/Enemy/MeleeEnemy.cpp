@@ -121,14 +121,8 @@ void AMeleeEnemy::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
 	const bool bShouldDamage = Cast<AMainCharacter>(OtherActor) == nullptr || Cast<ABaseEnemy>(OtherActor) != nullptr;
 	
 	if (bShouldDamage || OtherActor == this || !OtherActor->Implements<UDamageableActor>()) return;
-	AMainCharacter* Player = Cast<AMainCharacter> (OtherActor);
-	if(!Player)
-	{
-		UGameplayStatics::ApplyDamage(OtherActor, MeleeAttackDamage, GetController(), this, UDamageType::StaticClass());
-	} else
-	{
-		Player->ReceiveDamage(MeleeAttackDamage, this);
-	}
+
+	UGameplayStatics::ApplyDamage(OtherActor, MeleeAttackDamage, GetController(), this, UDamageType::StaticClass());
 }
 
 void AMeleeEnemy::Attack()
