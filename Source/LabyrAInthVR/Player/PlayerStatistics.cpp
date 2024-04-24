@@ -22,7 +22,7 @@ void UPlayerStatistics::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UPlayerStatistics::ChangeStat(EStatModifier Stat, float Amount)
+void UPlayerStatistics::ChangeStatFloat(EStatModifier Stat, float Amount)
 {
 	switch (Stat)
 	{
@@ -41,7 +41,7 @@ void UPlayerStatistics::ChangeStat(EStatModifier Stat, float Amount)
 	}
 }
 
-void UPlayerStatistics::ChangeStat(EStatModifier Stat, bool bEnable)
+void UPlayerStatistics::ChangeStatBool(EStatModifier Stat, bool bEnable)
 {
 	switch (Stat)
 	{
@@ -50,11 +50,11 @@ void UPlayerStatistics::ChangeStat(EStatModifier Stat, bool bEnable)
 			   *GetName(), bHasShield ? *FString("True") : *FString("False"), bEnable ?  *FString("True") : *FString("False"))
 		bHasShield = bEnable;
 		break;
-	default: ;
+		default: ;
 	}
 }
 
-void UPlayerStatistics::ChangeStat(EStatModifier Stat, float Amount, float Time)
+void UPlayerStatistics::ChangeTimedStat(EStatModifier Stat, float Amount, float Time)
 {
 	FTimerDelegate Delegate;
 	

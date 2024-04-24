@@ -72,7 +72,7 @@ void AMainCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDa
 
 	if(!IsValid(PlayerStats) || !IsAlive()) return;
 
-	PlayerStats->ChangeStat(Esm_Health, -Damage);
+	PlayerStats->ChangeStatFloat(Esm_Health, -Damage);
 }
 
 /*void AMainCharacter::ReceiveDamage(float Damage, AActor* DamageCauser)
