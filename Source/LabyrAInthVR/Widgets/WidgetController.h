@@ -113,7 +113,7 @@ public:
 	void ShowGameUI();
 
 	UFUNCTION(Category = "Widgets")
-	void ShowWinScreen();
+	void ShowWinScreen(int32 TimeOnLevel);
 
 	UFUNCTION(Category = "Widgets")
 	void ShowLoseScreen();

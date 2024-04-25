@@ -326,7 +326,7 @@ void AVRGameMode::EndGame(bool bIsWin)
 		int32 TimeOnLevel = BasePlayerController->GetPlayerTimeOnCurrentLevel();
 		FString PlayerName = BasePlayerController->GetPlayerName();
 		UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("%s finished the game in %d seconds"), *PlayerName, TimeOnLevel);
-		WidgetController->ShowWinScreen();
+		WidgetController->ShowWinScreen(TimeOnLevel);
 		// NetworkController->FinishGame(fill the DTOs);
 	}
 	else

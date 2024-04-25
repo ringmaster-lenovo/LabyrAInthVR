@@ -14,7 +14,7 @@ void UWinWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	//JUST FOR TESTING
-	SetTime(302);
+	// SetTime(302);
 
 	if (RankingsButton)
 	{

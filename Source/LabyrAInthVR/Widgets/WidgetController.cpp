@@ -115,7 +115,7 @@ void AWidgetController::ShowGameUI()
 	}
 }
 
-void AWidgetController::ShowWinScreen()
+void AWidgetController::ShowWinScreen(int32 TimeOnLevel)
 {
 	if (WinWidgetClass)
 	{
@@ -129,6 +129,7 @@ void AWidgetController::ShowWinScreen()
 				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
 				OnWidgetSError.Broadcast();
 			}
+			WinWidget->SetTime(TimeOnLevel);
 			WinWidget->WidgetController = this;
 		} else
 		{
@@ -136,6 +137,7 @@ void AWidgetController::ShowWinScreen()
 			
 			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 			WinWidget = CreateWidget<UWinWidget>(PlayerController, WinWidgetClass);
+			WinWidget->SetTime(TimeOnLevel);
 			WinWidget->WidgetController = this;
 			WinWidget->AddToViewport(0);
 		}
