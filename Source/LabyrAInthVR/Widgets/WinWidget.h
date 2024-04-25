@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "WinWidget.generated.h"
 
-class AWidgetContainer;
+class AWidgetController;
 /**
  * 
  */
@@ -19,7 +19,7 @@ public:
 	virtual void NativeConstruct() override;
 
 	UPROPERTY()
-	AWidgetContainer* WidgetContainer;
+	AWidgetController* WidgetController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* TimeText;

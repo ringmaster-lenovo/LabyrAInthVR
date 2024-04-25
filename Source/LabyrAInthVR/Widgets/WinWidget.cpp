@@ -3,7 +3,8 @@
 
 #include "WinWidget.h"
 
-#include "DeadWidget.h"
+#include "LoseWidget.h"
+#include "WidgetController.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 
@@ -53,10 +54,10 @@ void UWinWidget::SetTime(int32 time)
 
 void UWinWidget::OnRankingsClicked()
 {
-	
+	WidgetController->RankingsButtonClicked();
 }
 
 void UWinWidget::OnMainMenuClicked()
 {
-	
+	WidgetController->MainMenuButtonClicked();
 }

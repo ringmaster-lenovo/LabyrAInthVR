@@ -49,7 +49,7 @@ void AWidgetController::ShowMainMenu()
 {
 	if (LobbyWidgetClass)
 	{
-		if(bIsInVR)
+		if (bIsInVR)
 		{
 			WidgetContainer->Widget->SetWidgetClass(LobbyWidgetClass);
 			LobbyWidget = Cast<ULobbyWidget>(WidgetContainer->Widget->GetUserWidgetObject());
@@ -81,7 +81,7 @@ void AWidgetController::ShowMainMenu()
 
 void AWidgetController::ShowLoadingScreen()
 {
-	if(bIsInVR)
+	if (bIsInVR)
 	{
 		FString ErrorString = WidgetContainer->ShowWidget(LoadingWidgetClass);
 		if (ErrorString != "")
@@ -103,7 +103,7 @@ void AWidgetController::ShowLoadingScreen()
 
 void AWidgetController::ShowGameUI()
 {
-	if(!bIsInVR)
+	if (!bIsInVR)
 	{
 		RemoveAllWidgets(GetWorld());
 		if (StatisticsWidgetClass)
@@ -117,19 +117,69 @@ void AWidgetController::ShowGameUI()
 
 void AWidgetController::ShowWinScreen()
 {
-	// TODO: Implement
-	// the player wins the game and can choose to open the ranking widgets or return to the main menu
-	OnReturnToMainMenuEvent.Broadcast();
+	if (WinWidgetClass)
+	{
+		if (bIsInVR)
+		{
+			WidgetContainer->Widget->SetWidgetClass(WinWidgetClass);
+			WinWidget = Cast<UWinWidget>(WidgetContainer->Widget->GetUserWidgetObject());
+			if(!WinWidget)
+			{
+				FString ErrorString = "No WinWidget!";
+				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
+				OnWidgetSError.Broadcast();
+			}
+			WinWidget->WidgetController = this;
+		} else
+		{
+			RemoveAllWidgets(GetWorld());
+			
+			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+			WinWidget = CreateWidget<UWinWidget>(PlayerController, WinWidgetClass);
+			WinWidget->WidgetController = this;
+			WinWidget->AddToViewport(0);
+		}
+	}
 }
 
 void AWidgetController::ShowLoseScreen()
 {
-	// TODO: Implement
-	// if the player loses he can choose whether to restart the level or return to the main menu
-	// if he chooses to restart
+	if (LoseWidgetClass)
+	{
+		if (bIsInVR)
+		{
+			WidgetContainer->Widget->SetWidgetClass(LoseWidgetClass);
+			LoseWidget = Cast<ULoseWidget>(WidgetContainer->Widget->GetUserWidgetObject());
+			if(!LoseWidget)
+			{
+				FString ErrorString = "No WinWidget!";
+				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
+				OnWidgetSError.Broadcast();
+			}
+			LoseWidget->WidgetController = this;
+		} else
+		{
+			RemoveAllWidgets(GetWorld());
+			
+			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+			LoseWidget = CreateWidget<ULoseWidget>(PlayerController, LoseWidgetClass);
+			LoseWidget->WidgetController = this;
+			LoseWidget->AddToViewport(0);
+			
+		}
+	}
+}
+
+void AWidgetController::MainMenuButtonClicked()
+{
+	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Main Menu Button Clicked!"));
+	OnReturnToMainMenuEvent.Broadcast();
+}
+
+void AWidgetController::RestartButtonClicked()
+{
+	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Restart Button Clicked!"));
 	OnRestartLevelEvent.Broadcast();
-	// if he chooses to return to the main menu
-	// OnReturnToMainMenuEvent.Broadcast();
 }
 
 void AWidgetController::NewGameButtonClicked()
@@ -137,6 +187,30 @@ void AWidgetController::NewGameButtonClicked()
 	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("New Game Button Clicked!"));
 	OnNewGameButtonClicked.Broadcast();
 }
+
+void AWidgetController::LoadGameButtonClicked()
+{
+	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Load Game Button Clicked!"));
+	OnLoadGameButtonClicked.Broadcast();
+}
+
+void AWidgetController::RankingsButtonClicked()
+{
+	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Rankings Button Clicked!"));
+	OnRankingsButtonClicked.Broadcast();
+}
+
+void AWidgetController::SettingsButtonClicked()
+{
+	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Settings Button Clicked!"));
+	// TODO: should open the settings widget
+}
+
+void AWidgetController::QuitButtonClicked()
+{
+	OnQuitGameButtonClicked.Broadcast();
+}
+
 
 void AWidgetController::RemoveAllWidgets(UObject* WorldContextObject)
 {
@@ -147,7 +221,7 @@ void AWidgetController::RemoveAllWidgets(UObject* WorldContextObject)
 	{
 		if (Widget && Widget->IsInViewport())
 		{
-			Widget->RemoveFromViewport();
+			Widget->RemoveFromParent();
 		}
 	}
 }

@@ -9,7 +9,7 @@
 #include "SettingsWidget.h"
 #include "LoadingWidget.h"
 #include "WinWidget.h"
-#include "DeadWidget.h"
+#include "LoseWidget.h"
 #include "StatisticsWidget.h"
 #include "WidgetController.generated.h"
 
@@ -53,7 +53,7 @@ public:
 	TSubclassOf<UWinWidget> WinWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-	TSubclassOf<UDeadWidget> DeadWidgetClass;
+	TSubclassOf<ULoseWidget> LoseWidgetClass;
 
 	UPROPERTY()
 	ULobbyWidget* LobbyWidget = nullptr;
@@ -71,13 +71,22 @@ public:
 	UWinWidget* WinWidget = nullptr;
 
 	UPROPERTY()
-	UDeadWidget* DeadWidget = nullptr;
+	ULoseWidget* LoseWidget = nullptr;
 
 	UPROPERTY()
 	AWidgetContainer* WidgetContainer = nullptr;
 
 	DECLARE_MULTICAST_DELEGATE(FNewGameEvent);
 	FNewGameEvent OnNewGameButtonClicked;
+
+	DECLARE_MULTICAST_DELEGATE(FLoadGameEvent);
+	FLoadGameEvent OnLoadGameButtonClicked;
+
+	DECLARE_MULTICAST_DELEGATE(FRankingsEvent);
+	FRankingsEvent OnRankingsButtonClicked;
+
+	DECLARE_MULTICAST_DELEGATE(FQuitGameEvent);
+	FQuitGameEvent OnQuitGameButtonClicked;
 
 	DECLARE_MULTICAST_DELEGATE(FReturnToMainMenuEvent);
 	FReturnToMainMenuEvent OnReturnToMainMenuEvent;
@@ -110,6 +119,23 @@ public:
 	void ShowLoseScreen();
 
 	UFUNCTION(Category = "Widgets")
+	void MainMenuButtonClicked();
+
+	UFUNCTION(Category = "Widgets")
+	void RestartButtonClicked();
+
+	UFUNCTION(Category = "Widgets")
 	void NewGameButtonClicked();
-	
+
+	UFUNCTION(Category = "Widgets")
+	void LoadGameButtonClicked();
+
+	UFUNCTION(Category = "Widgets")
+	void RankingsButtonClicked();
+
+	UFUNCTION(Category = "Widgets")
+	void SettingsButtonClicked();
+
+	UFUNCTION(Category = "Widgets")
+	void QuitButtonClicked();
 };

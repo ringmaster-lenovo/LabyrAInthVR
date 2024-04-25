@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "DeadWidget.generated.h"
+#include "LoseWidget.generated.h"
 
-class AWidgetContainer;
+class AWidgetController;
 /**
  * 
  */
 UCLASS()
-class LABYRAINTHVR_API UDeadWidget : public UUserWidget
+class LABYRAINTHVR_API ULoseWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
@@ -19,7 +19,7 @@ public:
 	virtual void NativeConstruct() override;
 
 	UPROPERTY()
-	AWidgetContainer* WidgetContainer;
+	AWidgetController* WidgetController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* RestartButton;
