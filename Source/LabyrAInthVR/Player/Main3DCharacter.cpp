@@ -49,8 +49,8 @@ void AMain3DCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	{
 		EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
 		EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
-		EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		//EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		//EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		EnhancedInputComponent->BindAction(FlashlightInputAction, ETriggerEvent::Triggered, this, &ThisClass::ToggleFlashlight);
 		EnhancedInputComponent->BindAction(PickupInputAction, ETriggerEvent::Triggered, this, &ThisClass::PickupObject);
@@ -163,5 +163,10 @@ void AMain3DCharacter::Sprint(const FInputActionValue& Value, bool bSprint)
 	GetCharacterMovement()->MaxWalkSpeed = bSprint ? 900.f : 600.f;
 
 	UE_LOG(LogTemp, Warning, TEXT("Sprint: %d"), bSprint)
+}
+
+void AMain3DCharacter::PickupWeapon()
+{
+	Super::PickupWeapon();
 }
 

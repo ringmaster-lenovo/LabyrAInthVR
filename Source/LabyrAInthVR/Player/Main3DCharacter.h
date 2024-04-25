@@ -68,6 +68,8 @@ private:
 	void PickupObject(const FInputActionValue& Value);
 	void Shoot(const FInputActionValue& Value);
 	void Sprint(const FInputActionValue& Value, bool bSprint);
+
+	virtual void PickupWeapon() override;
 public:
 	FORCEINLINE bool GetHasWeapon() {return bHasWeapon; }
 };

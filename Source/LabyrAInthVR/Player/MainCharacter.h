@@ -48,7 +48,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	UPlayerStatistics* PlayerStats;
-	
+
+	/*UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	virtual void PickupWeapon();*/
 public:
 	FORCEINLINE void SetOverlappedPickup(ABasePickup* Pickup) {OverlappingPickup = Pickup; }
 };
