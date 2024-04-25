@@ -47,9 +47,6 @@ public:
 	void StopAllTimers();
 
 	UFUNCTION(BlueprintCallable)
-	void SetPlayerName(const FString& Name) { PlayerName = Name; }
-
-	UFUNCTION(BlueprintCallable)
 	void ChangeSpeed(double SpeedIncrement, int32 Timer);
 
 	UFUNCTION(BlueprintCallable)
@@ -57,9 +54,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetTimeOnCurrentLevel() const { return TimeOnCurrentLevel; }
-
-	UFUNCTION(BlueprintCallable)
-	FString GetPlayerName() const { return PlayerName; }
 
 	UFUNCTION(BlueprintCallable)
 	void ResetStats();
@@ -80,9 +74,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
 	int CurrentSeconds = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	FString PlayerName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	double BaseSpeed = 400;

@@ -1,5 +1,6 @@
 #include "Main3DCharacter.h"
 
+#include "BasePlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "EnhancedInputComponent.h"
@@ -99,7 +100,7 @@ void AMain3DCharacter::PickupObject(const FInputActionValue& Value)
 		EquippedWeapon->Destroy();
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Current pickup: %s"), *OverlappingPickup->GetName())
+	UE_LOG(LabyrAInthVR_Player_Log, Warning, TEXT("Current pickup: %s"), *OverlappingPickup->GetName())
 	EquippedWeapon = GetWorld()->SpawnActor<AWeapon>(OverlappingPickup->GetWeapon());
 	
 	if(!IsValid(EquippedWeapon)) return;
@@ -143,8 +144,6 @@ void AMain3DCharacter::Sprint(const FInputActionValue& Value, bool bSprint)
 {
 	if(!IsValid(GetCharacterMovement())) return;
 
-	GetCharacterMovement()->MaxWalkSpeed = bSprint ? 900.f : 600.f;
-
-	UE_LOG(LogTemp, Warning, TEXT("Sprint: %d"), bSprint)
+	GetCharacterMovement()->MaxWalkSpeed = bSprint ? 600.f * 1.5 : 600.f;
 }
 

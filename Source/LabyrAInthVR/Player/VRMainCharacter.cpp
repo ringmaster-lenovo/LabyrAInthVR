@@ -27,15 +27,12 @@ AVRMainCharacter::AVRMainCharacter()
 void AVRMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	UWorld* World = GetWorld();
-	if (!World) { return; }
-
+	
 	if (BlinkerFlag && BlinkerMaterialBase != nullptr)
 	{
 		BlinkerMaterialInstance = UMaterialInstanceDynamic::Create(BlinkerMaterialBase, this);
 		PostProcessComponent->AddOrUpdateBlendable(BlinkerMaterialInstance);
 	}
-
 }
 
 // Called every frame

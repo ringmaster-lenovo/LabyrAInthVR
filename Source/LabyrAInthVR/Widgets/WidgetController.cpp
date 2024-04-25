@@ -45,7 +45,7 @@ void AWidgetController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AWidgetController::ShowMainMenu()
+void AWidgetController::ShowLobbyUI()
 {
 	if (LobbyWidgetClass)
 	{
@@ -132,19 +132,82 @@ void AWidgetController::ShowLoseScreen()
 	// OnReturnToMainMenuEvent.Broadcast();
 }
 
-void AWidgetController::NewGameButtonClicked()
+void AWidgetController::StartNewGameButtonClicked() const
 {
-	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("New Game Button Clicked!"));
-	OnNewGameButtonClicked.Broadcast();
+	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Play Game Button Clicked!"));
+	// Gets the game state and sets the current level to 0
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("No World!"));
+		OnWidgetSError.Broadcast();
+		return;
+	}
+	AVRGameState* GameState = World->GetGameState<AVRGameState>();
+	if (!GameState)
+	{
+		UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("No GameState!"));
+		OnWidgetSError.Broadcast();
+		return;
+	}
+	GetWorld()->GetGameState<AVRGameState>()->SetCurrentLevel(2);
+	
+	OnPlayGameButtonClicked.Broadcast();
 }
 
-void AWidgetController::LoadGameButtonClicked()
+void AWidgetController::ReplayContinueButtonClicked() const
 {
-	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Load Game Button Clicked!"));
-	OnLoadGameButtonClicked.Broadcast();
+	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Replay/Continue Button Clicked!"));
+	// TODO: should ask the Game State the list of levels and times of the player
+	// if the player has already played the game, there should be a list of levels and times
+	// if the player has not played the game, the list should be empty so the click will be ignored
+	// if the player has played the game, the player can choose to replay the previous level already beaten
+	// or proceed to the next level
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("No World!"));
+		OnWidgetSError.Broadcast();
+		return;
+	}
+	AVRGameState* GameState = World->GetGameState<AVRGameState>();
+	if (!GameState)
+	{
+		UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("No GameState!"));
+		OnWidgetSError.Broadcast();
+		return;
+	}
+	// GameState->SetCurrentLevel(IL LIVELLO CORRISPONDENTE AL BOTTONE CLICCATO);
+
+	// OnPlayGameButtonClicked.Broadcast();
+
+	// MOCKUP ONLY FOR TESTING
+	NextLevelButtonClicked();
 }
 
-void AWidgetController::RankingsButtonClicked()
+void AWidgetController::NextLevelButtonClicked() const
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("No World!"));
+		OnWidgetSError.Broadcast();
+		return;
+	}
+	AVRGameState* GameState = World->GetGameState<AVRGameState>();
+	if (!GameState)
+	{
+		UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("No GameState!"));
+		OnWidgetSError.Broadcast();
+		return;
+	}
+	GameState->SetCurrentLevel(GameState->GetCurrentLevel() + 1);
+	
+	OnPlayGameButtonClicked.Broadcast();
+}
+
+void AWidgetController::RankingsButtonClicked() const
 {
 	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Rankings Button Clicked!"));
 	OnRankingsButtonClicked.Broadcast();
@@ -156,7 +219,7 @@ void AWidgetController::SettingsButtonClicked()
 	// TODO: should open the settings widget
 }
 
-void AWidgetController::QuitButtonClicked()
+void AWidgetController::QuitButtonClicked() const
 {
 	OnQuitGameButtonClicked.Broadcast();
 }

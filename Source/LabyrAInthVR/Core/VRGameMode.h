@@ -13,6 +13,7 @@
 #include "LabyrAInthVR/Player/VRMainCharacter.h"
 #include "VRGameMode.generated.h"
 
+class ULabyrAInthVRGameInstance;
 class AMain3DCharacter;
 class AMusicController;
 /**
@@ -84,7 +85,7 @@ private:
 	void PrepareGame();
 
 	UFUNCTION()
-	void NewGameButtonClicked();
+	void PlayerWantsToPlayGame();
 
 	UFUNCTION()
 	void MockNetwork();
@@ -105,7 +106,7 @@ private:
 	void RestartGame();
 
 	UFUNCTION()
-	void RePrepareGame();
+	void RePrepareGame(bool bComeBackToLobby = true);
 
 	UFUNCTION()
 	bool IsVRHMDConnected();

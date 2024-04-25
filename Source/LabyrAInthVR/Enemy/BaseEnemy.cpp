@@ -279,7 +279,7 @@ FVector ABaseEnemy::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirectio
 	}
 	EEnemyDirection ChosenDirection{EED_None};
 	TArray<EEnemyDirection> FreeEnemyDirections{};
-	bool bIsInRoom{false};
+	bool bIsInRoom = false;
 	// Get all free roaming directions
 	FillFreeDirections(Row, Column, FreeEnemyDirections);
 	bIsInRoom = IsInRoom(Row, Column, FreeEnemyDirections);
@@ -287,7 +287,7 @@ FVector ABaseEnemy::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirectio
 	if (bIsInRoom)
 	{
 		FreeEnemyDirections.Remove(EED_Diagonal);
-		if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Standing in a room"), *GetName());
+		if (EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Standing in a room"), *GetName());
 	}
 
 	// Pick direction based on the last known direction
@@ -429,7 +429,7 @@ void ABaseEnemy::ChooseNextDirection(TArray<EEnemyDirection>& EnemyDirections, E
 	for (const auto& RandomDirection : EnemyDirections)
 		if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Free direction: %s"), *GetName(), *UEnum::GetValueAsString(RandomDirection));
 
-	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Previous direction: %s"), *GetName(), *UEnum::GetValueAsString(PreviousDirection));
+	if (EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Previous direction: %s"), *GetName(), *UEnum::GetValueAsString(PreviousDirection));
 	// Pick diagonal first
 	if (EnemyDirections.Contains(EED_Diagonal) && SwitchToDiagonalValue < EnemySettings::TurnAtDiagonalProbability &&
 		PreviousDirection != EED_Diagonal)

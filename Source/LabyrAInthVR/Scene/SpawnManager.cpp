@@ -61,19 +61,16 @@ void ASpawnManager::FindPotentialSpawnLocations(const ULabyrinthDTO* LabyrinthDT
 	if (LateralNeighbors + VerticalNeighbors == 3)
 	{
 		PotentialPowerUpSpawnLocations.Add(UUtils::ConvertToIndex(Row, Column));
-		UE_LOG(LabyrAInthVR_Scene_Log, Log, TEXT("Potential power up location: %d : %d"), Row, Column);
 	}
 	// if I have 2 walls around me but not in front of each other, this happens when there is a turn in the labyrinth, I should spawn a trap in this location
 	else if (LateralNeighbors == 1 && VerticalNeighbors == 1)
 	{
 		PotentialTrapSpawnLocations.Add(UUtils::ConvertToIndex(Row, Column));
-		UE_LOG(LabyrAInthVR_Scene_Log, Log, TEXT("Potential trap location: %d : %d"), Row, Column);
 	}
 	// else, its a normal corridor, I could spawn an enemy in this location
 	else
 	{
 		PotentialEnemySpawnLocations.Add(UUtils::ConvertToIndex(Row, Column));
-		UE_LOG(LabyrAInthVR_Scene_Log, Log, TEXT("Potential enemy location: %d : %d"), Row, Column);
 	}
 }
 
@@ -109,7 +106,7 @@ FString ASpawnManager::SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReferen
 	{
 		return ErrorMessage;
 	}
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthMatrix:\n %s"), *UUtils::MatrixToString(&LabyrinthDTO->LabyrinthStructure));
+	// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthMatrix:\n %s"), *UUtils::MatrixToString(&LabyrinthDTO->LabyrinthStructure));
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("PowerUpsSpawned:\n %s"), *UUtils::StructToString(UUtils::GetInfoActorSpawned(NumOfPowerUpsSpawned, &PowerUpsLocations)));
 	
 	// spawn traps second
@@ -125,7 +122,7 @@ FString ASpawnManager::SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReferen
 	{
 		return ErrorMessage;
 	}
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthMatrix:\n %s"), *UUtils::MatrixToString(&LabyrinthDTO->LabyrinthStructure));
+	// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthMatrix:\n %s"), *UUtils::MatrixToString(&LabyrinthDTO->LabyrinthStructure));
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("TrapsSpawned:\n %s"), *UUtils::StructToString(UUtils::GetInfoActorSpawned(NumOfTrapsSpawned, &TrapsLocations)));
 	
 	// spawn enemies last

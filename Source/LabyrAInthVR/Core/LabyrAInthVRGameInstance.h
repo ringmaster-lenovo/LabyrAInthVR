@@ -21,4 +21,8 @@ public:
 	virtual void Init() override;
 
 	virtual void Shutdown() override;
+
+	static void SaveGame(const FString& PlayerName, int32 Level, int32 Time = INFINITY);
+
+	// static void SaveGame(FString PlayerName, int32 Level, int32 Time = INFINITY, int32 Deaths, int32 EnemiesKilled, int32 TrapsExploded, int32 PowerUpsCollected);
 };

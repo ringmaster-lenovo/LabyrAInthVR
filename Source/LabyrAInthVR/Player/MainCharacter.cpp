@@ -115,7 +115,6 @@ void AMainCharacter::ResetStats()
 	Life = 100;
 	Shield = false;
 	TimeOnCurrentLevel = 0;
-	PlayerName = "";
 	BaseSpeed = 400;
 	RunningSpeed = 600;
 }

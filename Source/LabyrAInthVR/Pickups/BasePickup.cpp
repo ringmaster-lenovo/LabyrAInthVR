@@ -3,6 +3,8 @@
 #include "Components/SphereComponent.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
 
+DEFINE_LOG_CATEGORY(LabyrAInthVR_Pickups_Log);
+
 ABasePickup::ABasePickup()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -26,18 +28,18 @@ void ABasePickup::BeginPlay()
 void ABasePickup::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Start overlap: %s"), *GetName());
+	UE_LOG(LabyrAInthVR_Pickups_Log, Display, TEXT("Start overlap: %s"), *GetName());
 	AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor);
-	if(!IsValid(MainCharacter)) return;
+	if (!IsValid(MainCharacter)) return;
 	MainCharacter->SetOverlappedPickup(this);
 }
 
 void ABasePickup::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("End overlap: %s"), *GetName());
+	UE_LOG(LabyrAInthVR_Pickups_Log, Display, TEXT("End overlap: %s"), *GetName());
 	AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor);
-	if(!IsValid(MainCharacter)) return;
+	if (!IsValid(MainCharacter)) return;
 	MainCharacter->SetOverlappedPickup(nullptr);
 }
 
