@@ -20,6 +20,10 @@ AWidgetController::AWidgetController()
 void AWidgetController::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	EnableInput(GetWorld()->GetFirstPlayerController());
+
+	InputComponent->BindAction("PauseGame", IE_Pressed, this, &AWidgetController::OnPauseGamePressed);
 
 	AVRGameMode* GameMode = Cast<AVRGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	bIsInVR = GameMode->IsInVR();
@@ -212,6 +216,33 @@ void AWidgetController::QuitButtonClicked()
 {
 	OnQuitGameButtonClicked.Broadcast();
 }
+
+void AWidgetController::OnPauseGamePressed()
+{
+	ABasePlayerController* PlayerController = Cast<ABasePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PlayerController && MenuWidgetClass)
+	{
+		if (!bIsInVR && PlayerController->InGame)
+		{
+			if (MenuWidget && MenuWidget->IsInViewport())
+			{
+				MenuWidget->RemoveFromViewport();
+				MenuWidget = nullptr;
+				ShowGameUI();
+			}
+			else
+			{
+				RemoveAllWidgets(GetWorld());
+				
+				MenuWidget = CreateWidget<UMenuWidget>(PlayerController, MenuWidgetClass);
+				MenuWidget->WidgetController = this;
+				MenuWidget->AddToViewport(0);
+			}
+		}
+	}
+	OnPauseEvent.Broadcast();
+}
+
 
 
 void AWidgetController::RemoveAllWidgets(UObject* WorldContextObject)

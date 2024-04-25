@@ -69,12 +69,13 @@ void ABasePlayerController::ResetPlayerStats()
 	MainCharacter->ResetStats();
 }
 
-FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRotator& Rotation, const bool InGame) const
+FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRotator& Rotation, bool InGamePassed) 
 {
 	if (MainCharacter->TeleportTo(Position, Rotation))
 	{
-		if (InGame)
+		if (InGamePassed)
 		{
+			InGame = InGamePassed;
 			MainCharacter->StartLevelTimer();
 		}
 		else
@@ -83,7 +84,7 @@ FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRo
 		}
 		if (AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(MainCharacter); VRCharacter != nullptr)
 		{
-			if (InGame)
+			if (InGamePassed)
 			{
 				VRCharacter->IsInLobby = false;
 				VRCharacter->StopWidgetInteraction();

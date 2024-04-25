@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "WidgetContainer.h"
 #include "LobbyWidget.h"
+#include "MenuWidget.h"
 #include "SettingsWidget.h"
 #include "LoadingWidget.h"
 #include "WinWidget.h"
@@ -39,6 +40,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<ULobbyWidget> LobbyWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UMenuWidget> MenuWidgetClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<USettingsWidget> SettingsWidgetClass;
@@ -57,6 +61,9 @@ public:
 
 	UPROPERTY()
 	ULobbyWidget* LobbyWidget = nullptr;
+
+	UPROPERTY()
+	UMenuWidget* MenuWidget = nullptr;
 	
 	UPROPERTY()
 	USettingsWidget* SettingsWidget = nullptr;
@@ -138,4 +145,7 @@ public:
 
 	UFUNCTION(Category = "Widgets")
 	void QuitButtonClicked();
+
+	UFUNCTION(Category = "Widgets")
+	void OnPauseGamePressed();
 };
