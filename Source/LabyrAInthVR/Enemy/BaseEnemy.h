@@ -4,6 +4,8 @@
 #include "GameFramework/Character.h"
 #include "LabyrAInthVR/Interagibles/StatsChangerComponent.h"
 #include "LabyrAInthVR/Interfaces/DamageableActor.h"
+#include "LabyrAInthVR/Interfaces/MovableActor.h"
+#include "LabyrAInthVR/Interfaces/SpawnableActor.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "BaseEnemy.generated.h"
 
@@ -62,7 +64,7 @@ struct FEnemyDirection
 };
 
 UCLASS()
-class LABYRAINTHVR_API ABaseEnemy : public ACharacter, public IDamageableActor
+class LABYRAINTHVR_API ABaseEnemy : public ACharacter, public IDamageableActor, public ISpawnableActor, public IMovableActor
 {
 	GENERATED_BODY()
 
@@ -83,7 +85,7 @@ protected:
 	
 	EEnemyState EnemyState{EEnemyState::EES_WaitingForNav};
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	virtual void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
 	                           AController* InstigatedBy, AActor* DamageCauser);
 

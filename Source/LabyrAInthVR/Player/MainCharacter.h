@@ -31,14 +31,60 @@ public:
 							   AController* InstigatedBy, AActor* DamageCauser);
 	
 	UFUNCTION(BlueprintCallable)
-	void StartTimer();
+	void StartLevelTimer();
 
 	UFUNCTION(BlueprintCallable)
 	UPlayerStatistics* GetPlayerStatistics();
 protected:
+	void StopAllTimers();
+
+	UFUNCTION(BlueprintCallable)
+	void SetPlayerName(const FString& Name) { PlayerName = Name; }
+
+	UFUNCTION(BlueprintCallable)
+	bool IsShieldActive() const { return Shield; }
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetTimeOnCurrentLevel() const { return TimeOnCurrentLevel; }
+
+	UFUNCTION(BlueprintCallable)
+	FString GetPlayerName() const { return PlayerName; }
+	
+protected:
+	
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
+	// AWeapon* Weapon;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<AWeapon> WeaponClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
+	int CurrentHours = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
+	int CurrentMinutes = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
+	int CurrentSeconds = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FString PlayerName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
+	int32 TimeOnCurrentLevel = 0;
+
+	int32 SpeedTimer = 0;
+
+	int32 SpeedTimerGoesOff = 0;
+
+	FTimerHandle TimerOnLevelHandle;
+
+	FTimerHandle SpeedTimerHandle;
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateTimeOnCurrentLevel();
+
+	void UpdateSpeedTimer();
 	
 	UPROPERTY()
 	ABasePickup* OverlappingPickup;

@@ -6,8 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "Components/WidgetComponent.h"
 #include "LobbyWidget.h"
-#include "SettingsWidget.h"
-#include "LoadingWidget.h"
 #include "WidgetContainer.generated.h"
 
 class AWidgetController;
@@ -26,24 +24,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
 	AWidgetController* WidgetController;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-	TSubclassOf<ULobbyWidget> LobbyWidgetClass;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-	TSubclassOf<USettingsWidget> SettingsWidgetClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-	TSubclassOf<ULoadingWidget> LoadingWidgetClass;
-	
-	UPROPERTY()
-	ULobbyWidget* LobbyWidget = nullptr;
-	
-	UPROPERTY()
-	USettingsWidget* SettingsWidget = nullptr;
-
-	UPROPERTY()
-	ULoadingWidget* LoadingWidget = nullptr;
-
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* Root;
 	
@@ -51,22 +31,7 @@ public:
 	UWidgetComponent* Widget;
 
 	UFUNCTION(BlueprintCallable)
-	FString ShowMainMenuUI();
-
-	UFUNCTION(BlueprintCallable)
-	FString ShowSettings();
-	
-	UFUNCTION(BlueprintCallable)
-	FString ShowLoadingUI();
-	
-	UFUNCTION(BlueprintCallable)
-	FString ShowRankings();
-
-	UFUNCTION(BlueprintCallable)
-	FString HideMainMenuUI();
-
-	UFUNCTION()
-	void NewGameButtonClicked() const;
+	FString ShowWidget(TSubclassOf<UUserWidget> WidgetClass);
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsInVR = true;

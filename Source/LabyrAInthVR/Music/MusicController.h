@@ -29,10 +29,16 @@ public:
 	void StartAmbienceMusic(bool bIsInLobby);
 
 	UFUNCTION(BlueprintImplementableEvent, Category=Music)
+	void StartFinalResultMusic(bool bHasWon);
+
+	UFUNCTION(BlueprintImplementableEvent, Category=Music)
 	void StartCombatMusic();
 
 	UFUNCTION(BlueprintImplementableEvent, Category=Music)
 	void StopCombatMusic();
+
+	UFUNCTION(BlueprintImplementableEvent, Category=Music)
+	void StopMusic();
 
 	UFUNCTION(BlueprintImplementableEvent, Category=Music)
 	void SetMusicVolume(float Volume);

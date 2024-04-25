@@ -1,5 +1,9 @@
 #include "MainCharacter.h"
 #include "PlayerStatistics.h"
+
+
+#include "BasePlayerController.h"
+#include "PlayerStatsSubSystem.h"
 #include "Engine/World.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Delegates/DelegateSignatureImpl.inl"
@@ -87,29 +91,70 @@ void AMainCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDa
 	bool found = true;
 	float value;
 	PlayerStatisticsSubsystem->GetStatNumberValue(FName("Health"), found, value);
-	UE_LOG(LogVR, Warning, TEXT("ECCO LA VITAAAA: %f"), value);
+	UE_LOG(LabyrAInthVR_Player_Log, Display, TEXT("Player Health Before Damage: %f"), value);
 
-	if (Life == 0) return;
-
-	UE_LOG(LogTemp, Warning, TEXT("Player received damage by: %s"), *DamageCauser->GetName())
+	UE_LOG(LabyrAInthVR_Player_Log, Display, TEXT("Player received damage by: %s"), *DamageCauser->GetName())
 	
-	if(Shield)
+	if (Shield)
 	{
 		DectivateShield();
-		UE_LOG(LogTemp, Warning, TEXT("Player received damage but has shield, shield is destroyed"))
+		UE_LOG(LabyrAInthVR_Player_Log, Display, TEXT("Player received damage but has shield, shield is destroyed"))
 		return;
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("Received damage"))
-	// Life -= Damage;
+	Life -= Damage;
 	
 	PlayerStatisticsSubsystem->AddToCounter("Health", -1 * Damage);
 	
 	PlayerStatisticsSubsystem->GetStatNumberValue(FName("Health"), found, value);
-	UE_LOG(LogVR, Warning, TEXT("ECCO LA VITAAAA AFTER DAMAGE: %f"), value);
+	UE_LOG(LabyrAInthVR_Player_Log, Display, TEXT("Player Health After Damage: %f"), value);
 
 	if (Life > 0) return;
 	
 	//TODO: PLAYER IS DEAD, WHAT TO DO?
 	//Teleport to lobby, set lobby a true, fare widget "SEI MORTO" (passa per la GameMode, chiama evento)#1#
 }*/
+	if (Life <= 0)  // Player has died
+	{
+		ABasePlayerController* PlayerController = Cast<ABasePlayerController>(GetController());
+		if (PlayerController)
+		{
+			PlayerController->PlayerHasDied();
+		}
+		else
+		{
+			UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("PlayerController not found"));
+		}
+	}
+}
+
+void AMainCharacter::StartLevelTimer()
+{
+	//START CHRONOMETER
+	if (!GetWorld()) return; // Ensure we have a valid world context before starting the timer
+	GetWorld()->GetTimerManager().SetTimer(TimerOnLevelHandle, this, &AMainCharacter::UpdateTimeOnCurrentLevel, 1.0f, true);
+}
+
+void AMainCharacter::StopAllTimers()
+{
+	//STOP CHRONOMETER
+	if (!GetWorld()) return; // Ensure we have a valid world context before stopping the timer
+	GetWorld()->GetTimerManager().ClearTimer(TimerOnLevelHandle);
+	GetWorld()->GetTimerManager().ClearTimer(SpeedTimerHandle);
+}
+
+void AMainCharacter::UpdateTimeOnCurrentLevel()
+{
+	++TimeOnCurrentLevel;
+}
+
+void AMainCharacter::UpdateSpeedTimer()
+{
+	++SpeedTimer;
+	if (SpeedTimer >= SpeedTimerGoesOff)
+	{
+		BaseSpeed = 400;
+		RunningSpeed = 600;
+		GetWorld()->GetTimerManager().ClearTimer(SpeedTimerHandle);
+	}
+}

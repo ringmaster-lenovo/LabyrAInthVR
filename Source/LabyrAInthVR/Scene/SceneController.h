@@ -26,8 +26,18 @@ public:
 
 	FString SetupLevel(ULabyrinthDTO* LabyrinthDTO);
 
+	FString CleanUpLevel() const;
+
+	FString RespawnMovableActors(ULabyrinthDTO* LabyrinthDTO);
+
 	DECLARE_MULTICAST_DELEGATE(FSceneReadyEvent);
 	FSceneReadyEvent OnSceneReady;
+
+	DECLARE_MULTICAST_DELEGATE(FSceneReadyEvent);
+	FSceneReadyEvent OnSceneCleanedUp;
+
+	DECLARE_MULTICAST_DELEGATE(FRespawnActorsEvent);
+	FRespawnActorsEvent OnActorsRespawned;
 
 	UFUNCTION()
 	void GetPlayerStartPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
@@ -51,6 +61,7 @@ private:
 	FTimerHandle NavMeshBoundsTimerHandle;
 
 	void UpdateNavMeshBoundsVolume(const ULabyrinthDTO* LabyrinthDto);
+	
 	UPROPERTY(EditAnywhere, Category = "Scene")
 	TSubclassOf<ALabyrinthParser> LabyrinthParser_BP;
 
