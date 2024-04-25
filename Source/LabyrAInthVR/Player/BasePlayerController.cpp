@@ -1,6 +1,8 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BasePlayerController.h"
+
+#include "PlayerStatistics.h"
 #include "VRMainCharacter.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Player_Log);
@@ -29,26 +31,6 @@ AMainCharacter* ABasePlayerController::GetControlledCharacter() const
 	return MainCharacter;
 }
 
-FString ABasePlayerController::GetPlayerName() const
-{
-	if (MainCharacter == nullptr)
-	{
-		UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot get player name, no character is controlled by the player controller"));
-		return "";
-	}
-	return MainCharacter->GetPlayerName();
-}
-
-void ABasePlayerController::SetPlayerName(const FString& Name)
-{
-	if (MainCharacter == nullptr)
-	{
-		UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot set player name, no character is controlled by the player controller"));
-		return;
-	}
-	MainCharacter->SetPlayerName(Name);
-}
-
 int32 ABasePlayerController::GetPlayerTimeOnCurrentLevel() const
 {
 	if (MainCharacter == nullptr)
@@ -56,7 +38,16 @@ int32 ABasePlayerController::GetPlayerTimeOnCurrentLevel() const
 		UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot set player name, no character is controlled by the player controller"));
 		return -1;
 	}
-	return MainCharacter->GetTimeOnCurrentLevel();
+	
+	UPlayerStatistics* PlayerStatistics = MainCharacter->GetPlayerStatistics();
+	
+	if(!IsValid(PlayerStatistics))
+	{
+		UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot get player statistics"));
+		return -1;
+	}
+	
+	return PlayerStatistics->GetLevelTime();
 }
 
 void ABasePlayerController::ResetPlayerStats()
@@ -66,7 +57,15 @@ void ABasePlayerController::ResetPlayerStats()
 		UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot reset player stats, no character is controlled by the player controller"));
 		return;
 	}
-	MainCharacter->ResetStats();
+	UPlayerStatistics* PlayerStatistics = MainCharacter->GetPlayerStatistics();
+
+	if(!IsValid(PlayerStatistics))
+	{
+		UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot reset player stats, PlayerStatistics ref is not valid"));
+		return;
+	}
+
+	PlayerStatistics->ResetStats();
 }
 
 FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRotator& Rotation, const bool InGame) const
@@ -75,11 +74,15 @@ FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRo
 	{
 		if (InGame)
 		{
-			MainCharacter->StartLevelTimer();
+			UPlayerStatistics* PlayerStatistics = MainCharacter->GetPlayerStatistics();
+			if(!IsValid(PlayerStatistics)) return "Cannot start level timer, PlayerStatistics ref is not valid";
+			PlayerStatistics->StartLevelTimer();
 		}
 		else
 		{
-			MainCharacter->StopAllTimers();
+			UPlayerStatistics* PlayerStatistics = MainCharacter->GetPlayerStatistics();
+			if(!IsValid(PlayerStatistics)) return "Cannot stop level timer, PlayerStatistics ref is not valid";
+			PlayerStatistics->StopLevelTimer();
 		}
 		if (AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(MainCharacter); VRCharacter != nullptr)
 		{
@@ -109,6 +112,6 @@ void ABasePlayerController::CollidedWithEndPortal() const
 
 void ABasePlayerController::PlayerHasDied() const
 {
-	OnPLayerDeath.Broadcast();
+	OnPlayerDeath.Broadcast();
 }
 

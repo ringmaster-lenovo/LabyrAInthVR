@@ -50,28 +50,25 @@ private:
 	AMainCharacter* MainCharacter;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	float MaxHealth{100.f};
+	float DefaultHealth{100.f};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	float Health{100.f};
-
+		
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	float Speed{650.f};
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	bool bHasShield{true};
+	float DefaultSpeed{650.f};
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	FString PlayerName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	FPlayerTime PlayerTime;
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	float Speed{650.f};
+	
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	bool bHasShield{false};
 	
 	FTimerHandle TimerHandle;
 	FTimerHandle DefaultValueTimerHandle;
-	float RawTime {0.f};
 	
-	float DefaultSpeed {Speed};
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	float LevelTime {0.f};
 
 	UFUNCTION()
 	void UpdateTimer();
@@ -91,13 +88,14 @@ public:
 	void ChangeTimedStat(EStatModifier Stat, float Amount, float Time);
 	
 	float GetStat(EStatModifier Stat);
-	void StartRawTimer();
+	void StartLevelTimer();
+	void StopLevelTimer();
+	float GetLevelTime();
 	FPlayerTime GetPlayerTime();
+	void ResetStats();
 	
 	FORCEINLINE bool IsAlive() { return Health > 0; }
-	FORCEINLINE void SetPlayerName(FString Name) { PlayerName = Name; }
-	FORCEINLINE FString GetPlayerName() {return PlayerName; }
-	FORCEINLINE float GetPlayerRawTime() {return RawTime; }
+	FORCEINLINE float GetPlayerRawTime() {return LevelTime; }
 	FORCEINLINE bool HasShield() { return bHasShield; }
 	FORCEINLINE void ActivateShield() {bHasShield = true;}
 	FORCEINLINE void DeactivateShield() {bHasShield = false; }

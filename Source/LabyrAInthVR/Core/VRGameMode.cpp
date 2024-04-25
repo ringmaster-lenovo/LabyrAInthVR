@@ -246,7 +246,7 @@ void AVRGameMode::StartGame()
 		CloseGame();
 	}
 	WidgetController->OnPauseEvent.AddUObject(this, &AVRGameMode::PauseGame);
-	BasePlayerController->OnPLayerDeath.AddUObject(this, &AVRGameMode::EndGame, false);
+	BasePlayerController->OnPlayerDeath.AddUObject(this, &AVRGameMode::EndGame, false);
 	BasePlayerController->OnCollisionWithEndPortal.AddUObject(this, &AVRGameMode::EndGame, true);
 }
 
@@ -297,7 +297,7 @@ void AVRGameMode::EndGame(bool bIsWin)
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
 
 	// unbind all events
-	BasePlayerController->OnPLayerDeath.RemoveAll(this);
+	BasePlayerController->OnPlayerDeath.RemoveAll(this);
 	BasePlayerController->OnCollisionWithEndPortal.RemoveAll(this);
 	WidgetController->OnPauseEvent.RemoveAll(this);
 	WidgetController->OnResumeGameEvent.RemoveAll(this);
@@ -323,9 +323,6 @@ void AVRGameMode::EndGame(bool bIsWin)
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has won the game"));
 		MusicController->StartFinalResultMusic(true);
-		int32 TimeOnLevel = BasePlayerController->GetPlayerTimeOnCurrentLevel();
-		FString PlayerName = BasePlayerController->GetPlayerName();
-		UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("%s finished the game in %d seconds"), *PlayerName, TimeOnLevel);
 		WidgetController->ShowWinScreen();
 		// NetworkController->FinishGame(fill the DTOs);
 	}

@@ -165,8 +165,8 @@ void AMain3DCharacter::Sprint(const FInputActionValue& Value, bool bSprint)
 	UE_LOG(LogTemp, Warning, TEXT("Sprint: %d"), bSprint)
 }
 
-void AMain3DCharacter::PickupWeapon()
+/*void AMain3DCharacter::PickupWeapon()
 {
 	Super::PickupWeapon();
-}
+}*/
 

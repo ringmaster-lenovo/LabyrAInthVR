@@ -1,5 +1,6 @@
 #include "PlayerStatistics.h"
 
+#include "BasePlayerController.h"
 #include "MainCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -13,7 +14,7 @@ UPlayerStatistics::UPlayerStatistics()
 void UPlayerStatistics::BeginPlay()
 {
 	Super::BeginPlay();
-	if(!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
+	if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
 	DefaultSpeed = MainCharacter->GetCharacterMovement()->MaxWalkSpeed;
 }
 
@@ -31,13 +32,16 @@ void UPlayerStatistics::ChangeStatFloat(EStatModifier Stat, float Amount)
 		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Changing untimed Health from %f to %f"),
 		       *GetName(), Health, Health + Amount)
 		Health += Amount;
-		if (Health <= 0.f) OnPlayerDied.Broadcast();
+		if (Health <= 0.f)
+		{
+			ABasePlayerController* PlayerController = Cast<ABasePlayerController>(MainCharacter->GetController());
+			
+			if (PlayerController)
+				PlayerController->PlayerHasDied();
+			else
+				UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("PlayerController not found"));
+		}
 		break;
-	/*case Esm_Speed:
-		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Changing untimed Speed from %f to %f"),
-		       *GetName(), Speed, Speed + Amount)
-		Speed += Amount;
-		break;*/
 	default: ;
 	}
 }
@@ -48,17 +52,18 @@ void UPlayerStatistics::ChangeStatBool(EStatModifier Stat, bool bEnable)
 	{
 	case Esm_Armor:
 		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Changing untimed Armor from %s to %s"),
-			   *GetName(), bHasShield ? *FString("True") : *FString("False"), bEnable ?  *FString("True") : *FString("False"))
+		       *GetName(), bHasShield ? *FString("True") : *FString("False"),
+		       bEnable ? *FString("True") : *FString("False"))
 		bHasShield = bEnable;
 		break;
-		default: ;
+	default: ;
 	}
 }
 
 void UPlayerStatistics::ChangeTimedStat(EStatModifier Stat, float Amount, float Time)
 {
 	FTimerDelegate Delegate;
-	
+
 	switch (Stat)
 	{
 	case Esm_Speed:
@@ -86,7 +91,7 @@ float UPlayerStatistics::GetStat(EStatModifier Stat)
 	}
 }
 
-void UPlayerStatistics::StartRawTimer()
+void UPlayerStatistics::StartLevelTimer()
 {
 	const float TimerInterval = 1.0f;
 
@@ -95,22 +100,42 @@ void UPlayerStatistics::StartRawTimer()
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ThisClass::UpdateTimer, TimerInterval, true);
 }
 
+void UPlayerStatistics::StopLevelTimer()
+{
+	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+	LevelTime = 0.f;
+}
+
+float UPlayerStatistics::GetLevelTime()
+{
+	return LevelTime;
+}
+
 FPlayerTime UPlayerStatistics::GetPlayerTime()
 {
-	if (RawTime <= 0.f) return FPlayerTime{0, 0, 0};
+	if (LevelTime <= 0.f) return FPlayerTime{0, 0, 0};
 
-	int Minutes = RawTime / 60.f;
+	int Minutes = LevelTime / 60.f;
 	int Hours = Minutes / 60.f;
 
 	Minutes -= Hours * 60.f;
-	int Seconds = RawTime - Minutes * 60.f;
+	int Seconds = LevelTime - Minutes * 60.f;
 
 	return FPlayerTime{Seconds, Minutes, Hours};
 }
 
+void UPlayerStatistics::ResetStats()
+{
+	Health = DefaultHealth;
+	Speed = DefaultSpeed;
+	bHasShield = false;
+	LevelTime = 0.f;
+	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+}
+
 void UPlayerStatistics::UpdateTimer()
 {
-	RawTime++;
+	LevelTime++;
 }
 
 void UPlayerStatistics::ResetToDefaultValue(EStatModifier Stat)
@@ -131,7 +156,7 @@ void UPlayerStatistics::ResetToDefaultValue(EStatModifier Stat)
 
 void UPlayerStatistics::UpdateSpeed(float NewSpeed)
 {
-	if(!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
+	if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
 
 	MainCharacter->GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
