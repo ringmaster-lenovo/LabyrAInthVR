@@ -86,11 +86,15 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ChangeTimedStat(EStatModifier Stat, float Amount, float Time);
+
+	template<typename T>
+	T GetStat(EStatModifier Stat);
 	
-	float GetStat(EStatModifier Stat);
 	void StartLevelTimer();
 	void StopLevelTimer();
 	float GetLevelTime();
+	float GetDefaultHealth();
+	float GetCurrentWeaponDamage();
 	FPlayerTime GetPlayerTime();
 	void ResetStats();
 	
@@ -100,3 +104,18 @@ public:
 	FORCEINLINE void ActivateShield() {bHasShield = true;}
 	FORCEINLINE void DeactivateShield() {bHasShield = false; }
 };
+
+template <typename T>
+T UPlayerStatistics::GetStat(EStatModifier Stat)
+{
+	switch(Stat) {
+	case Esm_Health:
+		return Health;
+	case Esm_Speed:
+		return Speed;
+	case Esm_Armor:
+		return bHasShield;
+	}
+
+	return false;
+}

@@ -55,4 +55,7 @@ private:
 
 	UPROPERTY()
 	ABasePickup* Pickup;
+
+public:
+	FORCEINLINE float GetDamage() {return Damage; }
 };

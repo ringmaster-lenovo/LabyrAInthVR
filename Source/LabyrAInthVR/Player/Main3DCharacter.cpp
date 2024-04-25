@@ -30,6 +30,12 @@ AMain3DCharacter::AMain3DCharacter()
 	Flashlight->SetupAttachment(FirstPersonCamera);
 }
 
+void AMain3DCharacter::ResetWeapon()
+{
+	Super::ResetWeapon();
+	bHasWeapon = false;
+}
+
 void AMain3DCharacter::BeginPlay()
 {
 	Super::BeginPlay();

@@ -17,7 +17,7 @@ class LABYRAINTHVR_API AMain3DCharacter : public AMainCharacter
 
 public:
 	AMain3DCharacter();
-
+	virtual void ResetWeapon() override;
 protected:
 	virtual void BeginPlay() override;
 

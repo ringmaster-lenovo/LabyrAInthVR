@@ -78,19 +78,6 @@ void UPlayerStatistics::ChangeTimedStat(EStatModifier Stat, float Amount, float 
 	}
 }
 
-float UPlayerStatistics::GetStat(EStatModifier Stat)
-{
-	switch (Stat)
-	{
-	case Esm_Health:
-		return Health;
-	case Esm_Speed:
-		return Speed;
-	default:
-		return 0.f;
-	}
-}
-
 void UPlayerStatistics::StartLevelTimer()
 {
 	const float TimerInterval = 1.0f;
@@ -109,6 +96,18 @@ void UPlayerStatistics::StopLevelTimer()
 float UPlayerStatistics::GetLevelTime()
 {
 	return LevelTime;
+}
+
+float UPlayerStatistics::GetDefaultHealth()
+{
+	return DefaultHealth;
+}
+
+float UPlayerStatistics::GetCurrentWeaponDamage()
+{
+	if(!IsValid(MainCharacter)) return 0.f;
+
+	return MainCharacter->GetWeaponDamage();
 }
 
 FPlayerTime UPlayerStatistics::GetPlayerTime()
@@ -130,6 +129,7 @@ void UPlayerStatistics::ResetStats()
 	Speed = DefaultSpeed;
 	bHasShield = false;
 	LevelTime = 0.f;
+	MainCharacter->ResetWeapon();
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 }
 

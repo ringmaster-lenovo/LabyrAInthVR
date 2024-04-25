@@ -38,7 +38,7 @@ public:
 	class UProgressBar* health;
 
 	UFUNCTION(BlueprintCallable)
-	void SetStatisticsValues(int SpeedValue, int ArmorValue, int DamageValue, float healthPercentage);
+	void SetStatisticsValues(int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage);
 
 	int32 time = 0;
 
@@ -51,6 +51,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StopTimer();
 
+	UPROPERTY()
+	AMainCharacter* MainCharacter;
 private:
     FTimerHandle TimerHandle;
     int32 CurrentTimeInSeconds = 0;

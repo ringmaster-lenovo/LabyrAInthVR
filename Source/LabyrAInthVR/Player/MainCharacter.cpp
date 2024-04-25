@@ -33,6 +33,17 @@ void AMainCharacter::PostInitializeComponents()
 	PlayerStats->MainCharacter = this;
 }
 
+void AMainCharacter::ResetWeapon()
+{
+	
+}
+
+float AMainCharacter::GetWeaponDamage()
+{
+	if(!IsValid(EquippedWeapon)) return 0.f;
+	return EquippedWeapon->GetDamage();
+}
+
 bool AMainCharacter::IsAlive()
 {
 	if(!IsValid(PlayerStats)) return false;
