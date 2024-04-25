@@ -15,21 +15,12 @@ void UWinWidget::NativeConstruct()
 	//JUST FOR TESTING
 	SetTime(302);
 
-	if (NextLevelButton)
+	if (RankingsButton)
 	{
-		UButton* NextLevelButtonWidget = Cast<UButton>(NextLevelButton->GetWidgetFromName(TEXT("ButtonHit")));
-		if (NextLevelButtonWidget)
+		UButton* RankingsButtonWidget = Cast<UButton>(RankingsButton->GetWidgetFromName(TEXT("ButtonHit")));
+		if (RankingsButtonWidget)
 		{
-			NextLevelButtonWidget->OnClicked.AddDynamic(this, &UWinWidget::OnNextLevelClicked);
-		}
-	}
-
-	if (RestartButton)
-	{
-		UButton* RestartButtonWidget = Cast<UButton>(RestartButton->GetWidgetFromName(TEXT("ButtonHit")));
-		if (RestartButtonWidget)
-		{
-			RestartButtonWidget->OnClicked.AddDynamic(this, &UWinWidget::OnRestartClicked);
+			RankingsButtonWidget->OnClicked.AddDynamic(this, &UWinWidget::OnRankingsClicked);
 		}
 	}
 
@@ -60,12 +51,7 @@ void UWinWidget::SetTime(int32 time)
 	TimeText->SetText(TimeFormat);
 }
 
-void UWinWidget::OnRestartClicked()
-{
-	
-}
-
-void UWinWidget::OnNextLevelClicked()
+void UWinWidget::OnRankingsClicked()
 {
 	
 }
