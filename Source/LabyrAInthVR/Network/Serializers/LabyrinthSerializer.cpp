@@ -40,6 +40,13 @@ bool LabyrinthSerializer::DeSerializeLabyrinth(FString LabyrinthString, ULabyrin
 		return false;
 	}
 
+	// Get the complexity field from the Json object
+	if (!OutLabyrinth->TryGetNumberField(TEXT("complexity"), LabyrinthDTO->Complexity))
+	{
+		UE_LOG(LabyrAInthVR_LabyrinthSerializer_Log, Error, TEXT("Error during Complexity Deserialization: 'complexity' field not found or not a string."));
+		return false;
+	}
+
 	// Get the labyrinthStructure field from the Json object
 	const TArray<TSharedPtr<FJsonValue>>* LabyrinthStructureArray;
 	if (!OutLabyrinth->TryGetArrayField(TEXT("labyrinthStructure"), LabyrinthStructureArray))

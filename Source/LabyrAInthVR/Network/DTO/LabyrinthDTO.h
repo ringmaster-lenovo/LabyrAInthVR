@@ -14,6 +14,7 @@ public:
 	uint8 Level;
 	
 	std::vector<std::vector<uint8>> LabyrinthStructure;
+	uint8 Complexity;
 
 	uint8 Width;
 	uint8 Height;
