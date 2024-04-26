@@ -24,17 +24,13 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-    
-    void ReleasePickupObject();
+
 private:
 	UPROPERTY(EditAnywhere, Category=Mesh)
 	USkeletalMeshComponent* FirstPersonMesh;
 
 	UPROPERTY(EditAnywhere, Category=Gameplay)
 	UCameraComponent* FirstPersonCamera;
-
-	UPROPERTY(EditAnywhere, Category=Gameplay)
-	USpotLightComponent* Flashlight;
 
 	UPROPERTY(EditAnywhere, Category=Input)
 	UInputAction* MoveInputAction;
@@ -46,30 +42,16 @@ private:
 	UInputAction* JumpInputAction;
 
 	UPROPERTY(EditAnywhere, Category=Input)
-	UInputAction* FlashlightInputAction;
-
-	UPROPERTY(EditAnywhere, Category=Input)
 	UInputAction* PickupInputAction;
 
 	UPROPERTY(EditAnywhere, Category=Input)
 	UInputAction* ReleasePickupInputAction;
 	
-	UPROPERTY(EditAnywhere, Category=Input)
-	UInputAction* ShootInputAction;
-
-	UPROPERTY(EditAnywhere, Category=Input)
-	UInputAction* SprintInputAction;
-
-	bool bHasWeapon;
-	
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void ToggleFlashlight(const FInputActionValue& Value);
 	void PickupObject(const FInputActionValue& Value);
-	void Shoot(const FInputActionValue& Value);
-	void Sprint(const FInputActionValue& Value, bool bSprint);
 
-	/*virtual void PickupWeapon() override;*/
+	//virtual void PickupWeapon(const FInputActionValue& Value) override;
 public:
 	FORCEINLINE bool GetHasWeapon() {return bHasWeapon; }
 };

@@ -124,6 +124,8 @@ void AMeleeEnemy::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
 	if (bShouldDamage || OtherActor == this || !OtherActor->Implements<UDamageableActor>()) return;
 
 	UGameplayStatics::ApplyDamage(OtherActor, MeleeAttackDamage, GetController(), this, UDamageType::StaticClass());
+	SetWeaponCollision(false, true);
+	SetWeaponCollision(false, false);
 }
 
 void AMeleeEnemy::Attack()

@@ -1,12 +1,17 @@
 #include "MainCharacter.h"
+
+#include "EnhancedInputComponent.h"
 #include "PlayerStatistics.h"
+#include "Components/SpotLightComponent.h"
 
-
-#include "BasePlayerController.h"
-#include "PlayerStatsSubSystem.h"
 #include "Engine/World.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Delegates/DelegateSignatureImpl.inl"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Pickups/BasePickup.h"
+#include "Particles/ParticleSystem.h"
+#include "Sound/SoundCue.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Character_Log);
 
@@ -16,6 +21,10 @@ AMainCharacter::AMainCharacter()
  	// Set this character to call Tick() every frame. You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	PlayerStats = CreateDefaultSubobject<UPlayerStatistics>(TEXT("PlayerStatistics"));
+	
+	Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
+	Flashlight->SetAttenuationRadius(500000.f);
+	Flashlight->SetOuterConeAngle(25.f);
 }
 
 // Called when the game starts or when spawned
@@ -31,6 +40,11 @@ void AMainCharacter::PostInitializeComponents()
 	if(!IsValid(PlayerStats)) return;
 
 	PlayerStats->MainCharacter = this;
+}
+
+void AMainCharacter::Tick(float const DeltaTime)
+{
+	Super::Tick(DeltaTime);
 }
 
 void AMainCharacter::ResetWeapon()
@@ -51,14 +65,72 @@ bool AMainCharacter::IsAlive()
 	return PlayerStats->IsAlive();
 }
 
-void AMainCharacter::Tick(float const DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
+	if(UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(FlashlightInputAction, ETriggerEvent::Triggered, this, &ThisClass::ToggleFlashlight);
+		
+		EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Started, this, &ThisClass::Sprint, true);
+		EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Canceled, this, &ThisClass::Sprint, false);
+		EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Completed, this, &ThisClass::Sprint, false);
+		
+		EnhancedInputComponent->BindAction(ShootInputAction, ETriggerEvent::Triggered, this, &ThisClass::Shoot);
+	}
+}
+
+void AMainCharacter::ReleasePickupObject()
+{
+	if(!IsValid(EquippedWeapon) || !IsValid(EquippedWeapon->GetPickup())) return;
+
+	ABasePickup* AuxPickup = EquippedWeapon->GetPickup();
+	
+	EquippedWeapon->Destroy();
+	bHasWeapon = false;
+
+	if(!IsValid(AuxPickup)) return;
+	
+	AuxPickup->SetActorHiddenInGame(false);
+	AuxPickup->SetActorEnableCollision(true);
+	AuxPickup->SetActorLocation(GetActorLocation() + (GetActorForwardVector() * 100.f));
+}
+
+void AMainCharacter::Sprint(const FInputActionValue& Value, bool bSprint)
+{
+	if(!IsValid(PlayerStats)) return;
+
+	PlayerStats->Sprint(bSprint);
+}
+
+void AMainCharacter::Shoot(const FInputActionValue& Value)
+{
+	if(!IsValid(EquippedWeapon) || !IsValid(EquippedWeapon->GetMuzzleEffect())) return;
+	
+	USkeletalMeshComponent* WeaponMesh = EquippedWeapon->FindComponentByClass<USkeletalMeshComponent>();
+	
+	if(!IsValid(WeaponMesh)) return;
+
+	FVector Start = WeaponMesh->GetSocketTransform(FName("Muzzle_Front")).GetLocation();
+	
+	FVector End = Start + (EquippedWeapon->GetActorForwardVector() * 50000.f);
+	
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Instigator = this;
+	SpawnParameters.Owner = this;
+	if(IsValid(EquippedWeapon->GetAnimation())) WeaponMesh->PlayAnimation(EquippedWeapon->GetAnimation(), false);
+	UGameplayStatics::SpawnEmitterAttached(EquippedWeapon->GetMuzzleEffect(), WeaponMesh, FName("Muzzle_Front"));
+	AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(EquippedWeapon->GetProjectileTemplate(), Start, End.Rotation(), SpawnParameters);
+	if(!IsValid(SpawnedProjectile)) return;
+	SpawnedProjectile->SetDamage(50.f);
+}
+
+void AMainCharacter::ToggleFlashlight(const FInputActionValue& Value)
+{
+	if(!IsValid(Flashlight)) return;
+
+	Flashlight->SetVisibility(!Flashlight->GetVisibleFlag());
 }
 
 UPlayerStatistics* AMainCharacter::GetPlayerStatistics()

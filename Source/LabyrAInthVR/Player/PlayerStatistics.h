@@ -54,12 +54,8 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	float Health{100.f};
-		
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	float DefaultSpeed{650.f};
 	
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	float Speed{650.f};
+	float CurrentSpeed;
 	
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool bHasShield{false};
@@ -77,6 +73,39 @@ private:
 	void ResetToDefaultValue(EStatModifier Stat);
 
 	void UpdateSpeed(float NewSpeed);
+
+	UPROPERTY(EditAnywhere, Category="Sounds")
+	USoundCue* FootstepsWalk;
+
+	UPROPERTY(EditAnywhere, Category="Sounds")
+	USoundCue* FootstepsRun;
+
+	UPROPERTY(EditAnywhere, Category="Sounds")
+	float WalkSoundInterval{0.5f};
+	
+	UPROPERTY(EditAnywhere, Category="Sounds")
+	float RunSoundInterval{0.3f};
+	
+	UFUNCTION()
+	void PlayFootstepSound();
+
+	FTimerHandle FootstepsSoundWalkTimerHandle;
+	FTimerHandle FootstepsSoundRunTimerHandle;
+
+	UPROPERTY(EditAnywhere, Category="Speed")
+	float WalkSpeed{500.f};
+
+	UPROPERTY(EditAnywhere, Category="Speed")
+	float RunSpeed{1000.f};
+	
+	UPROPERTY(EditAnywhere, Category="Speed")
+	float RunModifier {500.f};
+
+	float InternalRunModifier;
+	
+	bool bIsRunning {false};
+
+	float SpeedModifier {0.f};
 public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeStatFloat(EStatModifier Stat, float Amount);
@@ -103,6 +132,8 @@ public:
 	FORCEINLINE bool HasShield() { return bHasShield; }
 	FORCEINLINE void ActivateShield() {bHasShield = true;}
 	FORCEINLINE void DeactivateShield() {bHasShield = false; }
+	void SetSpeedModifier(float NewSpeedModifier);
+	void Sprint(bool bSprint);
 };
 
 template <typename T>
@@ -112,7 +143,7 @@ T UPlayerStatistics::GetStat(EStatModifier Stat)
 	case Esm_Health:
 		return Health;
 	case Esm_Speed:
-		return Speed;
+		return CurrentSpeed;
 	case Esm_Armor:
 		return bHasShield;
 	}
