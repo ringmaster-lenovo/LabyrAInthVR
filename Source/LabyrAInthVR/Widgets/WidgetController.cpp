@@ -150,13 +150,14 @@ void AWidgetController::StartNewGameButtonClicked() const
 		OnWidgetSError.Broadcast();
 		return;
 	}
-	GetWorld()->GetGameState<AVRGameState>()->SetCurrentLevel(2);
+	GetWorld()->GetGameState<AVRGameState>()->SetCurrentLevel(0);
 	
 	OnPlayGameButtonClicked.Broadcast();
 }
 
 void AWidgetController::ReplayContinueButtonClicked() const
 {
+	
 	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Replay/Continue Button Clicked!"));
 	// TODO: should ask the Game State the list of levels and times of the player
 	// if the player has already played the game, there should be a list of levels and times

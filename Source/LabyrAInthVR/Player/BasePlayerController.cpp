@@ -49,7 +49,7 @@ void ABasePlayerController::ResetPlayerStats()
 	MainCharacter->ResetStats();
 }
 
-FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRotator& Rotation, const bool InGame) const
+FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRotator& Rotation, const bool InGame)
 {
 	if (MainCharacter->TeleportTo(Position, Rotation))
 	{
@@ -87,8 +87,9 @@ void ABasePlayerController::CollidedWithEndPortal() const
 	OnCollisionWithEndPortal.Broadcast();
 }
 
-void ABasePlayerController::PlayerHasDied() const
+void ABasePlayerController::PlayerHasDied()
 {
+	NumOfDeaths++;
 	OnPLayerDeath.Broadcast();
 }
 

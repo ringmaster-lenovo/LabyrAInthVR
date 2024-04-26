@@ -106,7 +106,7 @@ private:
 	void RestartGame();
 
 	UFUNCTION()
-	void RePrepareGame(bool bComeBackToLobby = true);
+	void RePrepareGame(bool bComeBackToLobby = true, bool bSaveGame = true);
 
 	UFUNCTION()
 	bool IsVRHMDConnected();

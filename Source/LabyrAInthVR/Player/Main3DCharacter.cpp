@@ -108,8 +108,9 @@ void AMain3DCharacter::PickupObject(const FInputActionValue& Value)
 	Socket->AttachActor(EquippedWeapon, FirstPersonMesh);
 	bHasWeapon = true;
 	EquippedWeapon->SetPickup(OverlappingPickup);
+	OverlappingPickup->SetHasBeenFound();
 	OverlappingPickup->SetActorHiddenInGame(true);
-	OverlappingPickup->SetActorEnableCollision(false);
+	OverlappingPickup->SetActorEnableCollision(false);  // BEWARE: after this line OverlappingPickup is not valid anymore
 
 	if(!IsValid(AuxPickup)) return;
 	

@@ -42,17 +42,24 @@ public:
 	void ResetPlayerStats();
 
 	UFUNCTION(Category = "GameLogic")
-	FString TeleportPlayer(const FVector& Position, const FRotator& Rotation, const bool InGame = true) const;
+	FString TeleportPlayer(const FVector& Position, const FRotator& Rotation, const bool InGame = true);
 
 	UFUNCTION(BlueprintCallable, Category = "GameLogic")
 	void CollidedWithEndPortal() const;
 
 	UFUNCTION(BlueprintCallable, Category = "GameLogic")
-	void PlayerHasDied() const;
+	void PlayerHasDied();
 
 	DECLARE_MULTICAST_DELEGATE(FOnCollisionWithEndPortal);
 	FOnCollisionWithEndPortal OnCollisionWithEndPortal;
 
 	DECLARE_MULTICAST_DELEGATE(FOnPlayerHasDied);
 	FOnPlayerHasDied OnPLayerDeath;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
+	int NumOfDeaths = 0;
+
+	int GetNumOfDeaths() const { return NumOfDeaths; }
+
+	void ResetNumOfDeaths() { NumOfDeaths = 0; }
 };

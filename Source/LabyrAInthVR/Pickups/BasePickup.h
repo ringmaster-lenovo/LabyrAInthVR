@@ -26,6 +26,12 @@ public:
 	FORCEINLINE void SetSpawnedWeapon(AWeapon* WeaponSpawned) { SpawnedWeapon = WeaponSpawned; }
 	FORCEINLINE bool IsWeaponSpawned() const { return SpawnedWeapon != nullptr; }
 	
+	UFUNCTION(BlueprintCallable)
+	bool HasBeenFound() const { return bHasBeenFound; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetHasBeenFound() { bHasBeenFound = true; }
+	
 private:
 	UFUNCTION()
 	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -47,4 +53,7 @@ private:
 
 	UPROPERTY()
 	AWeapon* SpawnedWeapon;
+	
+	UPROPERTY()
+	bool bHasBeenFound = false;
 };

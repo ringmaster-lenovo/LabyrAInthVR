@@ -34,6 +34,7 @@ public:
 	FORCEINLINE UAnimationAsset* GetAnimation() { return FireAnimation; }
 	FORCEINLINE void SetPickup(ABasePickup* BasePickup) { Pickup = BasePickup; }
 	FORCEINLINE ABasePickup* GetPickup() {return Pickup; }
+	
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	double Damage = 20;
