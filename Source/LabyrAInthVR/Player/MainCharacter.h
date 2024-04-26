@@ -44,6 +44,12 @@ public:
 	void StartLevelTimer();
 
 	UFUNCTION(BlueprintCallable)
+	void StopLevelTimer();
+
+	UFUNCTION(BlueprintCallable)
+	bool IsTimerActive() const;
+
+	UFUNCTION(BlueprintCallable)
 	void StopAllTimers();
 
 	UFUNCTION(BlueprintCallable)

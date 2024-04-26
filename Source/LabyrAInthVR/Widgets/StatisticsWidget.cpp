@@ -100,5 +100,12 @@ void UStatisticsWidget::StopTimer()
     if (!GetWorld()) return; // Ensure we have a valid world context
 
     GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
-    CurrentTimeInSeconds = 0; // Optionally reset the timer
+    // CurrentTimeInSeconds = 0; // Optionally reset the timer
+}
+
+bool UStatisticsWidget::IsTimerActive() const
+{
+    if (!GetWorld()) return false;
+
+    return GetWorld()->GetTimerManager().IsTimerActive(TimerHandle);
 }

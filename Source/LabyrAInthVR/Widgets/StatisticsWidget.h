@@ -51,6 +51,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StopTimer();
 
+	UFUNCTION(BlueprintCallable)
+	bool IsTimerActive() const;
+
 private:
     FTimerHandle TimerHandle;
     int32 CurrentTimeInSeconds = 0;

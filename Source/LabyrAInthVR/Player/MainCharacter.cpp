@@ -135,3 +135,17 @@ void AMainCharacter::UpdateSpeedTimer()
 		GetWorld()->GetTimerManager().ClearTimer(SpeedTimerHandle);
 	}
 }
+
+void AMainCharacter::StopLevelTimer()
+{
+	if (!GetWorld()) return;
+
+	GetWorld()->GetTimerManager().ClearTimer(TimerOnLevelHandle);
+}
+
+bool AMainCharacter::IsTimerActive() const
+{
+	if (!GetWorld()) return false;
+
+	return GetWorld()->GetTimerManager().IsTimerActive(TimerOnLevelHandle);
+}
