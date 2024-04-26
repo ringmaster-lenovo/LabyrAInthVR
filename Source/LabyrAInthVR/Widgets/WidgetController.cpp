@@ -83,6 +83,40 @@ void AWidgetController::ShowMainMenu()
 	}
 }
 
+void AWidgetController::ShowPromptingWidget()
+{
+	if (PromptingWidgetClass)
+	{
+		if (bIsInVR)
+		{
+			WidgetContainer->Widget->SetWidgetClass(PromptingWidgetClass);
+			PromptingWidget = Cast<UPromptingWidget>(WidgetContainer->Widget->GetUserWidgetObject());
+			if(!PromptingWidget)
+			{
+				FString ErrorString = "No LobbyWidget!";
+				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
+				OnWidgetSError.Broadcast();
+			}
+			PromptingWidget->WidgetController = this;
+		} else
+		{
+			RemoveAllWidgets(GetWorld());
+			
+			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+			PromptingWidget = CreateWidget<UPromptingWidget>(PlayerController, PromptingWidgetClass);
+			PromptingWidget->WidgetController = this;
+			// set the background color of the widget
+			// LobbyWidget->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.5f));
+			PromptingWidget->AddToViewport(0);
+		}
+	} else
+	{
+		FString ErrorString = "No LobbyWidgetClass set!";
+		UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
+		OnWidgetSError.Broadcast();
+	}
+}
+
 void AWidgetController::ShowLoadingScreen()
 {
 	if (bIsInVR)
@@ -215,6 +249,11 @@ void AWidgetController::SettingsButtonClicked()
 void AWidgetController::QuitButtonClicked()
 {
 	OnQuitGameButtonClicked.Broadcast();
+}
+
+void AWidgetController::SendButtonClicked()
+{
+	ShowMainMenu();
 }
 
 void AWidgetController::OnPauseGamePressed()

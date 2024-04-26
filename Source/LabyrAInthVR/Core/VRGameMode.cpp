@@ -154,7 +154,7 @@ void AVRGameMode::StartLobby()
 	WidgetController->OnNewGameButtonClicked.AddUObject(this, &AVRGameMode::NewGameButtonClicked);
 	WidgetController->OnQuitGameButtonClicked.AddUObject(this, &AVRGameMode::CloseGame);
 	
-	WidgetController->ShowMainMenu();
+	WidgetController->ShowPromptingWidget();
 	MusicController->StartAmbienceMusic(true);
 }
 
