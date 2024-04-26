@@ -7,6 +7,7 @@
 #include "LobbyWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Core/LabyrAInthVRGameInstance.h"
 #include "LabyrAInthVR/Core/VRGameMode.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Widget_Log);
@@ -179,9 +180,32 @@ void AWidgetController::ReplayContinueButtonClicked() const
 		OnWidgetSError.Broadcast();
 		return;
 	}
-	// GameState->SetCurrentLevel(IL LIVELLO CORRISPONDENTE AL BOTTONE CLICCATO);
-
-	// OnPlayGameButtonClicked.Broadcast();
+	// FString PlayerName = GameState->GetPlayerName();
+	FString PlayerName = "Player";
+	if (!GameState->IsLoggedIn())
+	{
+		TArray<int> Levels;
+		TArray<int> Times;
+		ULabyrAInthVRGameInstance::LoadGame(PlayerName, Levels, Times);
+		if (Levels.Num() > 0)
+		{
+			for (int i = 0; i < Levels.Num(); i++)
+			{
+				UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Player: %s, Level: %d, Time: %d"), *PlayerName, Levels[i], Times[i]);
+			}
+			// the player has already played the game
+			// the player can choose to replay the previous level already beaten
+			// or proceed to the next level
+			// GameState->SetCurrentLevel(IL LIVELLO CORRISPONDENTE AL BOTTONE CLICCATO);
+			// OnPlayGameButtonClicked.Broadcast();
+		}
+		else
+		{
+			// the player has not played the game, the click will be ignored
+			UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Player has not played the game yet!"));
+			return;
+		}
+	}
 
 	// MOCKUP ONLY FOR TESTING
 	NextLevelButtonClicked();

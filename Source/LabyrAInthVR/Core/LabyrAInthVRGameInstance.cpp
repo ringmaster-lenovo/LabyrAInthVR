@@ -15,6 +15,12 @@ void ULabyrAInthVRGameInstance::Shutdown()
 	Super::Shutdown();
 }
 
+/**
+ * Save the game state to Saved/SaveGames/GameSaves.csv
+ * @param PlayerName the name of the player
+ * @param Level the level the player has completed
+ * @param Time the time the player has completed the level
+ */
 void ULabyrAInthVRGameInstance::SaveGame(const FString& PlayerName, const int Level, const int Time)
 {
 	// Save the game state to GameSaves.csv in this format:
@@ -81,6 +87,20 @@ void ULabyrAInthVRGameInstance::SaveGame(const FString& PlayerName, const int Le
 	FFileHelper::SaveStringArrayToFile(Lines, *GameSavesPath);
 }
 
+/**
+ * Save the game statistics to Saved/SaveGames/GameSavesStats.csv
+ * @param PlayerName the name of the player
+ * @param Level the level the player has completed
+ * @param Rows the number of rows of the labyrinth
+ * @param Columns the number of columns of the labyrinth
+ * @param Complexity the intrinsic complexity of the labyrinth
+ * @param Time the time the player has completed the level
+ * @param Deaths the number of time the player died trying to complete the level
+ * @param EnemiesKilled the number of enemies killed
+ * @param TrapsExploded the number of traps exploded
+ * @param PowerUpsCollected the number of power-ups collected
+ * @param WeaponsFound the number of weapons found
+ */
 void ULabyrAInthVRGameInstance::SaveGameStats(const FString& PlayerName, const int Level, const int Rows, const int Columns,
 	const int Complexity, const int Time, const int Deaths, const int EnemiesKilled, const int TrapsExploded, const int PowerUpsCollected, const int WeaponsFound)
 {
@@ -165,3 +185,80 @@ void ULabyrAInthVRGameInstance::SaveGameStats(const FString& PlayerName, const i
 
 	FFileHelper::SaveStringArrayToFile(Lines, *GameSavesPath);
 }
+
+/**
+ * Load the game state from GameSaves.csv
+ * @param PlayerName The name of the player
+ * @param Levels The levels the player has played
+ * @param Times The times the player has completed the levels
+ */
+void ULabyrAInthVRGameInstance::LoadGame(const FString& PlayerName, TArray<int>& Levels, TArray<int>& Times)
+{
+	// Open the file
+	const FString GameSavesPath = FPaths::ProjectSavedDir() + TEXT("SaveGames/GameSaves.csv");
+	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+	if (!PlatformFile.FileExists(*GameSavesPath))
+	{
+		// there are no saved games
+		return;
+	}
+	// Search for the PlayerName in the file, if it exists, load its data
+	FString FileData;
+	FFileHelper::LoadFileToString(FileData, *GameSavesPath);
+	TArray<FString> Lines;
+	FileData.ParseIntoArrayLines(Lines);
+	for (int32 i = 0; i < Lines.Num(); i++)
+	{
+		FString Line = Lines[i];
+		UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Line: %s"), *Line);
+		TArray<FString> Tokens;
+		Line.ParseIntoArray(Tokens, TEXT(", "));  // Split the line by ", " as per the csv format
+		if (Tokens[0] == PlayerName)
+		{
+			for (int TokenIndex = 1; TokenIndex < Tokens.Num(); TokenIndex += 2)
+			{
+				Levels.Add(FCString::Atoi(*Tokens[TokenIndex]));
+				Times.Add(FCString::Atoi(*Tokens[TokenIndex + 1]));
+			}
+			break;
+		}
+	}
+}
+
+/**
+ * Utility function to convert the saves from csv to an Excel file
+ */
+/*
+void ULabyrAInthVRGameInstance::ConvertSavesFromCsvToXlsx()
+{
+	// Open the file
+	const FString GameSavesPath = FPaths::ProjectSavedDir() + TEXT("SaveGames/GameSaves.csv");
+	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+	if (!PlatformFile.FileExists(*GameSavesPath))
+	{
+		// there are no saved games
+		return;
+	}
+	// Search for the PlayerName in the file, if it exists, load its data
+	FString FileData;
+	FFileHelper::LoadFileToString(FileData, *GameSavesPath);
+	TArray<FString> Lines;
+	FileData.ParseIntoArrayLines(Lines);
+	FString XlsxData = TEXT("PlayerName, Level0, Level1, Level2, Level3\n");
+	for (int32 i = 0; i < Lines.Num(); i++)
+	{
+		FString Line = Lines[i];
+		UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Line: %s"), *Line);
+		TArray<FString> Tokens;
+		Line.ParseIntoArray(Tokens, TEXT(", "));  // Split the line by ", " as per the csv format
+		XlsxData += Tokens[0] + TEXT(", ");
+		for (int TokenIndex = 1; TokenIndex < Tokens.Num(); TokenIndex += 2)
+		{
+			XlsxData += Tokens[TokenIndex] + TEXT(", ") + Tokens[TokenIndex + 1] + TEXT(", ");
+		}
+		XlsxData += TEXT("\n");
+	}
+	const FString XlsxPath = FPaths::ProjectSavedDir() + TEXT("SaveGames/GameSaves.xlsx");
+	FFileHelper::SaveStringToFile(XlsxData, *XlsxPath);
+}
+*/
