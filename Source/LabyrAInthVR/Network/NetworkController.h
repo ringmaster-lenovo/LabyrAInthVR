@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "DTO/FinishGameRequestDTO.h"
 #include "DTO/FinishGameResponseDTO.h"
+#include "DTO/LabyrinthRequestDTO.h"
 #include "GameFramework/GameNetworkManager.h"
 #include "Interfaces/IHttpRequest.h"
 #include "NetworkController.generated.h"
@@ -23,7 +24,7 @@ public:
 	ANetworkController();
 
 	UFUNCTION(Category = "Network")
-	void GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO);
+	void GetLabyrinthFromBE(ULabyrinthRequestDTO* LabyrinthRequestDTO, ULabyrinthDTO* LabyrinthDTO);
 
 	UFUNCTION(Category = "Network")
 	void FinishGame(UFinishGameRequestDTO* FinishGameRequestDTO, UFinishGameResponseDTO* FinishGameResponseDTO);

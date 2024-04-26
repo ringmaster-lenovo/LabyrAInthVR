@@ -157,7 +157,9 @@ void AVRGameMode::OnNewGameButtonClicked()
 	WidgetController->ShowLoadingScreen();
 	NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
 	NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
-	NetworkController->GetLabyrinthFromBE(LabyrinthDTO);
+	ULabyrinthRequestDTO* LabyrinthRequestDTO = NewObject<ULabyrinthRequestDTO>();
+	LabyrinthRequestDTO->Level = 3;
+	NetworkController->GetLabyrinthFromBE(LabyrinthRequestDTO, LabyrinthDTO);
 }
 
 void AVRGameMode::MockNetwork()
