@@ -16,6 +16,15 @@ void UWinWidget::NativeConstruct()
 	//JUST FOR TESTING
 	// SetTime(302);
 
+	if (NextLevelButton)
+	{
+		UButton* NextLevelButtonWidget = Cast<UButton>(NextLevelButton->GetWidgetFromName(TEXT("ButtonHit")));
+		if (NextLevelButtonWidget)
+		{
+			NextLevelButtonWidget->OnClicked.AddDynamic(this, &UWinWidget::OnNextLevelClicked);
+		}
+	}
+
 	if (RankingsButton)
 	{
 		UButton* RankingsButtonWidget = Cast<UButton>(RankingsButton->GetWidgetFromName(TEXT("ButtonHit")));
