@@ -50,28 +50,21 @@ private:
 	AMainCharacter* MainCharacter;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	float MaxHealth{100.f};
+	float DefaultHealth{100.f};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	float Health{100.f};
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	float Speed{650.f};
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	bool bHasShield{true};
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	FString PlayerName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	FPlayerTime PlayerTime;
+	float CurrentSpeed;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	bool bHasShield{false};
 	
 	FTimerHandle TimerHandle;
 	FTimerHandle DefaultValueTimerHandle;
-	float RawTime {0.f};
 	
-	float DefaultSpeed {Speed};
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	float LevelTime {0.f};
 
 	UFUNCTION()
 	void UpdateTimer();
@@ -80,6 +73,39 @@ private:
 	void ResetToDefaultValue(EStatModifier Stat);
 
 	void UpdateSpeed(float NewSpeed);
+
+	UPROPERTY(EditAnywhere, Category="Sounds")
+	USoundCue* FootstepsWalk;
+
+	UPROPERTY(EditAnywhere, Category="Sounds")
+	USoundCue* FootstepsRun;
+
+	UPROPERTY(EditAnywhere, Category="Sounds")
+	float WalkSoundInterval{0.5f};
+	
+	UPROPERTY(EditAnywhere, Category="Sounds")
+	float RunSoundInterval{0.3f};
+	
+	UFUNCTION()
+	void PlayFootstepSound();
+
+	FTimerHandle FootstepsSoundWalkTimerHandle;
+	FTimerHandle FootstepsSoundRunTimerHandle;
+
+	UPROPERTY(EditAnywhere, Category="Speed")
+	float WalkSpeed{500.f};
+
+	UPROPERTY(EditAnywhere, Category="Speed")
+	float RunSpeed{1000.f};
+	
+	UPROPERTY(EditAnywhere, Category="Speed")
+	float RunModifier {500.f};
+
+	float InternalRunModifier;
+	
+	bool bIsRunning {false};
+
+	float SpeedModifier {0.f};
 public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeStatFloat(EStatModifier Stat, float Amount);
@@ -89,16 +115,38 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ChangeTimedStat(EStatModifier Stat, float Amount, float Time);
+
+	template<typename T>
+	T GetStat(EStatModifier Stat);
 	
-	float GetStat(EStatModifier Stat);
-	void StartRawTimer();
+	void StartLevelTimer();
+	void StopLevelTimer();
+	float GetLevelTime();
+	float GetDefaultHealth();
+	float GetCurrentWeaponDamage();
 	FPlayerTime GetPlayerTime();
+	void ResetStats();
 	
 	FORCEINLINE bool IsAlive() { return Health > 0; }
-	FORCEINLINE void SetPlayerName(FString Name) { PlayerName = Name; }
-	FORCEINLINE FString GetPlayerName() {return PlayerName; }
-	FORCEINLINE float GetPlayerRawTime() {return RawTime; }
+	FORCEINLINE float GetPlayerRawTime() {return LevelTime; }
 	FORCEINLINE bool HasShield() { return bHasShield; }
 	FORCEINLINE void ActivateShield() {bHasShield = true;}
 	FORCEINLINE void DeactivateShield() {bHasShield = false; }
+	void SetSpeedModifier(float NewSpeedModifier);
+	void Sprint(bool bSprint);
 };
+
+template <typename T>
+T UPlayerStatistics::GetStat(EStatModifier Stat)
+{
+	switch(Stat) {
+	case Esm_Health:
+		return Health;
+	case Esm_Speed:
+		return CurrentSpeed;
+	case Esm_Armor:
+		return bHasShield;
+	}
+
+	return false;
+}

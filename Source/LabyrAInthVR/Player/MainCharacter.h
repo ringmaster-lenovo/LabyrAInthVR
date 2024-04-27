@@ -3,12 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "LabyrAInthVR/Interagibles/Weapon.h"
 #include "LabyrAInthVR/Interfaces/DamageableActor.h"
 #include "MainCharacter.generated.h"
 
+class UInputAction;
+class USpotLightComponent;
+class UPlayerStatistics;
 class ABasePickup;
+DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Character_Log, Display, All);
 
 UCLASS()
 class LABYRAINTHVR_API AMainCharacter : public ACharacter, public IDamageableActor
@@ -16,105 +21,58 @@ class LABYRAINTHVR_API AMainCharacter : public ACharacter, public IDamageableAct
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	AMainCharacter();
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UFUNCTION(BlueprintCallable)
-	bool IsAlive() const { return Life > 0; }
-
-	FORCEINLINE void ActivateShield() { Shield = true; }
-	FORCEINLINE void DectivateShield() { Shield = false; }
-	FORCEINLINE void SetOverlappedPickup(ABasePickup* Pickup) {OverlappingPickup = Pickup; }
-
+	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
+	virtual void ResetWeapon();
+	float GetWeaponDamage();
+	bool IsAlive();
+	
 	UFUNCTION()
-	virtual void ReceiveDamage(float Damage, AActor* DamageCauser);
+	virtual void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+							   AController* InstigatedBy, AActor* DamageCauser);
 
 	UFUNCTION(BlueprintCallable)
-	void StartLevelTimer();
-
-	UFUNCTION(BlueprintCallable)
-	void StopAllTimers();
-
-	UFUNCTION(BlueprintCallable)
-	void SetPlayerName(const FString& Name) { PlayerName = Name; }
-
-	UFUNCTION(BlueprintCallable)
-	void ChangeSpeed(double SpeedIncrement, int32 Timer);
-
-	UFUNCTION(BlueprintCallable)
-	bool IsShieldActive() const { return Shield; }
-
-	UFUNCTION(BlueprintCallable)
-	int32 GetTimeOnCurrentLevel() const { return TimeOnCurrentLevel; }
-
-	UFUNCTION(BlueprintCallable)
-	FString GetPlayerName() const { return PlayerName; }
-
-	UFUNCTION(BlueprintCallable)
-	void ResetStats();
-	
+	UPlayerStatistics* GetPlayerStatistics();
 protected:
-	
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
-	// AWeapon* Weapon;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<AWeapon> WeaponClass;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
-	int CurrentHours = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
-	int CurrentMinutes = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
-	int CurrentSeconds = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FString PlayerName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
-	double BaseSpeed = 400;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
-	double RunningSpeed = 600;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
-	bool Shield = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
-	double Life = 100;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "true"))
-	int32 TimeOnCurrentLevel = 0;
-
-	int32 SpeedTimer = 0;
-
-	int32 SpeedTimerGoesOff = 0;
-
-	FTimerHandle TimerOnLevelHandle;
-
-	FTimerHandle SpeedTimerHandle;
-
-	UFUNCTION(BlueprintCallable)
-	void UpdateTimeOnCurrentLevel();
-
-	void UpdateSpeedTimer();
 	
 	UPROPERTY()
 	ABasePickup* OverlappingPickup;
 	
 	UPROPERTY()
 	AWeapon* EquippedWeapon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	UPlayerStatistics* PlayerStats;
+
+	UPROPERTY(EditAnywhere, Category=Gameplay)
+	USpotLightComponent* Flashlight;
+	
+	UPROPERTY(EditAnywhere, Category=Input)
+	UInputAction* FlashlightInputAction;
+	
+	UPROPERTY(EditAnywhere, Category=Input)
+	UInputAction* SprintInputAction;
+	
+	UPROPERTY(EditAnywhere, Category=Input)
+	UInputAction* ShootInputAction;
+	
+	void ToggleFlashlight(const FInputActionValue& Value);
+	void Sprint(const FInputActionValue& Value, bool bSprint);
+	void Shoot(const FInputActionValue& Value);
+	void ReleasePickupObject();
+
+	bool bHasWeapon;
+	
+	/*UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	virtual void PickupWeapon();*/
+public:
+	FORCEINLINE void SetOverlappedPickup(ABasePickup* Pickup) {OverlappingPickup = Pickup; }
 };

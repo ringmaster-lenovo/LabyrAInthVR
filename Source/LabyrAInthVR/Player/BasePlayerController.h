@@ -34,12 +34,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	AMainCharacter* GetControlledCharacter() const;
-	
-	UFUNCTION(BlueprintCallable, Category = "Player")
-	FString GetPlayerName() const;
-	
-	UFUNCTION(BlueprintCallable, Category = "Player")
-	void SetPlayerName(const FString& Name);
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	int32 GetPlayerTimeOnCurrentLevel() const;
@@ -60,5 +54,5 @@ public:
 	FOnCollisionWithEndPortal OnCollisionWithEndPortal;
 
 	DECLARE_MULTICAST_DELEGATE(FOnPlayerHasDied);
-	FOnPlayerHasDied OnPLayerDeath;
+	FOnPlayerHasDied OnPlayerDeath;
 };

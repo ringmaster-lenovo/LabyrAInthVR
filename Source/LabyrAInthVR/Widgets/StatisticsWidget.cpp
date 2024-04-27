@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Player/PlayerStatistics.h"
 #include "LabyrAInthVR/Player/VRMainCharacter.h"
 
 void UStatisticsWidget::NativeConstruct()
@@ -20,46 +21,43 @@ void UStatisticsWidget::NativeConstruct()
 void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
     Super::NativeTick(MyGeometry, InDeltaTime);
-
-    UWorld* World = GetWorld();
-    if (!World) { return; }
-    UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
-    UPlayerStatsSubSystem* PlayerStatisticsSubsystem = GameInstance->GetSubsystem<UPlayerStatsSubSystem>();
-    bool found = true;
-    float healthValue;
-    float armorValue;
-    float speedValue;
-    PlayerStatisticsSubsystem->GetStatNumberValue(FName("Health"), found, healthValue);
-    PlayerStatisticsSubsystem->GetStatNumberValue(FName("Shield"), found, armorValue);
-    PlayerStatisticsSubsystem->GetStatNumberValue(FName("Speed"), found, speedValue);
-    //TODO: ADD DAMAGE NOT MOCKED
-
-    SetStatisticsValues(speedValue, armorValue, 20, healthValue/100);
+    MainCharacter = (!IsValid(MainCharacter)) ? Cast<AMainCharacter>(GetOwningPlayerPawn()) : MainCharacter;
+    
+    if(!IsValid(MainCharacter) || !IsValid(MainCharacter->GetPlayerStatistics()))
+    {
+        UE_LOG(LogTemp, Error, TEXT("Main character or Player statistics not valid from widget"))
+        return;
+    }
+    
+    SetStatisticsValues(MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Speed),
+        MainCharacter->GetPlayerStatistics()->HasShield(),
+        MainCharacter->GetWeaponDamage(),
+        MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Health)/100);
 }
 
-void UStatisticsWidget::SetStatisticsValues(int SpeedValue, int ArmorValue, int DamageValue, float healthPercentage)
+void UStatisticsWidget::SetStatisticsValues(int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage)
 {
     if(speed)
     {
-        FString SpeedText = FString::Printf(TEXT("Speed:%d"), SpeedValue);
+        FString SpeedText = FString::Printf(TEXT("Speed: %d"), SpeedValue);
         speed->SetText(FText::FromString(SpeedText));
     }
 
     if(armor)
     {
-        FString ArmorText = FString::Printf(TEXT("Armor:%d"), ArmorValue);
+        FString ArmorText = FString::Printf(TEXT("Armor: %d"), bHasShield);
         armor->SetText(FText::FromString(ArmorText));
     }
 
     if(damage)
     {
-        FString DamageText = FString::Printf(TEXT("Damage:%d"), DamageValue);
+        FString DamageText = FString::Printf(TEXT("Damage: %d"), DamageValue);
         damage->SetText(FText::FromString(DamageText));
     }
 
 	if(health)
     {
-        health->SetPercent(healthPercentage);
+        health->SetPercent(HealthPercentage);
     }
 }
 

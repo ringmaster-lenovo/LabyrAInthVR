@@ -1,137 +1,154 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "MainCharacter.h"
 
+#include "EnhancedInputComponent.h"
+#include "PlayerStatistics.h"
+#include "Components/SpotLightComponent.h"
 
-#include "BasePlayerController.h"
-#include "PlayerStatsSubSystem.h"
 #include "Engine/World.h"
-#include "Components/PostProcessComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Delegates/DelegateSignatureImpl.inl"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "LabyrAInthVR/Widgets/StatisticsWidget.h"
+#include "LabyrAInthVR/Pickups/BasePickup.h"
+#include "Particles/ParticleSystem.h"
+#include "Sound/SoundCue.h"
+
+DEFINE_LOG_CATEGORY(LabyrAInthVR_Character_Log);
 
 // This is the main character class for the VR game mode. It handles the VR camera, the VR controllers, and the VR movement.
 AMainCharacter::AMainCharacter()
 {
  	// Set this character to call Tick() every frame. You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	PlayerStats = CreateDefaultSubobject<UPlayerStatistics>(TEXT("PlayerStatistics"));
+	
+	Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
+	Flashlight->SetAttenuationRadius(500000.f);
+	Flashlight->SetOuterConeAngle(25.f);
 }
 
 // Called when the game starts or when spawned
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	UWorld* World = GetWorld();
-	if (!World) { return; }
-	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
-	UPlayerStatsSubSystem* PlayerStatisticsSubsystem = GameInstance->GetSubsystem<UPlayerStatsSubSystem>();
-	PlayerStatisticsSubsystem->SetCounter("Health", Life);
-	bool found = true;
-	float value;
-	PlayerStatisticsSubsystem->GetStatNumberValue(FName("Health"), found, value);
-	UE_LOG(LabyrAInthVR_Player_Log, Warning, TEXT("VITA INIZIALIZZATA A: %f"), value);	
+	OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
 }
 
+void AMainCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	if(!IsValid(PlayerStats)) return;
 
-// Called every frame
+	PlayerStats->MainCharacter = this;
+}
+
 void AMainCharacter::Tick(float const DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-// Called to bind functionality to input
+void AMainCharacter::ResetWeapon()
+{
+	
+}
+
+float AMainCharacter::GetWeaponDamage()
+{
+	if(!IsValid(EquippedWeapon)) return 0.f;
+	return EquippedWeapon->GetDamage();
+}
+
+bool AMainCharacter::IsAlive()
+{
+	if(!IsValid(PlayerStats)) return false;
+
+	return PlayerStats->IsAlive();
+}
+
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
-
-void AMainCharacter::ReceiveDamage(float Damage, AActor* DamageCauser)
-{
-	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
-	UPlayerStatsSubSystem* PlayerStatisticsSubsystem = GameInstance->GetSubsystem<UPlayerStatsSubSystem>();
-	bool found = true;
-	float value;
-	PlayerStatisticsSubsystem->GetStatNumberValue(FName("Health"), found, value);
-	UE_LOG(LabyrAInthVR_Player_Log, Display, TEXT("Player Health Before Damage: %f"), value);
-
-	UE_LOG(LabyrAInthVR_Player_Log, Display, TEXT("Player received damage by: %s"), *DamageCauser->GetName())
 	
-	if (Shield)
+	if(UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		DectivateShield();
-		UE_LOG(LabyrAInthVR_Player_Log, Display, TEXT("Player received damage but has shield, shield is destroyed"))
-		return;
-	}
-	
-	Life -= Damage;
-	
-	PlayerStatisticsSubsystem->AddToCounter("Health", -1 * Damage);
-	
-	PlayerStatisticsSubsystem->GetStatNumberValue(FName("Health"), found, value);
-	UE_LOG(LabyrAInthVR_Player_Log, Display, TEXT("Player Health After Damage: %f"), value);
-
-	if (Life <= 0)  // Player has died
-	{
-		ABasePlayerController* PlayerController = Cast<ABasePlayerController>(GetController());
-		if (PlayerController)
-		{
-			PlayerController->PlayerHasDied();
-		}
-		else
-		{
-			UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("PlayerController not found"));
-		}
+		EnhancedInputComponent->BindAction(FlashlightInputAction, ETriggerEvent::Triggered, this, &ThisClass::ToggleFlashlight);
+		
+		EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Started, this, &ThisClass::Sprint, true);
+		EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Canceled, this, &ThisClass::Sprint, false);
+		EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Completed, this, &ThisClass::Sprint, false);
+		
+		EnhancedInputComponent->BindAction(ShootInputAction, ETriggerEvent::Triggered, this, &ThisClass::Shoot);
 	}
 }
 
-void AMainCharacter::StartLevelTimer()
+void AMainCharacter::ReleasePickupObject()
 {
-	//START CHRONOMETER
-	if (!GetWorld()) return; // Ensure we have a valid world context before starting the timer
-	GetWorld()->GetTimerManager().SetTimer(TimerOnLevelHandle, this, &AMainCharacter::UpdateTimeOnCurrentLevel, 1.0f, true);
+	if(!IsValid(EquippedWeapon) || !IsValid(EquippedWeapon->GetPickup())) return;
+
+	ABasePickup* AuxPickup = EquippedWeapon->GetPickup();
+	
+	EquippedWeapon->Destroy();
+	bHasWeapon = false;
+
+	if(!IsValid(AuxPickup)) return;
+	
+	AuxPickup->SetActorHiddenInGame(false);
+	AuxPickup->SetActorEnableCollision(true);
+	AuxPickup->SetActorLocation(GetActorLocation() + (GetActorForwardVector() * 100.f));
 }
 
-void AMainCharacter::StopAllTimers()
+void AMainCharacter::Sprint(const FInputActionValue& Value, bool bSprint)
 {
-	//STOP CHRONOMETER
-	if (!GetWorld()) return; // Ensure we have a valid world context before stopping the timer
-	GetWorld()->GetTimerManager().ClearTimer(TimerOnLevelHandle);
-	GetWorld()->GetTimerManager().ClearTimer(SpeedTimerHandle);
+	if(!IsValid(PlayerStats)) return;
+
+	PlayerStats->Sprint(bSprint);
 }
 
-void AMainCharacter::ChangeSpeed(double SpeedIncrement, int32 Timer)
+void AMainCharacter::Shoot(const FInputActionValue& Value)
 {
-	BaseSpeed *= SpeedIncrement;
-	RunningSpeed *= SpeedIncrement;
-	SpeedTimerGoesOff = Timer;
-	GetWorld()->GetTimerManager().SetTimer(SpeedTimerHandle, this, &AMainCharacter::UpdateSpeedTimer, 1.0f, true);
+	if(!IsValid(EquippedWeapon) || !IsValid(EquippedWeapon->GetMuzzleEffect())) return;
+	
+	USkeletalMeshComponent* WeaponMesh = EquippedWeapon->FindComponentByClass<USkeletalMeshComponent>();
+	
+	if(!IsValid(WeaponMesh)) return;
+
+	FVector Start = WeaponMesh->GetSocketTransform(FName("Muzzle_Front")).GetLocation();
+	
+	FVector End = Start + (EquippedWeapon->GetActorForwardVector() * 50000.f);
+	
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Instigator = this;
+	SpawnParameters.Owner = this;
+	if(IsValid(EquippedWeapon->GetAnimation())) WeaponMesh->PlayAnimation(EquippedWeapon->GetAnimation(), false);
+	UGameplayStatics::SpawnEmitterAttached(EquippedWeapon->GetMuzzleEffect(), WeaponMesh, FName("Muzzle_Front"));
+	AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(EquippedWeapon->GetProjectileTemplate(), Start, End.Rotation(), SpawnParameters);
+	if(!IsValid(SpawnedProjectile)) return;
+	SpawnedProjectile->SetDamage(50.f);
 }
 
-void AMainCharacter::ResetStats()
+void AMainCharacter::ToggleFlashlight(const FInputActionValue& Value)
 {
-	Life = 100;
-	Shield = false;
-	TimeOnCurrentLevel = 0;
-	PlayerName = "";
-	BaseSpeed = 400;
-	RunningSpeed = 600;
+	if(!IsValid(Flashlight)) return;
+
+	Flashlight->SetVisibility(!Flashlight->GetVisibleFlag());
 }
 
-void AMainCharacter::UpdateTimeOnCurrentLevel()
+UPlayerStatistics* AMainCharacter::GetPlayerStatistics()
 {
-	++TimeOnCurrentLevel;
+	return PlayerStats;
 }
 
-void AMainCharacter::UpdateSpeedTimer()
+/*void AMainCharacter::PickupWeapon_Implementation()
 {
-	++SpeedTimer;
-	if (SpeedTimer >= SpeedTimerGoesOff)
-	{
-		BaseSpeed = 400;
-		RunningSpeed = 600;
-		GetWorld()->GetTimerManager().ClearTimer(SpeedTimerHandle);
-	}
+	
+}*/
+
+void AMainCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+                                   AController* InstigatedBy, AActor* DamageCauser)
+{
+	UE_LOG(LabyrAInthVR_Character_Log, Display, TEXT("%s -> Taken %f damage by: %s"), *GetName(), Damage, *DamageCauser->GetName())
+
+	if(!IsValid(PlayerStats) || !IsAlive()) return;
+
+	PlayerStats->ChangeStatFloat(Esm_Health, -Damage);
 }
