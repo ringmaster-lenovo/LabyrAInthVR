@@ -6,6 +6,7 @@
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
 #include "WidgetController.h"
+#include "LabyrAInthVR/Core/VRGameState.h"
 
 
 void UPromptingWidget::NativeConstruct()
@@ -35,8 +36,24 @@ void UPromptingWidget::OnSendClicked()
 	{
 		FText PlayerName = PlayerNameTextBox->GetText();
 		FString PlayerNameString = PlayerName.ToString();
-
-		if (PlayerNameString.IsEmpty())
+		
+		UWorld* World = GetWorld();
+		if (!World)
+		{
+			UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("No World!"));
+			OnWidgetSError.Broadcast();
+			return;
+		}
+		AVRGameState* GameState = World->GetGameState<AVRGameState>();
+		if (!GameState)
+		{
+			UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("No GameState!"));
+			OnWidgetSError.Broadcast();
+			return;
+		}
+			
+		FString ErrorString = GameState->LoginPlayer(PlayerNameString);
+		if (PlayerNameString.IsEmpty() || ErrorString != "")
 		{
 			// Check if ErrorText is valid and then make it visible
 			if (ErrorText)
@@ -44,8 +61,7 @@ void UPromptingWidget::OnSendClicked()
 				ErrorText->SetVisibility(ESlateVisibility::Visible);
 			}
 		}
-		else
-		{
+		else {
 			// Optionally hide the ErrorText if it was previously visible
 			if (ErrorText)
 			{
@@ -53,11 +69,11 @@ void UPromptingWidget::OnSendClicked()
 			}
 
 			WidgetController->SendButtonClicked();
-			//TODO: Add PlayerName to GameState
+			
 
 			// Log the name to the output log
 			UE_LOG(LogTemp, Warning, TEXT("Player Name: %s"), *PlayerNameString);
-		}
+		} 
 	}
 	else
 	{

@@ -12,6 +12,6 @@ public:
 	UFinishGameRequestDTO(){}
 
 	FString Username;
-	int16 Score;
-	int8 LabyrinthComplexity;
+	int16 Time;
+	int8 Level;
 };

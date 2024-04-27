@@ -5,6 +5,10 @@
 #include "LabyrinthParser.h"
 #include "NavigationSystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Pickups/BasePickup.h"
+#include "LabyrAInthVR/Interagibles/PowerUp.h"
+#include "LabyrAInthVR/Interagibles/Trap.h"
+#include "LabyrAInthVR/Enemy/BaseEnemy.h"
 #include "NavMesh/NavMeshBoundsVolume.h"
 
 ASceneController::ASceneController()
@@ -57,7 +61,7 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 	return "";
 }
 
-FString ASceneController::CleanUpLevel() const
+FString ASceneController::CleanUpLevelAndDoStatistics(int &NumOfEnemiesKilled, int &NumOfTrapsExploded, int &NumOfPowerUpsCollected, int &NumOfWeaponsFound) const
 {
 	// Get a reference to the game world
 	const UWorld* World = GetWorld();
@@ -65,6 +69,16 @@ FString ASceneController::CleanUpLevel() const
 	{
 		return "No valid world found";
 	}
+	
+	int NumOfEnemiesAlive = 0;
+	int NumOfTrapsActive = 0;
+	int NumOfPowerUpsNotCollected = 0;
+	NumOfWeaponsFound = 0;
+	int NumOfEnemiesSpawned = 0;
+	int NumOfTrapsSpawned = 0;
+	int NumOfPowerUpsSpawned = 0;
+	int NumOfWeaponsSpawned = 0;
+	SpawnManager->GetNumOfActorSpawned(NumOfEnemiesSpawned, NumOfTrapsSpawned, NumOfPowerUpsSpawned, NumOfWeaponsSpawned);
 	for (TActorIterator<AActor> ActorItr(World); ActorItr; ++ActorItr)
 	{
 		AActor* Actor = *ActorItr;
@@ -73,14 +87,25 @@ FString ASceneController::CleanUpLevel() const
 		// Check if the actor's class matches any of the classes to destroy
 		if (Actor->Implements<USpawnableActor>())
 		{
+			if (Actor->IsA<ABaseEnemy>()) NumOfEnemiesAlive++;
+			if (Actor->IsA<ATrap>()) NumOfTrapsActive++;
+			if (Actor->IsA<APowerUp>()) NumOfPowerUpsNotCollected++;
+			if (Actor->IsA<ABasePickup>())
+			{
+				ABasePickup* Pickup = Cast<ABasePickup>(Actor);
+				if (Pickup != nullptr && Pickup->HasBeenFound()) NumOfWeaponsFound++;
+			}
 			Actor->Destroy();
 		}
 	}
+	NumOfEnemiesKilled = NumOfEnemiesSpawned - NumOfEnemiesAlive;
+	NumOfTrapsExploded = NumOfTrapsSpawned - NumOfTrapsActive;
+	NumOfPowerUpsCollected = NumOfPowerUpsSpawned - NumOfPowerUpsNotCollected;
 	OnSceneCleanedUp.Broadcast();
 	return "";
 }
 
-FString ASceneController::RespawnMovableActors(ULabyrinthDTO* LabyrinthDTO)
+FString ASceneController::RespawnMovableActors(ULabyrinthDTO* LabyrinthDto) const
 {
 	// Get a reference to the game world
 	const UWorld* World = GetWorld();
@@ -99,7 +124,7 @@ FString ASceneController::RespawnMovableActors(ULabyrinthDTO* LabyrinthDTO)
 			Actor->Destroy();
 		}
 	}
-	FString ErrorMessage = SpawnManager->SpawnActorsInLabyrinth(LabyrinthDTO);
+	FString ErrorMessage = SpawnManager->SpawnActorsInLabyrinth(LabyrinthDto);
 	if (ErrorMessage != "")
 	{
 		return ErrorMessage;

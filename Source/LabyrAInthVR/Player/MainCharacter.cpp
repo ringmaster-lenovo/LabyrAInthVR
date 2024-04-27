@@ -1,8 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "MainCharacter.h"
-
 
 #include "BasePlayerController.h"
 #include "PlayerStatsSubSystem.h"
@@ -115,7 +113,6 @@ void AMainCharacter::ResetStats()
 	Life = 100;
 	Shield = false;
 	TimeOnCurrentLevel = 0;
-	PlayerName = "";
 	BaseSpeed = 400;
 	RunningSpeed = 600;
 }

@@ -66,18 +66,22 @@ private:
 	int PowerUpsToSpawn = 0;
 	int TrapsToSpawn = 0;
 	int EnemiesToSpawn = 0;
+	int WeaponsToSpawn = 0;
 	
 	int NumOfPowerUpsSpawned = 0;
 	int NumOfTrapsSpawned = 0;
 	int NumOfEnemiesSpawned = 0;
+	int NumOfWeaponsSpawned = 0;
 	
 	TArray<int> PotentialPowerUpSpawnLocations = {};
 	TArray<int> PotentialTrapSpawnLocations = {};
 	TArray<int> PotentialEnemySpawnLocations = {};
+	TArray<int> PotentialWeaponSpawnLocations = {};
 	
 	TArray<int> PowerUpsLocations = {};
 	TArray<int> TrapsLocations = {};
 	TArray<int> EnemiesLocations = {};
+	TArray<int> WeaponsLocations = {};
 	
 	int PlayerStartIndexPosition = -1;
 	int PortalIndexPosition = -1;
@@ -132,4 +136,6 @@ public:
 	FString SpawnPortal() const;
 
 	FString SpawnPlayerStart();
+
+	void GetNumOfActorSpawned(int &NumOfEnemies, int &NumOfTraps, int &NumOfPowerUps, int &NumOfWeapons) const;
 };

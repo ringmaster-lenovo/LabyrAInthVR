@@ -8,6 +8,7 @@
 #include "LabyrAInthVR/Enemy/RangedEnemy.h"
 #include "LabyrAInthVR/Interagibles/PowerUp.h"
 #include "LabyrAInthVR/Interagibles/Trap.h"
+#include "LabyrAInthVR/Interagibles/Weapon.h"
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 
 // Sets default values
@@ -61,19 +62,16 @@ void ASpawnManager::FindPotentialSpawnLocations(const ULabyrinthDTO* LabyrinthDT
 	if (LateralNeighbors + VerticalNeighbors == 3)
 	{
 		PotentialPowerUpSpawnLocations.Add(UUtils::ConvertToIndex(Row, Column));
-		UE_LOG(LabyrAInthVR_Scene_Log, Log, TEXT("Potential power up location: %d : %d"), Row, Column);
 	}
 	// if I have 2 walls around me but not in front of each other, this happens when there is a turn in the labyrinth, I should spawn a trap in this location
 	else if (LateralNeighbors == 1 && VerticalNeighbors == 1)
 	{
 		PotentialTrapSpawnLocations.Add(UUtils::ConvertToIndex(Row, Column));
-		UE_LOG(LabyrAInthVR_Scene_Log, Log, TEXT("Potential trap location: %d : %d"), Row, Column);
 	}
 	// else, its a normal corridor, I could spawn an enemy in this location
 	else
 	{
 		PotentialEnemySpawnLocations.Add(UUtils::ConvertToIndex(Row, Column));
-		UE_LOG(LabyrAInthVR_Scene_Log, Log, TEXT("Potential enemy location: %d : %d"), Row, Column);
 	}
 }
 
@@ -92,25 +90,22 @@ FString ASpawnManager::SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReferen
 		return ErrorMessage;
 	}
 
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthMatrix:\n %s"), *UUtils::MatrixToString(&LabyrinthDTO->LabyrinthStructure));
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthMatrix:\n%s"), *UUtils::MatrixToString(&LabyrinthDTO->LabyrinthStructure));
 
 	// spawn power-ups first
 	PowerUpsLocations.Empty();
 	PowerUpsLocations.Reserve(PowerUpsToSpawn);
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("PowerUpsLocations: %d"), PowerUpsLocations.Num());
 	ErrorMessage = ChoosePowerUpsSpawnPoints(PowerUpsToSpawn);
 	if (ErrorMessage != "")
 	{
 		return ErrorMessage;
 	}
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("PowerUpsLocations: %d"), PowerUpsLocations.Num());
 	ErrorMessage = SpawnActors(PowerUpsLocations, PowerUpsClasses);
 	if (ErrorMessage != "")
 	{
 		return ErrorMessage;
 	}
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthMatrix:\n %s"), *UUtils::MatrixToString(&LabyrinthDTO->LabyrinthStructure));
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("PowerUpsSpawned:\n %s"), *UUtils::StructToString(UUtils::GetInfoActorSpawned(NumOfPowerUpsSpawned, &PowerUpsLocations)));
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("PowerUpsSpawned:\n%s"), *UUtils::StructToString(UUtils::GetInfoActorSpawned(NumOfPowerUpsSpawned, &PowerUpsLocations)));
 	
 	// spawn traps second
 	TrapsLocations.Empty();
@@ -125,8 +120,7 @@ FString ASpawnManager::SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReferen
 	{
 		return ErrorMessage;
 	}
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthMatrix:\n %s"), *UUtils::MatrixToString(&LabyrinthDTO->LabyrinthStructure));
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("TrapsSpawned:\n %s"), *UUtils::StructToString(UUtils::GetInfoActorSpawned(NumOfTrapsSpawned, &TrapsLocations)));
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("TrapsSpawned:\n%s"), *UUtils::StructToString(UUtils::GetInfoActorSpawned(NumOfTrapsSpawned, &TrapsLocations)));
 	
 	// spawn enemies last
 	EnemiesLocations.Empty();
@@ -141,8 +135,7 @@ FString ASpawnManager::SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReferen
 	{
 		return ErrorMessage;
 	}
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthMatrix:\n %s"), *UUtils::MatrixToString(&LabyrinthDTO->LabyrinthStructure));
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("EnemiesSpawned:\n %s"), *UUtils::StructToString(UUtils::GetInfoActorSpawned(NumOfEnemiesSpawned, &EnemiesLocations)));
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("EnemiesSpawned:\n%s"), *UUtils::StructToString(UUtils::GetInfoActorSpawned(NumOfEnemiesSpawned, &EnemiesLocations)));
 
 	ErrorMessage = SpawnWeapons();
 	if (ErrorMessage != "")
@@ -159,6 +152,7 @@ FString ASpawnManager::SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReferen
 	{
 		return ErrorMessage;
 	}
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthMatrix:\n%s"), *UUtils::MatrixToString(&LabyrinthDTO->LabyrinthStructure));
 	return "";
 }
 
@@ -234,11 +228,11 @@ FString ASpawnManager::ChooseRandomSpawnLocation(const int NumOfActorsToSpawn, T
 {
 	if (NumOfActorsToSpawn > PotentialLocations.Num()) return "No free location to spawn actors";
 	if (ConventionalValueInTheMatrix <= 3) return "Invalid conventional value in the matrix";
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("PotentialLocations: %d"), PotentialLocations.Num());
+	// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("PotentialLocations: %d"), PotentialLocations.Num());
 	const int LabyrinthSize = LabyrinthDTO->LabyrinthStructure.size() + LabyrinthDTO->LabyrinthStructure[0].size();
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthSize: %d"), LabyrinthSize);
+	// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthSize: %d"), LabyrinthSize);
 	const int LabyrinthSubdivisions = LabyrinthSize < 50 ? 2 : LabyrinthSize < 200 ? 4 :  LabyrinthSize < 800 ? 8 : 16;  // the bigger the labyrinth, the more subdivisions of the labyrinth, to spawn enemies homogeneously in the labyrinth
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthSubdivisions: %d"), LabyrinthSubdivisions);
+	// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthSubdivisions: %d"), LabyrinthSubdivisions);
 	uint8 Subdivision = 0;
 	int NumOfActorsSpawned = 0;
 	int SpawnLocation = -1;
@@ -246,14 +240,14 @@ FString ASpawnManager::ChooseRandomSpawnLocation(const int NumOfActorsToSpawn, T
 	{
 		const int PotentialActorLocationSize = PotentialLocations.Num();
 		const int Min = PotentialActorLocationSize / LabyrinthSubdivisions * Subdivision;
-		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Min: %d"), Min);
+		// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Min: %d"), Min);
 		const int Max = FMath::Max(Min, (PotentialActorLocationSize / LabyrinthSubdivisions * (Subdivision + 1)) - 1);
-		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Max: %d"), Max);
+		// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Max: %d"), Max);
 		
 		const int Index = FMath::RandRange(Min, Max);
-		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Index: %d"), Index);
+		// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Index: %d"), Index);
 		SpawnLocation = PotentialLocations[Index];
-		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("SpawnLocation: %d"), SpawnLocation);
+		// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("SpawnLocation: %d"), SpawnLocation);
 		
 		PotentialLocations.RemoveAt(Index);
 		ActorsSpawnLocations.Add(SpawnLocation);
@@ -281,11 +275,13 @@ FString ASpawnManager::DifficultyDecider()
 	if (LabyrinthDTO == nullptr) return "LabyrinthDTO is null";
 	
 	const int Level = LabyrinthDTO->Level;
-	UE_LOG(LabyrAInthVR_Scene_Log, Warning, TEXT("Labyrinth Level= %d"), Level);
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Difficulty Decider: Labyrinth Level= %d"), Level);
 	
 	PowerUpsToSpawn = FMath::Floor(Level / 1);
 	TrapsToSpawn = PowerUpsToSpawn;
 	EnemiesToSpawn = FMath::Floor(Level / 3) + 1;
+
+	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Difficulty Decider: PowerUpsToSpawn= %d, TrapsToSpawn= %d, EnemiesToSpawn= %d"), PowerUpsToSpawn, TrapsToSpawn, EnemiesToSpawn);
 	
 	return "";
 }
@@ -298,8 +294,8 @@ FString ASpawnManager::DifficultyDecider()
  */
 FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArray<TSubclassOf<AActor>>& SpawnableActors) const
 {
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("SpawnLocations: %d"), SpawnLocations.Num());
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("SpawnableActors: %d"), SpawnableActors.Num());
+	// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("SpawnLocations: %d"), SpawnLocations.Num());
+	// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("SpawnableActors: %d"), SpawnableActors.Num());
 	if (SpawnableActors.Num() == 0) return "No actors to spawn";
 	FVector SpawnPoint{0};
 	for (int i = 0; i < SpawnLocations.Num(); i++)
@@ -358,8 +354,8 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 				EnemyInstance->SetMatrixPosition(Row, Column);
 			}
 			UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor spawned: %s"), *ActorSpawned->GetName());
-			UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor class: %s"), *ObjectClass->GetSuperClass()->GetName());
-			UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor class: %s"), *ObjectClass->GetName());
+			// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor class: %s"), *ObjectClass->GetSuperClass()->GetName());
+			// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor class: %s"), *ObjectClass->GetName());
 	}
 	return "";
 }
@@ -413,7 +409,6 @@ FString ASpawnManager::SpawnPortal() const
 {
 	if (PortalIndexPosition == -1) return "Did not found the portal position, invalid matrix";
 	if (Portal == nullptr) return "Portal asset not set, cannot play";
-	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT(""));
 	int Row = -1;
 	int Column = -1;
 	UUtils::ConvertToRowColumn(PortalIndexPosition, Row, Column);
@@ -452,4 +447,12 @@ FString ASpawnManager::SpawnPlayerStart()
 	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(PlayerSpawnPoint, SpawnPoint, FRotator(0, 0, 0));
 	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 	return "";
+}
+
+void ASpawnManager::GetNumOfActorSpawned(int &NumOfEnemies, int &NumOfTraps, int &NumOfPowerUps, int &NumOfWeapons) const
+{
+	NumOfEnemies = NumOfEnemiesSpawned;
+	NumOfTraps = NumOfTrapsSpawned;
+	NumOfPowerUps = NumOfPowerUpsSpawned;
+	NumOfWeapons = NumOfWeaponsSpawned;
 }

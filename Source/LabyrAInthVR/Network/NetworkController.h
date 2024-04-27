@@ -34,8 +34,14 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FLabyrinthReceivedEvent);
 	FLabyrinthReceivedEvent OnLabyrinthReceived;
 
+	DECLARE_MULTICAST_DELEGATE(FFinishGameResponseReceivedEvent);
+	FFinishGameResponseReceivedEvent OnFinishGameResponseReceived;
+
 	DECLARE_MULTICAST_DELEGATE(FNetworkErrorEvent);
 	FNetworkErrorEvent OnNetworkError;
+
+	DECLARE_MULTICAST_DELEGATE(FFinishGameErrorEvent);
+	FFinishGameErrorEvent OnFinishGameError;
 
 protected:
 	// Called when the game starts or when spawned
@@ -44,9 +50,9 @@ protected:
 private:
 
 	FString BaseURL = "https://localhost:8080/api";
-	FString LabyrinthEndPoint = "/labyrinth";
+	FString LabyrinthEndPoint = "/labyrinth/getLabyrinthFromDataset";
 	FString LeaderboardEndPoint = "/leaderboards";
-	FString LabyrinthURL = "https://localhost:8080/api/labyrinth";;
+	FString LabyrinthURL = "http://localhost:8090/gpm/api/labyrinth/getLabyrinthFromDataset";;
 	FString LeaderboardUrl = "https://localhost:8080/api/leaderboards";
 
 	bool DeserializeAllLeaderBoards(FString AllLeaderBoardsString, ULeaderBoardDTO* LeaderBoardDTO);

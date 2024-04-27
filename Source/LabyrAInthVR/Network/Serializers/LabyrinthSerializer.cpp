@@ -53,7 +53,11 @@ bool LabyrinthSerializer::DeSerializeLabyrinth(FString LabyrinthString, ULabyrin
 		// Extract the values from the Json array and store them in the LabyrinthDTO
 		int32 LabyrinthRows = LabyrinthStructureArray->Num();
 		int32 LabyrinthColumns = (LabyrinthRows > 0) ? (*LabyrinthStructureArray)[0]->AsArray().Num() : 0;
-		LabyrinthDTO->LabyrinthStructure.resize(LabyrinthRows, std::vector<uint8>(LabyrinthColumns));
+		UE_LOG(LabyrAInthVR_LabyrinthSerializer_Log, Display, TEXT("Labyrinth Rows: %d, Labyrinth Columns: %d"), LabyrinthRows, LabyrinthColumns);
+		LabyrinthDTO->LabyrinthStructure.resize(LabyrinthRows);
+		for (auto& row : LabyrinthDTO->LabyrinthStructure) {
+			row.resize(LabyrinthColumns, 0);
+		}
 		
 		uint8 i = 0;
 		for (auto LabyrinthRow : *LabyrinthStructureArray)

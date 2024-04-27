@@ -90,11 +90,8 @@ public:
 	UPROPERTY()
 	AWidgetContainer* WidgetContainer = nullptr;
 
-	DECLARE_MULTICAST_DELEGATE(FNewGameEvent);
-	FNewGameEvent OnNewGameButtonClicked;
-
-	DECLARE_MULTICAST_DELEGATE(FLoadGameEvent);
-	FLoadGameEvent OnLoadGameButtonClicked;
+	DECLARE_MULTICAST_DELEGATE(FPlayGameEvent);
+	FPlayGameEvent OnPlayGameButtonClicked;
 
 	DECLARE_MULTICAST_DELEGATE(FRankingsEvent);
 	FRankingsEvent OnRankingsButtonClicked;
@@ -116,6 +113,9 @@ public:
 
 	DECLARE_MULTICAST_DELEGATE(FWidgetsErrorEvent);
 	FWidgetsErrorEvent OnWidgetSError;
+
+	UFUNCTION(Category = "Widgets")
+	void ShowLobbyUI();
 
 	UFUNCTION(Category = "Widgets")
 	void ShowMainMenu();
@@ -142,19 +142,22 @@ public:
 	void RestartButtonClicked();
 
 	UFUNCTION(Category = "Widgets")
-	void NewGameButtonClicked();
+	void StartNewGameButtonClicked() const;
 
 	UFUNCTION(Category = "Widgets")
-	void LoadGameButtonClicked();
+	void ReplayContinueButtonClicked() const;
 
 	UFUNCTION(Category = "Widgets")
-	void RankingsButtonClicked();
+	void NextLevelButtonClicked() const;
+
+	UFUNCTION(Category = "Widgets")
+	void RankingsButtonClicked() const;
 
 	UFUNCTION(Category = "Widgets")
 	void SettingsButtonClicked();
 
 	UFUNCTION(Category = "Widgets")
-	void QuitButtonClicked();
+	void QuitButtonClicked() const;
 
 	UFUNCTION(Category = "Widgets")
 	void OnPauseGamePressed();

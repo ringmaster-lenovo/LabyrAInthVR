@@ -30,6 +30,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* SendButton;
 
+	DECLARE_MULTICAST_DELEGATE(FWidgetsErrorEvent);
+	FWidgetsErrorEvent OnWidgetSError;
+
 	UFUNCTION()
 	void OnSendClicked();
 	
