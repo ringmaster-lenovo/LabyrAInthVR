@@ -11,6 +11,12 @@
 void UPromptingWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
+	if (PlayerNameTextBox)
+	{
+		PlayerNameTextBox->SetKeyboardFocus();
+	}
+
 
 	// Collega gli eventi dei pulsanti
 	if (SendButton)
