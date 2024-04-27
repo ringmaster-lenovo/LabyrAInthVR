@@ -25,11 +25,17 @@ public:
 	class UTextBlock* TimeText;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UUserWidget* NextLevelButton;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* RankingsButton;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* MainMenuButton;
 
+	UFUNCTION()
+	void OnNextLevelClicked();
+	
 	UFUNCTION()
 	void OnRankingsClicked();
 

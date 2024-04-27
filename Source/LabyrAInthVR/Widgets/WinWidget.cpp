@@ -52,6 +52,11 @@ void UWinWidget::SetTime(int32 time)
 	TimeText->SetText(TimeFormat);
 }
 
+void UWinWidget::OnNextLevelClicked()
+{
+	WidgetController->NextLevelButtonClicked();
+}
+
 void UWinWidget::OnRankingsClicked()
 {
 	WidgetController->RankingsButtonClicked();
