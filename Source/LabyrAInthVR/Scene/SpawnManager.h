@@ -87,7 +87,7 @@ private:
 	int PortalIndexPosition = -1;
 
 	UPROPERTY()
-	ULabyrinthDTO* LabyrinthDTO;
+	ULabyrinthDTO* Labyrinth;
 
 public:
 	// Called every frame
@@ -115,7 +115,7 @@ public:
 
 	FRotator PlayerStartRotation;
 
-	FString SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReference);
+	FString SpawnActorsInLabyrinth(const ULabyrinthDTO* LabyrinthDtoReference);
 
 	void FindPotentialSpawnLocations(const ULabyrinthDTO* LabyrinthDTO, int Row, int Column);
 
