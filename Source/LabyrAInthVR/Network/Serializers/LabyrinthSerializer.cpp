@@ -1,5 +1,7 @@
 #include "LabyrinthSerializer.h"
 
+#include "LabyrAInthVR/Network/DTO/LabyrinthRequestDTO.h"
+
 DEFINE_LOG_CATEGORY(LabyrAInthVR_LabyrinthSerializer_Log);
 
 
@@ -37,6 +39,13 @@ bool LabyrinthSerializer::DeSerializeLabyrinth(FString LabyrinthString, ULabyrin
 	if (!OutLabyrinth->TryGetNumberField(TEXT("height"), LabyrinthDTO->Height))
 	{
 		UE_LOG(LabyrAInthVR_LabyrinthSerializer_Log, Error, TEXT("Error during Height Deserialization: 'height' field not found or not a string."));
+		return false;
+	}
+
+	// Get the complexity field from the Json object
+	if (!OutLabyrinth->TryGetNumberField(TEXT("complexity"), LabyrinthDTO->Complexity))
+	{
+		UE_LOG(LabyrAInthVR_LabyrinthSerializer_Log, Error, TEXT("Error during Complexity Deserialization: 'complexity' field not found or not a string."));
 		return false;
 	}
 
@@ -85,39 +94,18 @@ bool LabyrinthSerializer::DeSerializeLabyrinth(FString LabyrinthString, ULabyrin
 	return true;
 }
 
-FString LabyrinthSerializer::SerializeLabyrinth(ULabyrinthDTO* LabyrinthDTO)
+FString LabyrinthSerializer::SerializeLabyrinth(ULabyrinthRequestDTO* LabyrinthRequestDTO)
 {
 	UE_LOG(LabyrAInthVR_LabyrinthSerializer_Log, Log, TEXT("Serializing Request for labyrinth"));
-	// Create a Json object to hold the LabyrinthDTO
-	TSharedPtr<FJsonObject> LabyrinthDTOJson = MakeShareable(new FJsonObject);
+	// Create a Json object to hold the LabyrinthRequestDTO
+	TSharedPtr<FJsonObject> LabyrinthRequestDTOJson = MakeShareable(new FJsonObject);
 	
 	// Set the level field
-	LabyrinthDTOJson->SetNumberField(TEXT("level"), LabyrinthDTO->Level);
-
-	// Set width and height fields
-	LabyrinthDTOJson->SetNumberField(TEXT("width"), LabyrinthDTO->Width);
-	LabyrinthDTOJson->SetNumberField(TEXT("height"), LabyrinthDTO->Height);
-
-	// Create a 2D array to hold the labyrinth structure
-	std::vector<std::vector<uint8>>& LabyrinthStructure = LabyrinthDTO->LabyrinthStructure;
-	TArray<TSharedPtr<FJsonValue>> LabyrinthStructureArray;
-
-	for (int i = 0; i < LabyrinthStructure.size(); i++)
-	{
-		TArray<TSharedPtr<FJsonValue>> RowArray;
-		for (int j = 0; j < LabyrinthStructure[i].size(); j++)
-		{
-			RowArray.Add(MakeShareable(new FJsonValueNumber(LabyrinthStructure[i][j])));
-		}
-		LabyrinthStructureArray.Add(MakeShareable(new FJsonValueArray(RowArray)));
-	}
-	
-	// Add the level field to the Json object
-	LabyrinthDTOJson->SetArrayField(TEXT("labyrinthStructure"), LabyrinthStructureArray);
+	LabyrinthRequestDTOJson->SetNumberField(TEXT("level"), LabyrinthRequestDTO->Level);
 	
 	// Serialize the Json object to a string
 	FString JsonString;
 	TSharedRef<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&JsonString);
-	FJsonSerializer::Serialize(LabyrinthDTOJson.ToSharedRef(), JsonWriter);
+	FJsonSerializer::Serialize(LabyrinthRequestDTOJson.ToSharedRef(), JsonWriter);
 	return JsonString;
 }

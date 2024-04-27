@@ -75,10 +75,10 @@ TSharedRef<IHttpRequest, ESPMode::ThreadSafe> ANetworkController::GetRequest(FSt
 	return pRequest;
 }
 
-void ANetworkController::GetLabyrinthFromBE(ULabyrinthDTO* LabyrinthDTO)
+void ANetworkController::GetLabyrinthFromBE(ULabyrinthRequestDTO* LabyrinthRequestDTO, ULabyrinthDTO* LabyrinthDTO)
 {
 	UE_LOG(LabyrAInthVR_Network_Log, Display, TEXT("Preparing Request for input labyrinth"));
-	FString JsonString = LabyrinthSerializer::SerializeLabyrinth(LabyrinthDTO);
+	FString JsonString = LabyrinthSerializer::SerializeLabyrinth(LabyrinthRequestDTO);
 
 	FString Method = "POST";
 	

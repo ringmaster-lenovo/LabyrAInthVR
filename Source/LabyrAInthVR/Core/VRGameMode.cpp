@@ -181,10 +181,10 @@ void AVRGameMode::PlayerWantsToPlayGame()
 
 	// const int32 LevelToPlay = VRGameState->GetCurrentLevel();
 	// UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Requesting Labyrinth for level %d"), LevelToPlay);
+	// ULabyrinthRequestDTO* LabyrinthRequestDTO = NewObject<ULabyrinthRequestDTO>();
 	// LabyrinthDTO->Level = LevelToPlay;
-	// UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Game Mode: Labyrinth Level= %d"), LabyrinthDTO->Level);
-	// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthMatrix:\n %s"), *UUtils::MatrixToString(&LabyrinthDTO->LabyrinthStructure));
-	// NetworkController->GetLabyrinthFromBE(LabyrinthDTO);
+	// LabyrinthRequestDTO->Level = LevelToPlay;
+	// NetworkController->GetLabyrinthFromBE(LabyrinthRequestDTO, LabyrinthDTO);
 }
 
 void AVRGameMode::MockNetwork()
@@ -418,7 +418,11 @@ void AVRGameMode::CloseGame() const
 	}
 
 	// unbind quit game event
-	if (WidgetController) WidgetController->OnQuitGameButtonClicked.RemoveAll(this);
+	if (WidgetController)
+	{
+		WidgetController->OnWidgetSError.RemoveAll(this);
+		WidgetController->OnQuitGameButtonClicked.RemoveAll(this);
+	}
 	
 	// Stop the music
 	if (MusicController) MusicController->StopMusic();
@@ -478,8 +482,8 @@ void AVRGameMode::SaveGame()
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("NumOfWeaponsFound: %d"), NumOfWeaponsFound);
 	
 	ULabyrAInthVRGameInstance::SaveGame(PlayerName, Level, TimeOnLevel);
-	// ULabyrAInthVRGameInstance::SaveGameStats(PlayerName, Level, LabyrinthDTO->Height, LabyrinthDTO->Width, LabyrinthDTO->Complexity, TimeOnLevel,
-	// NumOfDeaths, NumOfEnemiesKilled, NumOfTrapsExploded, NumOfPowerUpsCollected, NumOfWeaponsFound);
+	ULabyrAInthVRGameInstance::SaveGameStats(PlayerName, Level, LabyrinthDTO->Height, LabyrinthDTO->Width, LabyrinthDTO->Complexity, TimeOnLevel,
+	NumOfDeaths, NumOfEnemiesKilled, NumOfTrapsExploded, NumOfPowerUpsCollected, NumOfWeaponsFound);
 
 	BasePlayerController->ResetNumOfDeaths();
 }
