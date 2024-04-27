@@ -9,6 +9,8 @@ class UBoxComponent;
 class UNiagaraSystem;
 class UProjectileMovementComponent;
 
+DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Projectiles_Log, Display, All);
+
 UCLASS()
 class LABYRAINTHVR_API AProjectile : public AActor
 {

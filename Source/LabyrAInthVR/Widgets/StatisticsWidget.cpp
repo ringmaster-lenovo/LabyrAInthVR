@@ -27,17 +27,17 @@ void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
     UPlayerStatsSubSystem* PlayerStatisticsSubsystem = GameInstance->GetSubsystem<UPlayerStatsSubSystem>();
     bool found = true;
     float healthValue;
-    float armorValue;
+    // float armorValue;
     float speedValue;
     PlayerStatisticsSubsystem->GetStatNumberValue(FName("Health"), found, healthValue);
-    PlayerStatisticsSubsystem->GetStatNumberValue(FName("Shield"), found, armorValue);
+    // PlayerStatisticsSubsystem->GetStatNumberValue(FName("Shield"), found, armorValue);
     PlayerStatisticsSubsystem->GetStatNumberValue(FName("Speed"), found, speedValue);
     //TODO: ADD DAMAGE NOT MOCKED
 
-    SetStatisticsValues(speedValue, armorValue, 20, healthValue/100);
+    SetStatisticsValues(speedValue, 20, healthValue/100);
 }
 
-void UStatisticsWidget::SetStatisticsValues(int SpeedValue, int ArmorValue, int DamageValue, float healthPercentage)
+void UStatisticsWidget::SetStatisticsValues(int SpeedValue, int DamageValue, float healthPercentage)
 {
     if(speed)
     {
@@ -45,11 +45,11 @@ void UStatisticsWidget::SetStatisticsValues(int SpeedValue, int ArmorValue, int 
         speed->SetText(FText::FromString(SpeedText));
     }
 
-    if(armor)
-    {
-        FString ArmorText = FString::Printf(TEXT("Armor:%d"), ArmorValue);
-        armor->SetText(FText::FromString(ArmorText));
-    }
+    // if(armor)
+    // {
+    //     FString ArmorText = FString::Printf(TEXT("Armor:%d"), ArmorValue);
+    //     armor->SetText(FText::FromString(ArmorText));
+    // }
 
     if(damage)
     {
@@ -100,5 +100,12 @@ void UStatisticsWidget::StopTimer()
     if (!GetWorld()) return; // Ensure we have a valid world context
 
     GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
-    CurrentTimeInSeconds = 0; // Optionally reset the timer
+    // CurrentTimeInSeconds = 0; // Optionally reset the timer
+}
+
+bool UStatisticsWidget::IsTimerActive() const
+{
+    if (!GetWorld()) return false;
+
+    return GetWorld()->GetTimerManager().IsTimerActive(TimerHandle);
 }

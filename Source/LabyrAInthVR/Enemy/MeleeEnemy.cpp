@@ -5,7 +5,6 @@
 #include "Components/BoxComponent.h"
 #include "../Player/MainCharacter.h"
 #include "Kismet/GameplayStatics.h"
-#include "LabyrAInthVR/MockedCharacter/MockedCharacter.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
 
 AMeleeEnemy::AMeleeEnemy()
@@ -146,7 +145,7 @@ void AMeleeEnemy::AttackInternal()
 	// If distance is greater than melee attack distance, it means we go back chasing
 	if (GetDistanceToCharacter() > MeleeAttackDistance && !IsAttacking())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GetDistanceToCharacter() > MeleeAttackDistance true so chase"))
+		UE_LOG(LabyrAInthVR_Enemy_Log, Warning, TEXT("GetDistanceToCharacter() > MeleeAttackDistance true so chase"))
 		Chase();
 		return;
 	}
@@ -172,7 +171,7 @@ bool AMeleeEnemy::CanExecuteAction()
 		GetWorldTimerManager().ClearTimer(MeleeAttackTimerHandle);
 		AIController->StopMovement();
 		UpdateMatrixPosition();
-		UE_LOG(LogTemp, Warning, TEXT("Execute action failed"))
+		UE_LOG(LabyrAInthVR_Enemy_Log, Warning, TEXT("Execute action failed"))
 		EnemyState = EES_Idle;
 		return false;
 	}
@@ -186,13 +185,13 @@ void AMeleeEnemy::HoldPosition()
 	// If lost sight of character, go back to idle and patrolling
 	if (!AIController->LineOfSightTo(SeenCharacter))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Lost sight of character, going back to idle"))
+		UE_LOG(LabyrAInthVR_Enemy_Log, Warning, TEXT("Lost sight of character, going back to idle"))
 		UpdateMatrixPosition();
 		EnemyState = EES_Idle;
 	}
 	else if (GetDistanceToCharacter() <= ChaseDistance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Character regained eligible distance for chasing, going back to chase"))
+		UE_LOG(LabyrAInthVR_Enemy_Log, Warning, TEXT("Character regained eligible distance for chasing, going back to chase"))
 		Chase();
 	}
 	else if (GetDistanceToCharacter() > ChaseDistance)
@@ -210,7 +209,7 @@ void AMeleeEnemy::CheckDistances()
 	// Stop chasing if distance greater than ChasingDistance
 	if (GetDistanceToCharacter() >= ChaseDistance && IsFacing())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Entering into hold phase"))
+		UE_LOG(LabyrAInthVR_Enemy_Log, Warning, TEXT("Entering into hold phase"))
 		AIController->StopMovement();
 		EnemyState = EES_Hold;
 	}
@@ -218,7 +217,7 @@ void AMeleeEnemy::CheckDistances()
 	// Initiate attack phase if closer to character than attack distance
 	if (GetDistanceToCharacter() <= MeleeAttackDistance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Entering into melee attacking phase"))
+		UE_LOG(LabyrAInthVR_Enemy_Log, Warning, TEXT("Entering into melee attacking phase"))
 		AIController->StopMovement();
 		bCanAttack = true;
 		EnemyState = EES_Attacking;

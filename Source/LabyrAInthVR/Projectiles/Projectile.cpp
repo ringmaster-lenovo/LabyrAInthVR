@@ -9,6 +9,8 @@
 #include "LabyrAInthVR/Scene/ProceduralSplineWall.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
 
+DEFINE_LOG_CATEGORY(LabyrAInthVR_Projectiles_Log);
+
 AProjectile::AProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -59,7 +61,7 @@ void AProjectile::Destroyed()
 void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                           UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Projectile has impacted with: %s"), *OtherActor->GetName())
+	UE_LOG(LabyrAInthVR_Projectiles_Log, Warning, TEXT("Projectile has impacted with: %s"), *OtherActor->GetName())
 	
 	if(!IsValid(OtherActor) || OtherActor == GetOwner() || OtherActor->IsA<APowerUp>() || OtherActor->IsA<ABasePickup>()) return;
 	

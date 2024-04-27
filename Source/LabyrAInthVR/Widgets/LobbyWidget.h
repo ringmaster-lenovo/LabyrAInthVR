@@ -28,9 +28,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* NewGameButton;
 
-	DECLARE_MULTICAST_DELEGATE(FNewGameEvent);
-	FNewGameEvent OnNewGameButtonClickedEvent;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* LoadGameButton;
 
@@ -44,10 +41,10 @@ public:
 	class UUserWidget* QuitButton;
 
 	UFUNCTION()
-	void OnNewGameButtonClicked();
+	void OnStartNewGameButtonClicked();
 
 	UFUNCTION()
-	void OnLoadGameClicked();
+	void OnReplayContinueButtonClicked();
 
 	UFUNCTION()
 	void OnRankingsClicked();

@@ -29,26 +29,6 @@ AMainCharacter* ABasePlayerController::GetControlledCharacter() const
 	return MainCharacter;
 }
 
-FString ABasePlayerController::GetPlayerName() const
-{
-	if (MainCharacter == nullptr)
-	{
-		UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot get player name, no character is controlled by the player controller"));
-		return "";
-	}
-	return MainCharacter->GetPlayerName();
-}
-
-void ABasePlayerController::SetPlayerName(const FString& Name)
-{
-	if (MainCharacter == nullptr)
-	{
-		UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot set player name, no character is controlled by the player controller"));
-		return;
-	}
-	MainCharacter->SetPlayerName(Name);
-}
-
 int32 ABasePlayerController::GetPlayerTimeOnCurrentLevel() const
 {
 	if (MainCharacter == nullptr)
@@ -69,12 +49,13 @@ void ABasePlayerController::ResetPlayerStats()
 	MainCharacter->ResetStats();
 }
 
-FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRotator& Rotation, const bool InGame) const
+FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRotator& Rotation, bool InGamePassed) 
 {
 	if (MainCharacter->TeleportTo(Position, Rotation))
 	{
-		if (InGame)
+		if (InGamePassed)
 		{
+			InGame = InGamePassed;
 			MainCharacter->StartLevelTimer();
 		}
 		else
@@ -83,7 +64,7 @@ FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRo
 		}
 		if (AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(MainCharacter); VRCharacter != nullptr)
 		{
-			if (InGame)
+			if (InGamePassed)
 			{
 				VRCharacter->IsInLobby = false;
 				VRCharacter->StopWidgetInteraction();
@@ -107,8 +88,9 @@ void ABasePlayerController::CollidedWithEndPortal() const
 	OnCollisionWithEndPortal.Broadcast();
 }
 
-void ABasePlayerController::PlayerHasDied() const
+void ABasePlayerController::PlayerHasDied()
 {
+	NumOfDeaths++;
 	OnPLayerDeath.Broadcast();
 }
 

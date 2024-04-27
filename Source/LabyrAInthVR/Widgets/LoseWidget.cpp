@@ -1,12 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "DeadWidget.h"
+#include "LoseWidget.h"
 #include "Components/Button.h"
 #include "WidgetContainer.h"
+#include "WidgetController.h"
 
 
-void UDeadWidget::NativeConstruct()
+void ULoseWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
@@ -15,7 +16,7 @@ void UDeadWidget::NativeConstruct()
 		UButton* RestartButtonWidget = Cast<UButton>(RestartButton->GetWidgetFromName(TEXT("ButtonHit")));
 		if (RestartButtonWidget)
 		{
-			RestartButtonWidget->OnClicked.AddDynamic(this, &UDeadWidget::OnRestartClicked);
+			RestartButtonWidget->OnClicked.AddDynamic(this, &ULoseWidget::OnRestartClicked);
 		}
 	}
 
@@ -24,17 +25,17 @@ void UDeadWidget::NativeConstruct()
 		UButton* MainMenuButtonWidget = Cast<UButton>(MainMenuButton->GetWidgetFromName(TEXT("ButtonHit")));
 		if (MainMenuButtonWidget)
 		{
-			MainMenuButtonWidget->OnClicked.AddDynamic(this, &UDeadWidget::OnMainMenuClicked);
+			MainMenuButtonWidget->OnClicked.AddDynamic(this, &ULoseWidget::OnMainMenuClicked);
 		}
 	}
 }
 
-void UDeadWidget::OnRestartClicked()
+void ULoseWidget::OnRestartClicked()
 {
-	
+	WidgetController->RestartButtonClicked();
 }
 
-void UDeadWidget::OnMainMenuClicked()
+void ULoseWidget::OnMainMenuClicked()
 {
-	
+	WidgetController->MainMenuButtonClicked();
 }

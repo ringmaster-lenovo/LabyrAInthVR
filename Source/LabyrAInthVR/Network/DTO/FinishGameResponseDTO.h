@@ -13,5 +13,5 @@ class LABYRAINTHVR_API UFinishGameResponseDTO : public UObject
 public:
 	UFinishGameResponseDTO(){}
 	
-	TArray<ULeaderBoardDTO> Leaderboard;
+	TArray<ULeaderBoardDTO*> Leaderboard;
 };

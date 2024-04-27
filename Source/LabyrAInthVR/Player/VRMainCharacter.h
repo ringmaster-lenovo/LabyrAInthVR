@@ -31,7 +31,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
 	bool IsInLobby = true;
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void StopWidgetInteraction();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
@@ -50,7 +50,6 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementSpeed", meta = (AllowPrivateAccess = "true"))
 	double BaseMovementSpeed = 0.5;
-	
 
 	UPROPERTY(EditAnywhere, Category = "VR")
 	class UCurveFloat* RadiusVsVelocity;
@@ -72,8 +71,6 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "VR")
 	float YawCooldownTime = YawCooldownStartTime;
-
-	
 
 public:
 	USceneComponent* GetVRRoot() const;

@@ -15,9 +15,10 @@ enum class EGameState : uint8
 	Egs_WaitingForSceneBuild  = 3 UMETA(DisplayName = "Waiting For Scene Build"),
 	Egs_Playing               = 4 UMETA(DisplayName = "Playing"),
 	Egs_Pausing               = 5 UMETA(DisplayName = "Pausing"),
-	Egs_Restarting            = 6 UMETA(DisplayName = "Restarting"),
-	Egs_Ending                = 7 UMETA(DisplayName = "Ending"),
-	Egs_ClosingGame           = 8 UMETA(DisplayName = "ClosingGame")
+	Egs_Ending                = 6 UMETA(DisplayName = "Ending"),
+	Egs_Restarting            = 7 UMETA(DisplayName = "Restarting"),
+	Egs_RePreparing           = 8 UMETA(DisplayName = "RePreparing"),
+	Egs_ClosingGame           = 9 UMETA(DisplayName = "ClosingGame")
 };
 
 /**
@@ -30,13 +31,23 @@ class LABYRAINTHVR_API AVRGameState : public AGameStateBase
 
 private:
 	EGameState CurrentStateOfTheGame = EGameState::Egs_NotYetStarted;
+
+	FString DefaultPlayerName = "Player";
+
+	FString PlayerName;
+
+	bool bIsLoggedIn = false;
 	
 	uint8 CurrentLevel = 0;
+
+	FTimerHandle PlayerGameTimeHandle;
 	
-	uint32 SecondsSinceStartOfLevel = 0;
+	uint32 PlayerGameTimeInSec = 0;
 
 	UFUNCTION(Category = "Game State")
-	void StartLevelTimer();
+	void StartPlayerTimer();
+
+	void UpdatePlayerGameTime();
 	
 public:
 	UFUNCTION(Category = "Game State")
@@ -54,4 +65,24 @@ public:
 	UFUNCTION(Category = "Game State")
 	uint8 GetCurrentLevel() const;
 
+	UFUNCTION(Category = "Player")
+	FString LoginPlayer(FString NewPlayerName);
+
+	UFUNCTION(Category = "Player")
+	FString GetPlayerName() const;
+
+	UFUNCTION(Category = "Player")
+	void LogOutPlayer();
+
+	UFUNCTION(Category = "Player")
+	bool IsLoggedIn() const;
+
+	UFUNCTION(Category = "Player")
+	void SetPlayerGameTime(uint32 NewTime);
+
+	UFUNCTION(Category = "Player")
+	uint32 GetPlayerGameTime() const;
+	
+	UFUNCTION(Category = "Game State")
+	void StopPlayerTimer();
 };

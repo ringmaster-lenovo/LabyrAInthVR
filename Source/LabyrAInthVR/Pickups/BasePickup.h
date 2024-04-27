@@ -9,6 +9,8 @@
 class AWeapon;
 class USphereComponent;
 
+DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Pickups_Log, Display, All);
+
 UCLASS()
 class LABYRAINTHVR_API ABasePickup : public AActor, public ISpawnableActor, public IMovableActor
 {
@@ -19,10 +21,16 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
 
-	FORCEINLINE TSubclassOf<AWeapon> GetWeapon() { return Weapon; }
-	FORCEINLINE AWeapon* GetSpawnedWeapon() { return SpawnedWeapon; }
+	FORCEINLINE TSubclassOf<AWeapon> GetWeapon() const { return Weapon; }
+	FORCEINLINE AWeapon* GetSpawnedWeapon() const { return SpawnedWeapon; }
 	FORCEINLINE void SetSpawnedWeapon(AWeapon* WeaponSpawned) { SpawnedWeapon = WeaponSpawned; }
-	FORCEINLINE bool IsWeaponSpawned() { return SpawnedWeapon != nullptr; }
+	FORCEINLINE bool IsWeaponSpawned() const { return SpawnedWeapon != nullptr; }
+	
+	UFUNCTION(BlueprintCallable)
+	bool HasBeenFound() const { return bHasBeenFound; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetHasBeenFound() { bHasBeenFound = true; }
 	
 private:
 	UFUNCTION()
@@ -45,4 +53,7 @@ private:
 
 	UPROPERTY()
 	AWeapon* SpawnedWeapon;
+	
+	UPROPERTY()
+	bool bHasBeenFound = false;
 };

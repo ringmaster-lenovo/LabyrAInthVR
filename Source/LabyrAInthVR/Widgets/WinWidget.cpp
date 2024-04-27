@@ -3,7 +3,8 @@
 
 #include "WinWidget.h"
 
-#include "DeadWidget.h"
+#include "LoseWidget.h"
+#include "WidgetController.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 
@@ -13,7 +14,7 @@ void UWinWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	//JUST FOR TESTING
-	SetTime(302);
+	// SetTime(302);
 
 	if (NextLevelButton)
 	{
@@ -24,12 +25,12 @@ void UWinWidget::NativeConstruct()
 		}
 	}
 
-	if (RestartButton)
+	if (RankingsButton)
 	{
-		UButton* RestartButtonWidget = Cast<UButton>(RestartButton->GetWidgetFromName(TEXT("ButtonHit")));
-		if (RestartButtonWidget)
+		UButton* RankingsButtonWidget = Cast<UButton>(RankingsButton->GetWidgetFromName(TEXT("ButtonHit")));
+		if (RankingsButtonWidget)
 		{
-			RestartButtonWidget->OnClicked.AddDynamic(this, &UWinWidget::OnRestartClicked);
+			RankingsButtonWidget->OnClicked.AddDynamic(this, &UWinWidget::OnRankingsClicked);
 		}
 	}
 
@@ -60,17 +61,17 @@ void UWinWidget::SetTime(int32 time)
 	TimeText->SetText(TimeFormat);
 }
 
-void UWinWidget::OnRestartClicked()
-{
-	
-}
-
 void UWinWidget::OnNextLevelClicked()
 {
-	
+	WidgetController->NextLevelButtonClicked();
+}
+
+void UWinWidget::OnRankingsClicked()
+{
+	WidgetController->RankingsButtonClicked();
 }
 
 void UWinWidget::OnMainMenuClicked()
 {
-	
+	WidgetController->MainMenuButtonClicked();
 }

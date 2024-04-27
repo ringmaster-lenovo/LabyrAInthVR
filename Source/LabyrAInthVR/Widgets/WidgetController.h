@@ -6,10 +6,12 @@
 #include "GameFramework/Actor.h"
 #include "WidgetContainer.h"
 #include "LobbyWidget.h"
+#include "PromptingWidget.h"
+#include "MenuWidget.h"
 #include "SettingsWidget.h"
 #include "LoadingWidget.h"
 #include "WinWidget.h"
-#include "DeadWidget.h"
+#include "LoseWidget.h"
 #include "StatisticsWidget.h"
 #include "WidgetController.generated.h"
 
@@ -39,6 +41,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<ULobbyWidget> LobbyWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UPromptingWidget> PromptingWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UMenuWidget> MenuWidgetClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<USettingsWidget> SettingsWidgetClass;
@@ -53,10 +61,16 @@ public:
 	TSubclassOf<UWinWidget> WinWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-	TSubclassOf<UDeadWidget> DeadWidgetClass;
+	TSubclassOf<ULoseWidget> LoseWidgetClass;
 
 	UPROPERTY()
 	ULobbyWidget* LobbyWidget = nullptr;
+
+	UPROPERTY()
+	UPromptingWidget* PromptingWidget = nullptr;
+
+	UPROPERTY()
+	UMenuWidget* MenuWidget = nullptr;
 	
 	UPROPERTY()
 	USettingsWidget* SettingsWidget = nullptr;
@@ -71,16 +85,13 @@ public:
 	UWinWidget* WinWidget = nullptr;
 
 	UPROPERTY()
-	UDeadWidget* DeadWidget = nullptr;
+	ULoseWidget* LoseWidget = nullptr;
 
 	UPROPERTY()
 	AWidgetContainer* WidgetContainer = nullptr;
 
-	DECLARE_MULTICAST_DELEGATE(FNewGameEvent);
-	FNewGameEvent OnNewGameButtonClicked;
-
-	DECLARE_MULTICAST_DELEGATE(FLoadGameEvent);
-	FLoadGameEvent OnLoadGameButtonClicked;
+	DECLARE_MULTICAST_DELEGATE(FPlayGameEvent);
+	FPlayGameEvent OnPlayGameButtonClicked;
 
 	DECLARE_MULTICAST_DELEGATE(FRankingsEvent);
 	FRankingsEvent OnRankingsButtonClicked;
@@ -104,7 +115,13 @@ public:
 	FWidgetsErrorEvent OnWidgetSError;
 
 	UFUNCTION(Category = "Widgets")
+	void ShowLobbyUI();
+
+	UFUNCTION(Category = "Widgets")
 	void ShowMainMenu();
+
+	UFUNCTION(Category = "Widgets")
+	void ShowPromptingWidget();
 
 	UFUNCTION(Category = "Widgets")
 	void ShowLoadingScreen();
@@ -113,23 +130,38 @@ public:
 	void ShowGameUI();
 
 	UFUNCTION(Category = "Widgets")
-	void ShowWinScreen();
+	void ShowWinScreen(int32 TimeOnLevel);
 
 	UFUNCTION(Category = "Widgets")
 	void ShowLoseScreen();
 
 	UFUNCTION(Category = "Widgets")
-	void NewGameButtonClicked();
+	void MainMenuButtonClicked();
 
 	UFUNCTION(Category = "Widgets")
-	void LoadGameButtonClicked();
+	void RestartButtonClicked();
 
 	UFUNCTION(Category = "Widgets")
-	void RankingsButtonClicked();
+	void StartNewGameButtonClicked() const;
+
+	UFUNCTION(Category = "Widgets")
+	void ReplayContinueButtonClicked() const;
+
+	UFUNCTION(Category = "Widgets")
+	void NextLevelButtonClicked() const;
+
+	UFUNCTION(Category = "Widgets")
+	void RankingsButtonClicked() const;
 
 	UFUNCTION(Category = "Widgets")
 	void SettingsButtonClicked();
 
 	UFUNCTION(Category = "Widgets")
-	void QuitButtonClicked();
+	void QuitButtonClicked() const;
+
+	UFUNCTION(Category = "Widgets")
+	void OnPauseGamePressed();
+
+	UFUNCTION(Category = "Widgets")
+	void SendButtonClicked();
 };

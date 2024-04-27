@@ -28,8 +28,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* speed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UTextBlock* armor;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	// class UTextBlock* armor;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* damage;
@@ -38,7 +38,7 @@ public:
 	class UProgressBar* health;
 
 	UFUNCTION(BlueprintCallable)
-	void SetStatisticsValues(int SpeedValue, int ArmorValue, int DamageValue, float healthPercentage);
+	void SetStatisticsValues(int SpeedValue, int DamageValue, float healthPercentage);
 
 	int32 time = 0;
 
@@ -50,6 +50,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void StopTimer();
+
+	UFUNCTION(BlueprintCallable)
+	bool IsTimerActive() const;
 
 private:
     FTimerHandle TimerHandle;

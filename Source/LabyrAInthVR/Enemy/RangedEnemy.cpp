@@ -2,7 +2,6 @@
 
 #include "AIController.h"
 #include "Kismet/GameplayStatics.h"
-#include "LabyrAInthVR/MockedCharacter/MockedCharacter.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
 #include "LabyrAInthVR/Projectiles/Projectile.h"
 
@@ -12,7 +11,7 @@ void ARangedEnemy::AttackInternal()
 	if (GetDistanceToCharacter() > RangedAttackDistance && !IsAttacking())
 	{
 		
-		UE_LOG(LogTemp, Warning, TEXT("Initiating chase action to: %s from AttackInternal"), *SeenCharacter->GetName());
+		UE_LOG(LabyrAInthVR_Enemy_Log, Warning, TEXT("Initiating chase action to: %s from AttackInternal"), *SeenCharacter->GetName());
 		Chase();
 		return;
 	}
@@ -22,7 +21,7 @@ void ARangedEnemy::AttackInternal()
 
 	if(!AIController->LineOfSightTo(SeenCharacter))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Initiating chase action to: %s from LostSight"), *SeenCharacter->GetName());
+		UE_LOG(LabyrAInthVR_Enemy_Log, Warning, TEXT("Initiating chase action to: %s from LostSight"), *SeenCharacter->GetName());
 		Chase();
 		return;
 	}
@@ -42,7 +41,7 @@ void ARangedEnemy::CheckDistances()
 	
 	if (GetDistanceToCharacter() <= RangedAttackDistance && GetDistanceToCharacter() > MeleeAttackDistance && AIController->LineOfSightTo(SeenCharacter))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Entering into ranged attacking phase"))
+		UE_LOG(LabyrAInthVR_Enemy_Log, Warning, TEXT("Entering into ranged attacking phase"))
 		AIController->StopMovement();
 		bCanAttack = true;
 		EnemyState = EES_Attacking;

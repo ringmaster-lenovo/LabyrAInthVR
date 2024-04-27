@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "WinWidget.generated.h"
+#include "LoseWidget.generated.h"
 
 class AWidgetController;
 /**
  * 
  */
 UCLASS()
-class LABYRAINTHVR_API UWinWidget : public UUserWidget
+class LABYRAINTHVR_API ULoseWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
@@ -22,27 +22,15 @@ public:
 	AWidgetController* WidgetController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UTextBlock* TimeText;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UUserWidget* NextLevelButton;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UUserWidget* RankingsButton;
+	class UUserWidget* RestartButton;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* MainMenuButton;
 
 	UFUNCTION()
-	void OnNextLevelClicked();
-	
-	UFUNCTION()
-	void OnRankingsClicked();
+	void OnRestartClicked();
 
 	UFUNCTION()
 	void OnMainMenuClicked();
-
-	UFUNCTION()
-	void SetTime(int32 time);
 	
 };
