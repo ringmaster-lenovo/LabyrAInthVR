@@ -66,7 +66,7 @@ void AWidgetController::ShowLobbyUI()
 		OnWidgetSError.Broadcast();
 		return;
 	}
-	if(GameState->IsLoggedIn())
+	if (GameState->IsLoggedIn())
 	{
 		ShowMainMenu();
 	} else

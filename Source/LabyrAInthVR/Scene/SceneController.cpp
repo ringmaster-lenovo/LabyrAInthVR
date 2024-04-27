@@ -61,6 +61,30 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 	return "";
 }
 
+FString ASceneController::CleanUpOnlyLevel() const
+{
+	// Get a reference to the game world
+	const UWorld* World = GetWorld();
+	if (!World)
+	{
+		return "No valid world found";
+	}
+	
+	for (TActorIterator<AActor> ActorItr(World); ActorItr; ++ActorItr)
+	{
+		AActor* Actor = *ActorItr;
+		if (Actor == nullptr) continue;
+
+		// Check if the actor's class matches any of the classes to destroy
+		if (Actor->Implements<USpawnableActor>())
+		{
+			Actor->Destroy();
+		}
+	}
+	OnSceneCleanedUp.Broadcast();
+	return "";
+}
+
 FString ASceneController::CleanUpLevelAndDoStatistics(int &NumOfEnemiesKilled, int &NumOfTrapsExploded, int &NumOfPowerUpsCollected, int &NumOfWeaponsFound) const
 {
 	// Get a reference to the game world
@@ -101,7 +125,6 @@ FString ASceneController::CleanUpLevelAndDoStatistics(int &NumOfEnemiesKilled, i
 	NumOfEnemiesKilled = NumOfEnemiesSpawned - NumOfEnemiesAlive;
 	NumOfTrapsExploded = NumOfTrapsSpawned - NumOfTrapsActive;
 	NumOfPowerUpsCollected = NumOfPowerUpsSpawned - NumOfPowerUpsNotCollected;
-	OnSceneCleanedUp.Broadcast();
 	return "";
 }
 
