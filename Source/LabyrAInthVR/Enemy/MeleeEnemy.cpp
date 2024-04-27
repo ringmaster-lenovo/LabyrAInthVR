@@ -29,7 +29,7 @@ void AMeleeEnemy::BeginPlay()
 	RightWeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RightWeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnComponentBeginOverlap);
 
-	if(bHasDoubleWeapon) return;
+	if (bHasDoubleWeapon) return;
 
 	LeftWeaponBoxComponent->UnregisterComponent();
 }
@@ -72,9 +72,9 @@ void AMeleeEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamag
 {
 	Super::ReceiveDamage(DamagedActor, Damage, DamageType, InstigatedBy, DamageCauser);
 
-	if(Health > 0) return;
+	if (Health > 0) return;
 	
-	if(bHasDoubleWeapon)
+	if (bHasDoubleWeapon)
 	{
 		SetWeaponCollision(false, true);
 		SetWeaponCollision(false, false);
@@ -97,14 +97,15 @@ void AMeleeEnemy::PlayMontage(UAnimMontage* MontageToPlay)
 
 void AMeleeEnemy::SetWeaponCollision(bool bEnabled, bool bRightWeapon)
 {
-	if(bRightWeapon)
+	if (bRightWeapon)
 	{
 		if (!IsValid(RightWeaponBoxComponent)) return;
 
 		RightWeaponBoxComponent->SetCollisionEnabled(bEnabled
 													? ECollisionEnabled::QueryAndPhysics
 													: ECollisionEnabled::NoCollision);
-	} else
+	}
+	else
 	{
 		if (!IsValid(LeftWeaponBoxComponent)) return;
 
@@ -121,8 +122,14 @@ void AMeleeEnemy::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
 	const bool bShouldDamage = Cast<AMainCharacter>(OtherActor) == nullptr || Cast<ABaseEnemy>(OtherActor) != nullptr;
 	
 	if (bShouldDamage || OtherActor == this || !OtherActor->Implements<UDamageableActor>()) return;
-
-	UGameplayStatics::ApplyDamage(OtherActor, MeleeAttackDamage, GetController(), this, UDamageType::StaticClass());
+	AMainCharacter* Player = Cast<AMainCharacter> (OtherActor);
+	if (!Player)
+	{
+		UGameplayStatics::ApplyDamage(OtherActor, MeleeAttackDamage, GetController(), this, UDamageType::StaticClass());
+	} else
+	{
+		Player->ReceiveDamage(MeleeAttackDamage, this);
+	}
 }
 
 void AMeleeEnemy::Attack()

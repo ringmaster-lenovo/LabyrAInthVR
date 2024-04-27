@@ -30,6 +30,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
 	bool IsInLobby = true;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void StopWidgetInteraction();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SpawnPointer();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void DestroyPointer();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void DestroyPointerLeft();
 	
 
 private:

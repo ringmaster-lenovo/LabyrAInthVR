@@ -25,13 +25,3 @@ void APortal::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-
-void APortal::OnPassTrough() {
-	// Try and play the sound if specified
-	if (PortalSound != nullptr)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, PortalSound, this->GetActorLocation());
-	}
-	
-}
-

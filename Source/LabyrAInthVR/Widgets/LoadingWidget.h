@@ -18,6 +18,6 @@ class LABYRAINTHVR_API ULoadingWidget : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
-	UPROPERTY()
-	AWidgetContainer* WidgetContainer;
+	// UPROPERTY()
+	// AWidgetContainer* WidgetContainer;
 };

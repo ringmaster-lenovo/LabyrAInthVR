@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "LabyrAInthVR/Enemy/BaseEnemy.h"
+#include "LabyrAInthVR/Interfaces/SpawnableActor.h"
 #include "LabyrinthParser.generated.h"
 
 class ABaseEnemy;
@@ -28,7 +29,7 @@ enum EWallPalette
 };
 
 UCLASS()
-class LABYRAINTHVR_API ALabyrinthParser : public AActor
+class LABYRAINTHVR_API ALabyrinthParser : public AActor, public ISpawnableActor
 {
 	GENERATED_BODY()
 

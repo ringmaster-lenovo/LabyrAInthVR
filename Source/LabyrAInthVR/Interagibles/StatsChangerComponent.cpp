@@ -5,12 +5,13 @@
 #include "PlayerStatsSubSystem.h"
 #include <Kismet/GameplayStatics.h>
 
+DEFINE_LOG_CATEGORY(LabyrAInthVR_Interagibles_Log);
 
 FName parseStatistics(EStatsMapping Stat) {
 	FName result = "";
 	switch (Stat) {
 		case EStatsMapping::Esm_Health:
-			result= "Health";
+			result = "Health";
 			break;
 
 		case EStatsMapping::Esm_Speed:
@@ -61,8 +62,14 @@ void UStatsChangerComponent::ChangeStats(TArray<FStatsType> Stats)
 	for (int32 i = 0; i < Stats.Num(); i++) {
 		PlayerStatisticsSubsystem->AddToCounter(parseStatistics(Stats[i].Stats), Stats[i].Bonus);
 	}
-	/*PlayerStatisticsSubsystem->AddToCounter(FName("Health"), BonusHealth);
-	PlayerStatisticsSubsystem->AddToCounter(FName("Speed"), BonusSpeed);
-	PlayerStatisticsSubsystem->AddToCounter(FName("Resistance"), BonusResistance);*/
+	bool found;
+	float value;
+	PlayerStatisticsSubsystem->GetStatNumberValue(FName("Resistance"), found, value);
+	UE_LOG(LabyrAInthVR_Interagibles_Log, Warning, TEXT("RESISTANCE: %f"), value);
+	PlayerStatisticsSubsystem->GetStatNumberValue(FName("Shield"), found, value);
+	UE_LOG(LabyrAInthVR_Interagibles_Log, Warning, TEXT("SHIELD: %f"), value);
+	// PlayerStatisticsSubsystem->AddToCounter(FName("Health"), BonusHealth);
+	// PlayerStatisticsSubsystem->AddToCounter(FName("Speed"), BonusSpeed);
+	// PlayerStatisticsSubsystem->AddToCounter(FName("Resistance"), BonusResistance);
 }
 

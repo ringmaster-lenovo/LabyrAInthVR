@@ -2,34 +2,58 @@
 
 
 #include "StatisticsWidget.h"
+
+#include "PlayerStatsSubSystem.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
+#include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Player/VRMainCharacter.h"
 
 void UStatisticsWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 			
-	StartTimer(65); //mocked starting time
+	StartTimer(time); //mocked starting TimeOnCurrentLevel
 	// SetStatisticsValues(100, 20, 34, 0.68); //mocked stats
+}
+
+void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+    Super::NativeTick(MyGeometry, InDeltaTime);
+
+    UWorld* World = GetWorld();
+    if (!World) { return; }
+    UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+    UPlayerStatsSubSystem* PlayerStatisticsSubsystem = GameInstance->GetSubsystem<UPlayerStatsSubSystem>();
+    bool found = true;
+    float healthValue;
+    float armorValue;
+    float speedValue;
+    PlayerStatisticsSubsystem->GetStatNumberValue(FName("Health"), found, healthValue);
+    PlayerStatisticsSubsystem->GetStatNumberValue(FName("Shield"), found, armorValue);
+    PlayerStatisticsSubsystem->GetStatNumberValue(FName("Speed"), found, speedValue);
+    //TODO: ADD DAMAGE NOT MOCKED
+
+    SetStatisticsValues(speedValue, armorValue, 20, healthValue/100);
 }
 
 void UStatisticsWidget::SetStatisticsValues(int SpeedValue, int ArmorValue, int DamageValue, float healthPercentage)
 {
     if(speed)
     {
-        FString SpeedText = FString::Printf(TEXT("Speed: %d"), SpeedValue);
+        FString SpeedText = FString::Printf(TEXT("Speed:%d"), SpeedValue);
         speed->SetText(FText::FromString(SpeedText));
     }
 
     if(armor)
     {
-        FString ArmorText = FString::Printf(TEXT("Armor: %d"), ArmorValue);
+        FString ArmorText = FString::Printf(TEXT("Armor:%d"), ArmorValue);
         armor->SetText(FText::FromString(ArmorText));
     }
 
     if(damage)
     {
-        FString DamageText = FString::Printf(TEXT("Damage: %d"), DamageValue);
+        FString DamageText = FString::Printf(TEXT("Damage:%d"), DamageValue);
         damage->SetText(FText::FromString(DamageText));
     }
 

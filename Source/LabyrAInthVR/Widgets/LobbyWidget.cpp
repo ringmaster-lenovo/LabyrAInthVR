@@ -5,7 +5,7 @@
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/Button.h"
-#include "WidgetContainer.h"
+#include "WidgetController.h"
 
 
 void ULobbyWidget::NativeConstruct()
@@ -61,34 +61,25 @@ void ULobbyWidget::NativeConstruct()
 
 void ULobbyWidget::OnNewGameButtonClicked()
 {
-	WidgetContainer->NewGameButtonClicked();
+	WidgetController->NewGameButtonClicked();
 }
 
 void ULobbyWidget::OnLoadGameClicked()
 {
-	
+	WidgetController->LoadGameButtonClicked();
 }
 
 void ULobbyWidget::OnRankingsClicked()
 {
-	
+	WidgetController->RankingsButtonClicked();
 }
 
 void ULobbyWidget::OnSettingsClicked()
 {
-	WidgetContainer->ShowSettings();
+	WidgetController->SettingsButtonClicked();
 }
 
 void ULobbyWidget::OnQuitClicked()
 {
-	// Ottiene il World context
-	UWorld* World = GetWorld();
-	if (!World) return;
-
-	// Ottiene il Player Controller
-	APlayerController* PlayerController = World->GetFirstPlayerController();
-	if (!PlayerController) return;
-
-	// Chiude il gioco. Cambia EQuitPreference::Quit a EQuitPreference::Backgrounding se vuoi che il gioco vada in background invece di chiudersi.
-	UKismetSystemLibrary::QuitGame(World, PlayerController, EQuitPreference::Quit, true);
+	WidgetController->QuitButtonClicked();
 }

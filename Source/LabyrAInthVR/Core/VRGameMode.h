@@ -9,7 +9,7 @@
 #include "LabyrAInthVR/Network/NetworkController.h"
 #include "LabyrAInthVR/Scene/SceneController.h"
 #include "LabyrAInthVR/Widgets/WidgetController.h"
-#include "LabyrAInthVR/Player/VRPlayerController.h"
+#include "LabyrAInthVR/Player/BasePlayerController.h"
 #include "LabyrAInthVR/Player/VRMainCharacter.h"
 #include "VRGameMode.generated.h"
 
@@ -36,10 +36,7 @@ private:
 	bool bIsVRHMDConnected;
 	
 	UPROPERTY()
-	AVRPlayerController* VRPlayerController;
-
-	//UPROPERTY()
-	//A3DPlayerController* PlayerController3D;
+	ABasePlayerController* BasePlayerController;
 
 	UPROPERTY()
 	AVRMainCharacter* CharacterVR;
@@ -58,6 +55,9 @@ private:
 
 	UPROPERTY()
 	AWidgetController* WidgetController;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Game Mode")
+	TSubclassOf<AWidgetController> BP_WidgetController;
 
 	UPROPERTY()
 	AVRGameState* VRGameState;
@@ -78,47 +78,43 @@ private:
 	ULabyrinthDTO* LabyrinthDTO;
 
 	UFUNCTION()
-	void MainMenuLogicHandler();
+	void StartLobby();
 
 	UFUNCTION()
 	void PrepareGame();
+
+	UFUNCTION()
+	void NewGameButtonClicked();
+
+	UFUNCTION()
+	void MockNetwork();
 	
 	UFUNCTION()
 	void StartGame();
 
 	UFUNCTION()
 	void PauseGame();
+
+	UFUNCTION(BlueprintCallable)
+	void ResumeGame();
 	
 	UFUNCTION()
-	void EndGame();
+	void EndGame(bool bIsWin = false);
 
 	UFUNCTION()
 	void RestartGame();
 
 	UFUNCTION()
-	void ProceedToNextLevel();
-
-	UFUNCTION()
-	void MockNetwork();
+	void RePrepareGame();
 
 	UFUNCTION()
 	bool IsVRHMDConnected();
+	
+	void CrashCloseGame() const;
 
-	UFUNCTION()
-	void CrashCloseGame();
+	void CloseGame() const;
 
 public:
-	UFUNCTION(BlueprintCallable)
-	void OnNewGameButtonClicked();
-
-	UFUNCTION(BlueprintCallable)
-	void OnPauseButtonClicked();
-
-	UFUNCTION(BlueprintCallable)
-	void OnEndGameButtonClicked();
-
-	UFUNCTION(BlueprintCallable)
-	void OnRestartGameButtonClicked();
 
 	UFUNCTION(BlueprintCallable)
 	bool IsInVR() { return bIsVRHMDConnected; }

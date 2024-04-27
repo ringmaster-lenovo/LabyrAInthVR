@@ -1,6 +1,7 @@
 ﻿#include "SceneController.h"
 
 #include "Config.h"
+#include "EngineUtils.h"
 #include "LabyrinthParser.h"
 #include "NavigationSystem.h"
 #include "Kismet/GameplayStatics.h"
@@ -56,8 +57,59 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 	return "";
 }
 
+FString ASceneController::CleanUpLevel() const
+{
+	// Get a reference to the game world
+	const UWorld* World = GetWorld();
+	if (!World)
+	{
+		return "No valid world found";
+	}
+	for (TActorIterator<AActor> ActorItr(World); ActorItr; ++ActorItr)
+	{
+		AActor* Actor = *ActorItr;
+		if (Actor == nullptr) continue;
+
+		// Check if the actor's class matches any of the classes to destroy
+		if (Actor->Implements<USpawnableActor>())
+		{
+			Actor->Destroy();
+		}
+	}
+	OnSceneCleanedUp.Broadcast();
+	return "";
+}
+
+FString ASceneController::RespawnMovableActors(ULabyrinthDTO* LabyrinthDTO)
+{
+	// Get a reference to the game world
+	const UWorld* World = GetWorld();
+	if (!World)
+	{
+		return "No valid world found";
+	}
+	for (TActorIterator<AActor> ActorItr(World); ActorItr; ++ActorItr)
+	{
+		AActor* Actor = *ActorItr;
+		if (Actor == nullptr) continue;
+
+		// Check if the actor's class matches any of the classes to destroy
+		if (Actor->Implements<UMovableActor>())
+		{
+			Actor->Destroy();
+		}
+	}
+	FString ErrorMessage = SpawnManager->SpawnActorsInLabyrinth(LabyrinthDTO);
+	if (ErrorMessage != "")
+	{
+		return ErrorMessage;
+	}
+	OnActorsRespawned.Broadcast();
+	return "";
+}
+
 void ASceneController::GetPlayerStartPositionAndRotation(FVector& PlayerStartPosition,
-	FRotator& PlayerStartRotation) const
+                                                         FRotator& PlayerStartRotation) const
 {
 	PlayerStartPosition = SpawnManager->PlayerStartPosition;
 	PlayerStartRotation = SpawnManager->PlayerStartRotation;
