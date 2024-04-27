@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "LabyrAInthVR/Player/PlayerStatistics.h"
 #include "LabyrAInthVR/Interfaces/DamageableActor.h"
 #include "Trap.generated.h"
 
@@ -20,10 +21,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	USoundBase* CollectSound;
 
-	/** Apply Malus on the character */
-	UFUNCTION(BlueprintCallable, Category = "Trap")
-	void OnCollect(TArray<FStatsType> Stats, UStatsChangerComponent* StatsChanger);
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	USoundBase* AlertSound;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

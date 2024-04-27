@@ -26,13 +26,3 @@ void ATrap::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-
-void ATrap::OnCollect(TArray<FStatsType> Stats, UStatsChangerComponent* StatsChanger) {
-	// Try and play the sound if specified
-	if (CollectSound != nullptr)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, CollectSound, this->GetActorLocation());
-	}
-	StatsChanger->ChangeStats(Stats);
-}
-
