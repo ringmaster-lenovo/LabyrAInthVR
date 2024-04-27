@@ -132,6 +132,8 @@ public:
 	FORCEINLINE bool HasShield() { return bHasShield; }
 	FORCEINLINE void ActivateShield() {bHasShield = true;}
 	FORCEINLINE void DeactivateShield() {bHasShield = false; }
+
+	UFUNCTION(BlueprintCallable)
 	void SetSpeedModifier(float NewSpeedModifier);
 	void Sprint(bool bSprint);
 };
