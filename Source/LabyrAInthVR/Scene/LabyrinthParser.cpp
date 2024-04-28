@@ -102,13 +102,21 @@ void ALabyrinthParser::BuildLabyrinthInternal()
 			}
 		}
 	}
-
+	int32 SplinePoints;
 	// Update meshes and look for potential "short" walls
 	for (auto& ProceduralSplineWallPair : ProceduralSplineWallInstancesHorizontal)
 	{
 		if (ProceduralSplineWallPair->GetSplineComponent()->GetNumberOfSplinePoints() == WallSettings::ShortWall)
 			SetShortWallSettings(ProceduralSplineWallPair);
 
+		SplinePoints = ProceduralSplineWallPair->GetSplineComponent()->GetNumberOfSplinePoints();
+
+		for(int i = 0; i < SplinePoints; i++)
+		{
+			if(i == 0 || i == SplinePoints - 1) continue;
+			ProceduralSplineWallPair->GetSplineComponent()->RemoveSplinePoint(1);
+		}
+		
 		ProceduralSplineWallPair->UpdateSplineMesh();
 	}
 
@@ -116,7 +124,15 @@ void ALabyrinthParser::BuildLabyrinthInternal()
 	{
 		if (ProceduralSplineWallPair->GetSplineComponent()->GetNumberOfSplinePoints() == WallSettings::ShortWall)
 			SetShortWallSettings(ProceduralSplineWallPair);
-
+		
+		SplinePoints = ProceduralSplineWallPair->GetSplineComponent()->GetNumberOfSplinePoints();
+		
+		for(int i = 0; i < SplinePoints; i++)
+		{
+			if(i == 0 || i == SplinePoints - 1) continue;
+			ProceduralSplineWallPair->GetSplineComponent()->RemoveSplinePoint(1);
+		}
+		
 		ProceduralSplineWallPair->UpdateSplineMesh();
 	}
 
@@ -173,7 +189,9 @@ void ALabyrinthParser::TravelHorizontal(uint8 RowIndex, uint8 FinalColumnIndex,
 			SpawnWall(SpawnLocation, TravellingDirection, WallType);
 		}
 		else
+		{
 			Neighbor->AddSplinePoint(SpawnLocation);
+		}
 
 		SpawnPillarAtIntersection(RowIndex, j, SpawnLocation, TravellingDirection);
 
