@@ -486,8 +486,8 @@ FString ASpawnManager::SpawnPlayerStart()
 		WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,
 		0.0
 	};
-	PlayerStartPosition = {SpawnPoint.X, SpawnPoint.Y, SpawnPoint.Z + 120};
-	PlayerStartRotation = {0, 45, 0};
+	PlayerStartPosition = {SpawnPoint.X, SpawnPoint.Y, SpawnPoint.Z + 110};
+	PlayerStartRotation = {0, 0, 0};
 	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(PlayerSpawnPoint, SpawnPoint, FRotator(0, 0, 0));
 	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 	return "";

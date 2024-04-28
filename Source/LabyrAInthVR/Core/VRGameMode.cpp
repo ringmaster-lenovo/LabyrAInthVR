@@ -328,6 +328,7 @@ void AVRGameMode::EndGame(const int Result)
 		WidgetController->OnReturnToMainMenuEvent.AddUObject(this, &AVRGameMode::RePrepareGame, true);
 		WidgetController->OnPlayGameButtonClicked.AddUObject(this, &AVRGameMode::RePrepareGame, false);
 		int32 TimeOnLevel = BasePlayerController->GetPlayerTimeOnCurrentLevel();
+		UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Player has finished the level in %d seconds"), TimeOnLevel);
 		WidgetController->ShowWinScreen(TimeOnLevel);
 		
 		MusicController->StartFinalResultMusic(true);

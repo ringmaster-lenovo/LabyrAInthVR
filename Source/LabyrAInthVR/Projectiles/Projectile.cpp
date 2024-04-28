@@ -35,19 +35,19 @@ AProjectile::AProjectile()
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnComponentBeginOverlap);
-	
+
 	if (ProjectileTracer == nullptr) return;
 
 	UNiagaraFunctionLibrary::SpawnSystemAttached(
-											ProjectileTracer,
-											CollisionBox,
-											FName(),
-											GetActorLocation(),
-											GetActorRotation(),
-											EAttachLocation::KeepWorldPosition,
-											false);
+		ProjectileTracer,
+		CollisionBox,
+		FName(),
+		GetActorLocation(),
+		GetActorRotation(),
+		EAttachLocation::KeepWorldPosition,
+		false);
 }
 
 void AProjectile::Destroyed()
@@ -59,27 +59,22 @@ void AProjectile::Destroyed()
 }
 
 void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                                          UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                          UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                          const FHitResult& SweepResult)
 {
-	UE_LOG(LabyrAInthVR_Projectiles_Log, Warning, TEXT("Projectile has impacted with: %s"), *OtherActor->GetName())
-	
-	if(!IsValid(OtherActor) || OtherActor == GetOwner() || OtherActor->IsA<APowerUp>() || OtherActor->IsA<ABasePickup>()) return;
-	
+	UE_LOG(LogTemp, Warning, TEXT("Projectile has impacted with: %s"), *OtherActor->GetName())
+
+	if (!IsValid(OtherActor) || OtherActor == GetOwner() || OtherActor->IsA<APowerUp>() || OtherActor->IsA<
+		ABasePickup>()) return;
+
 	if (OtherActor->IsA<AProceduralSplineWall>() || !OtherActor->Implements<UDamageableActor>())
 	{
 		Destroy();
 		return;
 	}
-	
-	AMainCharacter* Player = Cast<AMainCharacter> (OtherActor);
-	if (!Player)
-	{
-		UGameplayStatics::ApplyDamage(OtherActor, Damage, GetOwner()->GetInstigatorController(), this, UDamageType::StaticClass());
-	} else
-	{
-		Player->ReceiveDamage(Damage, this);
-	}
-	
+
+	UGameplayStatics::ApplyDamage(OtherActor, Damage, GetOwner()->GetInstigatorController(), this,
+	                              UDamageType::StaticClass());
+
 	Destroy();
 }
-
