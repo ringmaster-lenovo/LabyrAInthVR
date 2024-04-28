@@ -2,6 +2,7 @@
 
 #include "BasePlayerController.h"
 #include "MainCharacter.h"
+#include "Components/PawnNoiseEmitterComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
@@ -53,9 +54,9 @@ void UPlayerStatistics::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UPlayerStatistics::PlayFootstepSound()
 {
-	if(!IsValid(MainCharacter)) return;
-	float Velocity = MainCharacter->GetCharacterMovement()->Velocity.Size();
+	if(!IsValid(MainCharacter) || !IsValid(MainCharacter->GetPawnNoiseEmitterComponent())) return;
 	UGameplayStatics::PlaySound2D(this, bIsRunning ? FootstepsRun : FootstepsWalk);
+	if(bIsRunning) MainCharacter->GetPawnNoiseEmitterComponent()->MakeNoise(MainCharacter, 1.0f, MainCharacter->GetActorLocation());
 }
 
 void UPlayerStatistics::ChangeStatFloat(EStatModifier Stat, float Amount)

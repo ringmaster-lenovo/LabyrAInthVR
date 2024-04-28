@@ -52,6 +52,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	UPlayerStatistics* PlayerStats;
 
+	UPROPERTY(EditAnywhere)
+	UPawnNoiseEmitterComponent* PawnNoiseEmitterComponent;
+	
 	UPROPERTY(EditAnywhere, Category=Gameplay)
 	USpotLightComponent* Flashlight;
 	
