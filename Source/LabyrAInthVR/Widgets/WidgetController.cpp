@@ -8,6 +8,7 @@
 #include "LoadLevelsWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/Button.h"
+#include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/VerticalBox.h"
 #include "Components/TextBlock.h"
@@ -326,32 +327,26 @@ void AWidgetController::ReplayContinueButtonClicked()
         
 						// Create an instance of ButtonWidget for each level
 						UButtonWidget* LoadLevelButton = CreateWidget<UButtonWidget>(PlayerController, ButtonWidgetClass);
+						LoadLevelButton->Level = Levels[i];
+						LoadLevelButton->OnClickedDelegate.AddUniqueDynamic(this, &AWidgetController::OnLevelButtonClicked);
 						if (LoadLevelButton && LoadLevelButton->TextBlock)
 						{
 							// Setup the button properties
 							FText FormattedText = FText::Format(FText::FromString(TEXT("Level {0}-Best Time {1}:{2} ")), FText::AsNumber(Levels[i]),MinutesText,SecondsText);
-							// LoadLevelButton->TextBlock->SetText(FormattedText);
 							LoadLevelButton->ButtonText = FormattedText;
-							UButton* LevelButtonWidget = Cast<UButton>(LoadLevelButton->GetWidgetFromName(TEXT("ButtonHit")));
-							if (LevelButtonWidget)
-							{
-								CurrentLevelIndex = Levels[i];  // Set the current level index
-								LevelButtonWidget->OnClicked.AddDynamic(this, &AWidgetController::LoadLevelFromIndex);
-							}
+							
 							// Add the button to the VerticalBox
 							LoadLevelsWidget->LevelsBox->AddChildToVerticalBox(LoadLevelButton);
-							
-							
 						}
 					}
 					UButtonWidget* NewLevelButton = CreateWidget<UButtonWidget>(PlayerController, ButtonWidgetClass);
-					FText NextLevelText = FText::FromString(TEXT("Next Level"));
-					NewLevelButton->ButtonText = NextLevelText;
-					UButton* NewLevelButtonWidget = Cast<UButton>(NewLevelButton->GetWidgetFromName(TEXT("ButtonHit")));
-					if (NewLevelButtonWidget)
+					NewLevelButton->Level = Levels.Num();
+					NewLevelButton->OnClickedDelegate.AddUniqueDynamic(this, &AWidgetController::OnLevelButtonClicked);
+					if (NewLevelButton && NewLevelButton->TextBlock)
 					{
-						CurrentLevelIndex = Levels.Num();  // Set the current level index
-						NewLevelButtonWidget->OnClicked.AddDynamic(this, &AWidgetController::LoadLevelFromIndex);
+						// Setup the button properties
+						FText NextLevelText = FText::FromString(TEXT("Next Level"));
+						NewLevelButton->ButtonText = NextLevelText;
 					}
 					LoadLevelsWidget->LevelsBox->AddChildToVerticalBox(NewLevelButton);
 					
@@ -384,12 +379,12 @@ void AWidgetController::ReplayContinueButtonClicked()
 	// NextLevelButtonClicked();
 }
 
-void AWidgetController::LoadLevelFromIndex()
+void AWidgetController::OnLevelButtonClicked(UButtonWidget* Button)
 {
-	LoadLevel(CurrentLevelIndex);
+	LoadLevel(Button->Level);
 }
 
-void AWidgetController::LoadLevel(uint8 Level)
+void AWidgetController::LoadLevel(int8 Level)
 {
 	UWorld* World = GetWorld();
 	if (!World)

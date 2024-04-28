@@ -5,11 +5,11 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "ButtonWidget.generated.h"
-
-class AWidgetController;
 /**
  * 
  */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBUIOnClickedSignature, class UButtonWidget*, Button);
+
 UCLASS()
 class LABYRAINTHVR_API UButtonWidget : public UUserWidget
 {
@@ -17,6 +17,13 @@ class LABYRAINTHVR_API UButtonWidget : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
+
+	FBUIOnClickedSignature OnClickedDelegate;
+
+	UFUNCTION()
+	void OnButtonClicked();
+
+	int8 Level;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* TextBlock;

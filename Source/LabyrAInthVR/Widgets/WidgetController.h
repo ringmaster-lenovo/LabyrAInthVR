@@ -15,6 +15,7 @@
 #include "WinWidget.h"
 #include "LoseWidget.h"
 #include "StatisticsWidget.h"
+#include "ButtonWidget.h"
 #include "WidgetController.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Widget_Log, Display, All);
@@ -32,8 +33,6 @@ protected:
 
 	UFUNCTION(Category = "Widgets")
 	void RemoveAllWidgets(UObject* WorldContextObject);
-	
-	int32 CurrentLevelIndex;
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -134,6 +133,9 @@ public:
 	void ShowLobbyUI();
 
 	UFUNCTION(Category = "Widgets")
+	void OnLevelButtonClicked(UButtonWidget* Button);
+
+	UFUNCTION(Category = "Widgets")
 	void ShowMainMenu();
 
 	UFUNCTION(Category = "Widgets")
@@ -158,7 +160,7 @@ public:
 	void RestartButtonClicked();
 
 	UFUNCTION(Category = "Widgets")
-	void LoadLevel(uint8 Level);
+	void LoadLevel(int8 Level);
 
 	UFUNCTION(Category = "Widgets")
 	void StartNewGameButtonClicked() const;
@@ -166,8 +168,8 @@ public:
 	UFUNCTION(Category = "Widgets")
 	void ReplayContinueButtonClicked();
 
-	UFUNCTION(Category = "Widgets")
-	void LoadLevelFromIndex();
+	// UFUNCTION(Category = "Widgets")
+	// void LoadLevelFromIndex();
 
 	UFUNCTION(Category = "Widgets")
 	void NextLevelButtonClicked() const;
