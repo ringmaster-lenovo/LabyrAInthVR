@@ -26,5 +26,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UVerticalBox* LevelsBox;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UUserWidget* BackButton;
+
+	UFUNCTION()
+	void OnBackClicked();
 	
 };

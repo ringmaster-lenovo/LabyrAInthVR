@@ -313,6 +313,7 @@ void AWidgetController::ReplayContinueButtonClicked()
 			if(LoadLevelsWidgetClass)
 			{
 				LoadLevelsWidget = CreateWidget<ULoadLevelsWidget>(PlayerController, LoadLevelsWidgetClass);
+				LoadLevelsWidget->WidgetController = this;
 				if (LoadLevelsWidget->LevelsBox)
 				{
 					for (int i = 0; i < Levels.Num(); i++)
