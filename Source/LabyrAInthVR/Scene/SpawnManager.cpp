@@ -407,6 +407,8 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 FString ASpawnManager::SpawnWeapons() const
 {
 	if (WeaponsClasses.IsEmpty()) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Non blocking scene Error: No Weapons Set"));
+	if (PickupsClasses.IsEmpty()) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Non blocking scene Error: No Pickups Set"));
+	if (Labyrinth == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Blocking scene Error: Labyrinth is null"));
 	if (PlayerStartIndexPosition == -1)
 	{
 		UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Did not found the player start position, invalid matrix"));
@@ -416,6 +418,7 @@ FString ASpawnManager::SpawnWeapons() const
 	int Column = -1;
 	UUtils::ConvertToRowColumn(PlayerStartIndexPosition, Row, Column);
 	FVector SpawnPoint{0};
+	FVector PickupsSpawnPoint{0};
 	
 	double InX = WallSettings::WallOffset * Column;
 	double InY = WallSettings::WallOffset * Row;
@@ -438,12 +441,19 @@ FString ASpawnManager::SpawnWeapons() const
 		}
 	}
 	SpawnPoint = FVector { InX, InY,Weapons::SpawnHeight };
+	PickupsSpawnPoint = FVector { 170, 20,140 };
 	const UClass* ObjectClass = WeaponsClasses[0]->GetSuperClass();
 	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(WeaponsClasses[0], SpawnPoint, FRotator(0, 0, 0));
 	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 	else
 	{
 		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor spawned: %s"), *ActorSpawned->GetName());
+	}
+	const AActor* AnotherActorSpawned = GetWorld()->SpawnActor<AActor>(PickupsClasses[0], PickupsSpawnPoint, FRotator(0, 90, 0));
+	if (AnotherActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
+	else
+	{
+		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor spawned: %s"), *AnotherActorSpawned->GetName());
 	}
 	return "";
 }

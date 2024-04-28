@@ -175,16 +175,16 @@ void AVRGameMode::PlayerWantsToPlayGame()
 	
 	WidgetController->ShowLoadingScreen();
 	
-	MockNetwork();  // uncomment this line and comment the followings to test the game without the backend
-	// NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
-	// NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
+	// MockNetwork();  // uncomment this line and comment the followings to test the game without the backend
+	NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
+	NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
 
-	// const int32 LevelToPlay = VRGameState->GetCurrentLevel();
-	// UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Requesting Labyrinth for level %d"), LevelToPlay);
-	// ULabyrinthRequestDTO* LabyrinthRequestDTO = NewObject<ULabyrinthRequestDTO>();
-	// LabyrinthDTO->Level = LevelToPlay;
-	// LabyrinthRequestDTO->Level = LevelToPlay;
-	// NetworkController->GetLabyrinthFromBE(LabyrinthRequestDTO, LabyrinthDTO);
+	const int32 LevelToPlay = VRGameState->GetCurrentLevel();
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Requesting Labyrinth for level %d"), LevelToPlay);
+	ULabyrinthRequestDTO* LabyrinthRequestDTO = NewObject<ULabyrinthRequestDTO>();
+	LabyrinthDTO->Level = LevelToPlay;
+	LabyrinthRequestDTO->Level = LevelToPlay;
+	NetworkController->GetLabyrinthFromBE(LabyrinthRequestDTO, LabyrinthDTO);
 }
 
 void AVRGameMode::MockNetwork()
@@ -350,6 +350,8 @@ void AVRGameMode::EndGame(const int Result)
 		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player wants to go back to the lobby"));
 		RePrepareGame(true);
 	}
+	
+	BasePlayerController->ResetPlayerStats();
 }
 
 void AVRGameMode::RestartGame()
@@ -475,6 +477,16 @@ void AVRGameMode::SaveGame()
 	FinishGameRequestDto->Time = TimeOnLevel;
 	FinishGameRequestDto->Level = Level;
 	UFinishGameResponseDTO* FinishGameResponseDto = NewObject<UFinishGameResponseDTO>();
+	// NetworkController->OnFinishGameResponseReceived.AddLambda(
+	// 	[FinishGameResponseDto]()
+	// 	{
+	// 		UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("FinishGameResponse received"));
+	// 	});
+	// NetworkController->OnFinishGameError.AddLambda(
+	// 	[]
+	// 	{
+	// 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("FinishGameRequest failed"));
+	// 	});
 	NetworkController->FinishGame(FinishGameRequestDto, FinishGameResponseDto);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("NumOfDeaths: %d"), NumOfDeaths);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("NumOfEnemiesKilled: %d"), NumOfEnemiesKilled);

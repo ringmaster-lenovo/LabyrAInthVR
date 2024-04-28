@@ -134,6 +134,8 @@ void ABaseEnemy::OnHearNoise(APawn* NoiseInstigator, const FVector& Location, fl
 	MoveRequest.SetGoalLocation(Location);
 	MoveRequest.SetAcceptanceRadius(0.f);
 	AIController->MoveTo(MoveRequest);
+
+	UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Heard sound, going to the sound location"), *GetName())
 }
 
 void ABaseEnemy::FreezeTimerFinished()

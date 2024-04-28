@@ -2,6 +2,7 @@
 
 #include "BasePlayerController.h"
 #include "MainCharacter.h"
+#include "Components/PawnNoiseEmitterComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
@@ -30,7 +31,7 @@ void UPlayerStatistics::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	FTimerManager& WorldTimerManager = GetWorld()->GetTimerManager();
 	float Vel = CharacterMovementComponent->Velocity.Size();
 	
-	if(Vel > 0 && Vel <= WalkSpeed && !GetWorld()->GetTimerManager().IsTimerActive(FootstepsSoundWalkTimerHandle))
+	if (Vel > 0 && Vel <= WalkSpeed && !GetWorld()->GetTimerManager().IsTimerActive(FootstepsSoundWalkTimerHandle))
 	{
 		bIsRunning = false;
 		WorldTimerManager.ClearTimer(FootstepsSoundRunTimerHandle);
@@ -52,9 +53,9 @@ void UPlayerStatistics::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 void UPlayerStatistics::PlayFootstepSound()
 {
-	if(!IsValid(MainCharacter)) return;
-	float Velocity = MainCharacter->GetCharacterMovement()->Velocity.Size();
+	if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetPawnNoiseEmitterComponent())) return;
 	UGameplayStatics::PlaySound2D(this, bIsRunning ? FootstepsRun : FootstepsWalk);
+	if (bIsRunning) MainCharacter->GetPawnNoiseEmitterComponent()->MakeNoise(MainCharacter, 1.0f, MainCharacter->GetActorLocation());
 }
 
 void UPlayerStatistics::ChangeStatFloat(EStatModifier Stat, float Amount)
@@ -138,7 +139,7 @@ float UPlayerStatistics::GetDefaultHealth()
 
 float UPlayerStatistics::GetCurrentWeaponDamage()
 {
-	if(!IsValid(MainCharacter)) return 0.f;
+	if (!IsValid(MainCharacter)) return 0.f;
 
 	return MainCharacter->GetWeaponDamage();
 }
@@ -158,7 +159,7 @@ FPlayerTime UPlayerStatistics::GetPlayerTime()
 
 void UPlayerStatistics::ResetStats()
 {
-	if(!IsValid(MainCharacter) || !IsValid(GetWorld())) return;
+	if (!IsValid(MainCharacter) || !IsValid(GetWorld())) return;
 	
 	Health = DefaultHealth;
 	CurrentSpeed = WalkSpeed;
@@ -187,7 +188,6 @@ void UPlayerStatistics::Sprint(bool bSprint)
 void UPlayerStatistics::UpdateTimer()
 {
 	LevelTime++;
-	UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Level time: %f"), *GetName(), LevelTime)
 }
 
 void UPlayerStatistics::ResetToDefaultValue(EStatModifier Stat)

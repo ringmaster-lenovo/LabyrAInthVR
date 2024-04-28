@@ -59,7 +59,7 @@ void ABasePlayerController::ResetPlayerStats()
 	}
 	UPlayerStatistics* PlayerStatistics = MainCharacter->GetPlayerStatistics();
 
-	if(!IsValid(PlayerStatistics))
+	if (!IsValid(PlayerStatistics))
 	{
 		UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot reset player stats, PlayerStatistics ref is not valid"));
 		return;

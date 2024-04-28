@@ -105,6 +105,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Weapons")
 	TArray<TSubclassOf<AActor>> WeaponsClasses;
 
+	UPROPERTY(EditAnywhere, Category = "Weapons")
+	TArray<TSubclassOf<AActor>> PickupsClasses;
+
 	UPROPERTY(EditAnywhere, Category = "Portals")
 	TSubclassOf<AActor> PlayerSpawnPoint;
 

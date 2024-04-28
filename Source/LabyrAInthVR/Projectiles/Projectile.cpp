@@ -63,11 +63,20 @@ void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
                                           const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Projectile has impacted with: %s"), *OtherActor->GetName())
-
+	
+	if (OtherActor->IsA<AProceduralSplineWall>())
+	{
+		Destroy();
+		return;
+	}
+	
 	if (!IsValid(OtherActor) || OtherActor == GetOwner() || OtherActor->IsA<APowerUp>() || OtherActor->IsA<
-		ABasePickup>()) return;
+		ABasePickup>())
+	{
+		return;
+	}
 
-	if (OtherActor->IsA<AProceduralSplineWall>() || !OtherActor->Implements<UDamageableActor>())
+	if (!OtherActor->Implements<UDamageableActor>())
 	{
 		Destroy();
 		return;

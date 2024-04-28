@@ -2,6 +2,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "PlayerStatistics.h"
+#include "Components/PawnNoiseEmitterComponent.h"
 #include "Components/SpotLightComponent.h"
 
 #include "Engine/World.h"
@@ -25,6 +26,8 @@ AMainCharacter::AMainCharacter()
 	Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
 	Flashlight->SetAttenuationRadius(500000.f);
 	Flashlight->SetOuterConeAngle(25.f);
+
+	PawnNoiseEmitterComponent = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("PawnNoiseEmitter"));
 }
 
 // Called when the game starts or when spawned
