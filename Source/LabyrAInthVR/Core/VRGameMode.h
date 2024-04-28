@@ -111,7 +111,7 @@ private:
 	UFUNCTION()
 	bool IsVRHMDConnected();
 
-	void SaveGame();
+	void SaveGame() const;
 	
 	void CrashCloseGame() const;
 

@@ -9,7 +9,6 @@
 #include "LabyrAInthVR/Music/MusicController.h"
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "LabyrAInthVR/Player/Main3DCharacter.h"
-#include "LabyrAInthVR/Scene/Utils.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Core_Log);
 
@@ -253,7 +252,7 @@ void AVRGameMode::StartGame()
 	WidgetController->ShowGameUI();
 	MusicController->StartAmbienceMusic(false);
 	
-	WidgetController->OnPauseEvent.AddUObject(this, &AVRGameMode::PauseGame);
+	WidgetController->OnPauseGameEvent.AddUObject(this, &AVRGameMode::PauseGame);
 	BasePlayerController->OnCollisionWithEndPortal.AddUObject(this, &AVRGameMode::EndGame, 0);
 	BasePlayerController->OnPLayerDeath.AddUObject(this, &AVRGameMode::EndGame, 1);
 }
@@ -269,7 +268,7 @@ void AVRGameMode::PauseGame()
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
 
 	// unbind pause event and re-bind all pause widget events
-	WidgetController->OnPauseEvent.RemoveAll(this);
+	WidgetController->OnPauseGameEvent.RemoveAll(this);
 	WidgetController->OnResumeGameEvent.AddUObject(this, &AVRGameMode::ResumeGame);
 	WidgetController->OnRestartLevelEvent.AddUObject(this, &AVRGameMode::RestartGame);
 	WidgetController->OnReturnToMainMenuEvent.AddUObject(this, &AVRGameMode::EndGame, 2);
@@ -289,7 +288,7 @@ void AVRGameMode::ResumeGame()
 	WidgetController->OnResumeGameEvent.RemoveAll(this);
 	WidgetController->OnRestartLevelEvent.RemoveAll(this);
 	WidgetController->OnReturnToMainMenuEvent.RemoveAll(this);
-	WidgetController->OnPauseEvent.AddUObject(this, &AVRGameMode::PauseGame);
+	WidgetController->OnPauseGameEvent.AddUObject(this, &AVRGameMode::PauseGame);
 }
 
 void AVRGameMode::EndGame(const int Result)
@@ -307,7 +306,7 @@ void AVRGameMode::EndGame(const int Result)
 	// unbind all game events
 	BasePlayerController->OnPLayerDeath.RemoveAll(this);
 	BasePlayerController->OnCollisionWithEndPortal.RemoveAll(this);
-	WidgetController->OnPauseEvent.RemoveAll(this);
+	WidgetController->OnPauseGameEvent.RemoveAll(this);
 	WidgetController->OnResumeGameEvent.RemoveAll(this);
 
 	// teleport player back to lobby
@@ -458,7 +457,7 @@ void AVRGameMode::CrashCloseGame() const
 	FGenericPlatformMisc::RequestExit(true);;
 }
 
-void AVRGameMode::SaveGame()
+void AVRGameMode::SaveGame() const
 {
 	int NumOfDeaths = BasePlayerController->GetNumOfDeaths();
 	int NumOfEnemiesKilled, NumOfTrapsExploded, NumOfPowerUpsCollected, NumOfWeaponsFound;
