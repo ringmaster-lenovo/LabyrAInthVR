@@ -5,8 +5,12 @@
 
 #include "WidgetContainer.h"
 #include "LobbyWidget.h"
+#include "LoadLevelsWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/VerticalBox.h"
+#include "Components/TextBlock.h"
 #include "LabyrAInthVR/Core/LabyrAInthVRGameInstance.h"
 #include "LabyrAInthVR/Core/VRGameMode.h"
 
@@ -271,7 +275,7 @@ void AWidgetController::StartNewGameButtonClicked() const
 	OnPlayGameButtonClicked.Broadcast();
 }
 
-void AWidgetController::ReplayContinueButtonClicked() const
+void AWidgetController::ReplayContinueButtonClicked() 
 {
 	
 	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Replay/Continue Button Clicked!"));
@@ -303,10 +307,64 @@ void AWidgetController::ReplayContinueButtonClicked() const
 		ULabyrAInthVRGameInstance::LoadGame(PlayerName, Levels, Times);
 		if (Levels.Num() > 0)
 		{
-			for (int i = 0; i < Levels.Num(); i++)
+			RemoveAllWidgets(World);
+			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+			if(LoadLevelsWidgetClass)
 			{
-				UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Player: %s, Level: %d, Time: %d"), *PlayerName, Levels[i], Times[i]);
-				//TODO: POPOLARE WIDGET
+				LoadLevelsWidget = CreateWidget<ULoadLevelsWidget>(PlayerController, LoadLevelsWidgetClass);
+				if (LoadLevelsWidget->LevelsBox)
+				{
+					for (int i = 0; i < Levels.Num(); i++)
+					{
+						// Log for debugging
+						UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Player: %s, Level: %d, Time: %d"), *PlayerName, Levels[i], Times[i]);
+						int32 currentMinutes =  Times[i] / 60;
+						int32 currentSeconds =  Times[i] % 60;
+
+						FText MinutesText =  FText::FromString(FString::Printf(TEXT("%02d"), currentMinutes));
+						FText SecondsText = FText::FromString(FString::Printf(TEXT("%02d"), currentSeconds));
+        
+						// Create an instance of ButtonWidget for each level
+						UButtonWidget* LoadLevelButton = CreateWidget<UButtonWidget>(PlayerController, ButtonWidgetClass);
+						if (LoadLevelButton && LoadLevelButton->TextBlock)
+						{
+							// Setup the button properties
+							FText FormattedText = FText::Format(FText::FromString(TEXT("Level {0}-Best Time {1}:{2} ")), FText::AsNumber(Levels[i]),MinutesText,SecondsText);
+							// LoadLevelButton->TextBlock->SetText(FormattedText);
+							LoadLevelButton->ButtonText = FormattedText;
+							UButton* LevelButtonWidget = Cast<UButton>(LoadLevelButton->GetWidgetFromName(TEXT("ButtonHit")));
+							if (LevelButtonWidget)
+							{
+								CurrentLevelIndex = Levels[i];  // Set the current level index
+								LevelButtonWidget->OnClicked.AddDynamic(this, &AWidgetController::LoadLevelFromIndex);
+							}
+							// Add the button to the VerticalBox
+							LoadLevelsWidget->LevelsBox->AddChildToVerticalBox(LoadLevelButton);
+							
+							
+						}
+					}
+					UButtonWidget* NewLevelButton = CreateWidget<UButtonWidget>(PlayerController, ButtonWidgetClass);
+					FText NextLevelText = FText::FromString(TEXT("Next Level"));
+					NewLevelButton->ButtonText = NextLevelText;
+					UButton* NewLevelButtonWidget = Cast<UButton>(NewLevelButton->GetWidgetFromName(TEXT("ButtonHit")));
+					if (NewLevelButtonWidget)
+					{
+						CurrentLevelIndex = Levels.Num();  // Set the current level index
+						NewLevelButtonWidget->OnClicked.AddDynamic(this, &AWidgetController::LoadLevelFromIndex);
+					}
+					LoadLevelsWidget->LevelsBox->AddChildToVerticalBox(NewLevelButton);
+					
+				}
+				if(bIsInVR)
+				{
+					WidgetContainer->Widget->SetWidgetClass(LoadLevelsWidgetClass);
+					WidgetContainer->Widget->SetWidget(LoadLevelsWidget);
+				} else
+				{
+					LoadLevelsWidget->AddToViewport(0);
+
+				}
 			}
 			// the player has already played the game
 			// the player can choose to replay the previous level already beaten
@@ -323,7 +381,34 @@ void AWidgetController::ReplayContinueButtonClicked() const
 	}
 
 	// MOCKUP ONLY FOR TESTING
-	NextLevelButtonClicked();
+	// NextLevelButtonClicked();
+}
+
+void AWidgetController::LoadLevelFromIndex()
+{
+	LoadLevel(CurrentLevelIndex);
+}
+
+void AWidgetController::LoadLevel(uint8 Level)
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("No World!"));
+		OnWidgetSError.Broadcast();
+		return;
+	}
+	AVRGameState* GameState = World->GetGameState<AVRGameState>();
+	if (!GameState)
+	{
+		UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("No GameState!"));
+		OnWidgetSError.Broadcast();
+		return;
+	}
+	GameState->SetCurrentLevel(Level);
+	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("LIVELLO CARICATO %d "), Level);
+
+	OnPlayGameButtonClicked.Broadcast();
 }
 
 void AWidgetController::NextLevelButtonClicked() const
@@ -378,7 +463,7 @@ void AWidgetController::OnPauseGamePressed()
 		{
 			if (MenuWidget && MenuWidget->IsInViewport())
 			{
-				MenuWidget->RemoveFromViewport();
+				MenuWidget->RemoveFromParent();
 				MenuWidget = nullptr;
 				ShowGameUI();
 			}

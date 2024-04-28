@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "WidgetContainer.h"
 #include "LobbyWidget.h"
+#include "LoadLevelsWidget.h"
+#include "ButtonWidget.h"
 #include "PromptingWidget.h"
 #include "MenuWidget.h"
 #include "SettingsWidget.h"
@@ -30,6 +32,8 @@ protected:
 
 	UFUNCTION(Category = "Widgets")
 	void RemoveAllWidgets(UObject* WorldContextObject);
+	
+	int32 CurrentLevelIndex;
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -63,9 +67,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<ULoseWidget> LoseWidgetClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<ULoadLevelsWidget> LoadLevelsWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UButtonWidget> ButtonWidgetClass;
+
 	UPROPERTY()
 	ULobbyWidget* LobbyWidget = nullptr;
+	
+	UPROPERTY()
+	ULoadLevelsWidget* LoadLevelsWidget = nullptr;
 
+	UPROPERTY()
+	UButtonWidget* ButtonWidget = nullptr;
+	
 	UPROPERTY()
 	UPromptingWidget* PromptingWidget = nullptr;
 
@@ -142,10 +158,16 @@ public:
 	void RestartButtonClicked();
 
 	UFUNCTION(Category = "Widgets")
+	void LoadLevel(uint8 Level);
+
+	UFUNCTION(Category = "Widgets")
 	void StartNewGameButtonClicked() const;
 
 	UFUNCTION(Category = "Widgets")
-	void ReplayContinueButtonClicked() const;
+	void ReplayContinueButtonClicked();
+
+	UFUNCTION(Category = "Widgets")
+	void LoadLevelFromIndex();
 
 	UFUNCTION(Category = "Widgets")
 	void NextLevelButtonClicked() const;
