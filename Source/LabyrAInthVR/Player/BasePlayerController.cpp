@@ -4,6 +4,7 @@
 
 #include "PlayerStatistics.h"
 #include "VRMainCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Player_Log);
 
@@ -68,7 +69,7 @@ void ABasePlayerController::ResetPlayerStats()
 	PlayerStatistics->ResetStats();
 }
 
-FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRotator& Rotation, bool InGamePassed) 
+FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRotator& Rotation, const bool InGamePassed) 
 {
 	if (MainCharacter->TeleportTo(Position, Rotation))
 	{
@@ -84,6 +85,7 @@ FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRo
 			UPlayerStatistics* PlayerStatistics = MainCharacter->GetPlayerStatistics();
 			if (!IsValid(PlayerStatistics)) return "Cannot stop level timer, PlayerStatistics ref is not valid";
 			PlayerStatistics->StopLevelTimer();
+			GetWorldTimerManager().SetTimer(TeleportTimerHandle, this, &ThisClass::BlockMovementInLobby, 1.0f, false, .5f);
 		}
 		if (AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(MainCharacter); VRCharacter != nullptr)
 		{
@@ -115,5 +117,12 @@ void ABasePlayerController::PlayerHasDied()
 {
 	NumOfDeaths++;
 	OnPLayerDeath.Broadcast();
+}
+
+void ABasePlayerController::BlockMovementInLobby()
+{
+	MainCharacter->GetCharacterMovement()->SetMovementMode(MOVE_None);
+	// stop timer for teleporting
+	GetWorldTimerManager().ClearTimer(TeleportTimerHandle);
 }
 

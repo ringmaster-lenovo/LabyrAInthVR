@@ -459,7 +459,7 @@ FString ASpawnManager::SpawnWeapons() const
 }
 
 
-FString ASpawnManager::SpawnPortal() const
+FString ASpawnManager::SpawnPortal()
 {
 	if (PortalIndexPosition == -1) return "Did not found the portal position, invalid matrix";
 	if (Portal == nullptr) return "Portal asset not set, cannot play";
@@ -479,6 +479,8 @@ FString ASpawnManager::SpawnPortal() const
 			YawRotation = 0;
 		}
 	}
+	EndPortalPosition = SpawnPoint;
+	EndPortalRotation = {0, YawRotation, 0};
 	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(Portal, SpawnPoint, FRotator(0, YawRotation, 0));
 	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 	return "";

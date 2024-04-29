@@ -58,10 +58,15 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FOnPlayerHasDied);
 	FOnPlayerHasDied OnPLayerDeath;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
-	int NumOfDeaths = 0;
-
 	int GetNumOfDeaths() const { return NumOfDeaths; }
 
 	void ResetNumOfDeaths() { NumOfDeaths = 0; }
+
+private:
+	UPROPERTY(VisibleAnywhere, Category = "Player")
+	int NumOfDeaths = 0;
+	
+	FTimerHandle TeleportTimerHandle;
+
+	void BlockMovementInLobby();
 };
