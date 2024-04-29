@@ -72,6 +72,8 @@ public:
 	ABaseEnemy();
 	void SetMatrixPosition(uint8 Row, uint8 Column);
 	float GetSpeed();
+
+	UFUNCTION(BlueprintCallable)
 	void Freeze(uint8 Time);
 protected:
 	virtual void BeginPlay() override;

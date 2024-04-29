@@ -83,6 +83,7 @@ void ABaseEnemy::Freeze(uint8 Time)
 {
 	LastKnownEnemyState = EnemyState;
 	EnemyState = EES_Frozen;
+	GetMesh()->bNoSkeletonUpdate = true;
 	GetWorldTimerManager().SetTimer(FreezingTimerHandle, this, &ThisClass::FreezeTimerFinished, Time, false);
 }
 
@@ -141,6 +142,7 @@ void ABaseEnemy::OnHearNoise(APawn* NoiseInstigator, const FVector& Location, fl
 void ABaseEnemy::FreezeTimerFinished()
 {
 	EnemyState = LastKnownEnemyState;
+	GetMesh()->bNoSkeletonUpdate = false;
 }
 
 void ABaseEnemy::OnMoveFinished(FAIRequestID RequestID, const FPathFollowingResult& PathFollowingResult)
