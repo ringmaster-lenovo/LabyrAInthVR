@@ -26,6 +26,8 @@ public:
 
 	FString SetupLevel(ULabyrinthDTO* LabyrinthDTO);
 
+	FString CleanUpOnlyLevel() const;
+	
 	FString CleanUpLevelAndDoStatistics(int &NumOfEnemiesKilled, int &NumOfTrapsExploded, int &NumOfPowerUpsCollected, int &NumOfWeaponsFound) const;
 
 	FString RespawnMovableActors(ULabyrinthDTO* LabyrinthDto) const;

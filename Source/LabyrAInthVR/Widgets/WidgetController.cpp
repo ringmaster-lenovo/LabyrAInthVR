@@ -71,7 +71,7 @@ void AWidgetController::ShowLobbyUI()
 		OnWidgetSError.Broadcast();
 		return;
 	}
-	if(GameState->IsLoggedIn())
+	if (GameState->IsLoggedIn())
 	{
 		ShowMainMenu();
 	} else
@@ -352,7 +352,7 @@ void AWidgetController::ReplayContinueButtonClicked()
 					LoadLevelsWidget->LevelsBox->AddChildToVerticalBox(NewLevelButton);
 					
 				}
-				if(bIsInVR)
+				if (bIsInVR)
 				{
 					WidgetContainer->Widget->SetWidgetClass(LoadLevelsWidgetClass);
 					WidgetContainer->Widget->SetWidget(LoadLevelsWidget);
@@ -462,6 +462,7 @@ void AWidgetController::OnPauseGamePressed()
 				MenuWidget->RemoveFromParent();
 				MenuWidget = nullptr;
 				ShowGameUI();
+				OnResumeGameEvent.Broadcast();
 			}
 			else
 			{
@@ -470,10 +471,10 @@ void AWidgetController::OnPauseGamePressed()
 				MenuWidget = CreateWidget<UMenuWidget>(PlayerController, MenuWidgetClass);
 				MenuWidget->WidgetController = this;
 				MenuWidget->AddToViewport(0);
+				OnPauseGameEvent.Broadcast();
 			}
 		}
 	}
-	OnPauseEvent.Broadcast();
 }
 
 

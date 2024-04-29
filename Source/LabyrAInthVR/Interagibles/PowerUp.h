@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "LabyrAInthVR/Interfaces/MovableActor.h"
 #include "LabyrAInthVR/Interfaces/SpawnableActor.h"
+#include "LabyrAInthVR/Player/PlayerStatistics.h"
 #include "PowerUp.generated.h"
 
 class UStatsChangerComponent;
@@ -22,10 +23,6 @@ public:
 	/** Sound to play on collect */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	USoundBase* CollectSound;
-
-	/** PowerUp the character */
-	UFUNCTION(BlueprintCallable, Category = "PowerUp")
-	void OnCollect(TArray<FStatsType> Stats, UStatsChangerComponent* StatsChanger);
 
 protected:
 	// Called when the game starts or when spawned

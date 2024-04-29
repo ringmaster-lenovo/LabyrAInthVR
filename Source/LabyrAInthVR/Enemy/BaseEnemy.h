@@ -31,7 +31,8 @@ enum EEnemyState : uint8
 	EES_Chasing UMETA(DisplayName = "Chasing"),
 	EES_Hold UMETA(DisplayName = "Hold"),
 	EES_Attacking UMETA(DisplayName = "Attacking"),
-	EES_Dead UMETA(DisplayName = "Dead")
+	EES_Dead UMETA(DisplayName = "Dead"),
+	EES_Frozen UMETA(DisplayName = "Frozen")
 };
 
 UENUM()
@@ -71,7 +72,7 @@ public:
 	ABaseEnemy();
 	void SetMatrixPosition(uint8 Row, uint8 Column);
 	float GetSpeed();
-
+	void Freeze(uint8 Time);
 protected:
 	virtual void BeginPlay() override;
 	void StartPatrolling();
@@ -137,6 +138,7 @@ private:
 	bool bHasShield{true};
 	FVector End{};
 	FTimerHandle PatrollingTimerHandle;
+	FTimerHandle FreezingTimerHandle;
 
 	uint8 MatrixRow{0};
 	uint8 MatrixColumn{0};
@@ -154,9 +156,13 @@ private:
 	UFUNCTION()
 	void OnHearNoise(APawn* NoiseInstigator, const FVector& Location, float Volume);
 
+	UFUNCTION()
+	void FreezeTimerFinished();
+
 	void OnMoveFinished(FAIRequestID RequestID, const FPathFollowingResult& PathFollowingResult);
 
 	EEnemyDirection LastKnownDirection{EED_None};
+	EEnemyState LastKnownEnemyState;
 
 	EEnemyDirection GetIntersecDirection(TArray<EEnemyDirection>& EnemyDirections,
 	                                     EEnemyDirection EnemyDirection);

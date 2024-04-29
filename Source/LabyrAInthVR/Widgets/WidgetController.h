@@ -121,7 +121,7 @@ public:
 	FRestartLevelEvent OnRestartLevelEvent;
 
 	DECLARE_MULTICAST_DELEGATE(FPauseEvent);
-	FPauseEvent OnPauseEvent;
+	FPauseEvent OnPauseGameEvent;
 
 	DECLARE_MULTICAST_DELEGATE(FResumeGameEvent);
 	FResumeGameEvent OnResumeGameEvent;

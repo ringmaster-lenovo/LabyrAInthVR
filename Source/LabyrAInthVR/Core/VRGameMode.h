@@ -100,16 +100,18 @@ private:
 	void ResumeGame();
 	
 	UFUNCTION()
-	void EndGame(bool bIsWin = false);
+	void EndGame(int Result = 2);
 
 	UFUNCTION()
 	void RestartGame();
 
 	UFUNCTION()
-	void RePrepareGame(bool bComeBackToLobby = true, bool bSaveGame = true);
+	void RePrepareGame(bool bComeBackToLobby = true);
 
 	UFUNCTION()
 	bool IsVRHMDConnected();
+
+	void SaveGame() const;
 	
 	void CrashCloseGame() const;
 
