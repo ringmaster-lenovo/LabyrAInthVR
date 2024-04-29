@@ -23,7 +23,7 @@ void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
     Super::NativeTick(MyGeometry, InDeltaTime);
     MainCharacter = (!IsValid(MainCharacter)) ? Cast<AMainCharacter>(GetOwningPlayerPawn()) : MainCharacter;
     
-    if(!IsValid(MainCharacter) || !IsValid(MainCharacter->GetPlayerStatistics()))
+    if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetPlayerStatistics()))
     {
         UE_LOG(LogTemp, Error, TEXT("Main character or Player statistics not valid from widget"))
         return;

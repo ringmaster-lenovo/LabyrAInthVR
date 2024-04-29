@@ -57,7 +57,7 @@ void AMainCharacter::ResetWeapon()
 
 float AMainCharacter::GetWeaponDamage()
 {
-	if(!IsValid(EquippedWeapon)) return 0.f;
+	if (!IsValid(EquippedWeapon)) return 0.f;
 	return EquippedWeapon->GetDamage();
 }
 
@@ -109,11 +109,11 @@ void AMainCharacter::Sprint(const FInputActionValue& Value, bool bSprint)
 
 void AMainCharacter::Shoot(const FInputActionValue& Value)
 {
-	if(!IsValid(EquippedWeapon) || !IsValid(EquippedWeapon->GetMuzzleEffect())) return;
+	if (!IsValid(EquippedWeapon) || !IsValid(EquippedWeapon->GetMuzzleEffect())) return;
 	
 	USkeletalMeshComponent* WeaponMesh = EquippedWeapon->FindComponentByClass<USkeletalMeshComponent>();
 	
-	if(!IsValid(WeaponMesh)) return;
+	if (!IsValid(WeaponMesh)) return;
 
 	FVector Start = WeaponMesh->GetSocketTransform(FName("Muzzle_Front")).GetLocation();
 	
@@ -122,11 +122,11 @@ void AMainCharacter::Shoot(const FInputActionValue& Value)
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Instigator = this;
 	SpawnParameters.Owner = this;
-	if(IsValid(EquippedWeapon->GetAnimation())) WeaponMesh->PlayAnimation(EquippedWeapon->GetAnimation(), false);
+	if (IsValid(EquippedWeapon->GetAnimation())) WeaponMesh->PlayAnimation(EquippedWeapon->GetAnimation(), false);
 	UGameplayStatics::SpawnEmitterAttached(EquippedWeapon->GetMuzzleEffect(), WeaponMesh, FName("Muzzle_Front"));
 	AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(EquippedWeapon->GetProjectileTemplate(), Start, End.Rotation(), SpawnParameters);
-	if(!IsValid(SpawnedProjectile)) return;
-	SpawnedProjectile->SetDamage(50.f);
+	if (!IsValid(SpawnedProjectile)) return;
+	SpawnedProjectile->SetDamage(EquippedWeapon->GetDamage());
 }
 
 void AMainCharacter::ToggleFlashlight(const FInputActionValue& Value)
