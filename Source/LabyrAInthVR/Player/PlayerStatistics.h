@@ -105,7 +105,9 @@ private:
 	
 	bool bIsRunning {false};
 
-	float SpeedModifier {0.f};
+	float SpeedTrapModifier {0.f};
+
+	float SpeedPowerupModifier{0.f};
 public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeStatFloat(EStatModifier Stat, float Amount);

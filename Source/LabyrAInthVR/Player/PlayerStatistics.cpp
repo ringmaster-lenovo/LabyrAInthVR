@@ -19,6 +19,7 @@ void UPlayerStatistics::BeginPlay()
 	Super::BeginPlay();
 	if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
 	MainCharacter->GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	CurrentSpeed = WalkSpeed;
 }
 
 void UPlayerStatistics::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -103,7 +104,7 @@ void UPlayerStatistics::ChangeTimedStat(EStatModifier Stat, float Amount, float 
 	case Esm_Speed:
 		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display,
 		       TEXT("%s -> Changing timed Speed from %f to %f for %f seconds"), *GetName(), CurrentSpeed, CurrentSpeed + Amount, Time)
-		CurrentSpeed += Amount;
+		SpeedPowerupModifier = Amount;
 		UE_LOG(LogTemp, Warning, TEXT("ChangeTimedStat"))
 		UpdateSpeed(CurrentSpeed);
 		Delegate.BindUObject(this, &ThisClass::ResetToDefaultValue, Esm_Speed);
@@ -171,7 +172,7 @@ void UPlayerStatistics::ResetStats()
 
 void UPlayerStatistics::SetSpeedModifier(float NewSpeedModifier)
 {
-	SpeedModifier = NewSpeedModifier;
+	SpeedTrapModifier = NewSpeedModifier;
 	UE_LOG(LogTemp, Warning, TEXT("SetSpeedModifier"))
 	UpdateSpeed(CurrentSpeed);
 }
@@ -211,5 +212,5 @@ void UPlayerStatistics::UpdateSpeed(float NewSpeed)
 {
 	if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
 	
-	MainCharacter->GetCharacterMovement()->MaxWalkSpeed = NewSpeed - SpeedModifier * NewSpeed;
+	MainCharacter->GetCharacterMovement()->MaxWalkSpeed = NewSpeed - SpeedTrapModifier + SpeedPowerupModifier;
 }
