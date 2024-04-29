@@ -4,6 +4,8 @@
 
 #include "PlayerStatistics.h"
 #include "VRMainCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Widgets/MenuContainer.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Player_Log);
 
@@ -68,6 +70,27 @@ void ABasePlayerController::ResetPlayerStats()
 	PlayerStatistics->ResetStats();
 }
 
+void ABasePlayerController::CloseVRHandMenu()
+{
+	if (AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(MainCharacter); VRCharacter != nullptr)
+	{
+		AMenuContainer* MenuContainer = Cast<AMenuContainer>(UGameplayStatics::GetActorOfClass(GetWorld(), AMenuContainer::StaticClass()));
+		if(MenuContainer)
+		{
+			MenuContainer->CloseMenu();
+		}
+	}
+}
+
+void ABasePlayerController::SpawnVRPointer()
+{
+	if (AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(MainCharacter); VRCharacter != nullptr)
+	{
+		VRCharacter->IsInLobby = true;
+		VRCharacter->SpawnPointer();
+	}
+}
+
 FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRotator& Rotation, bool InGamePassed) 
 {
 	if (MainCharacter->TeleportTo(Position, Rotation))
@@ -97,6 +120,7 @@ FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRo
 			else
 			{
 				VRCharacter->IsInLobby = true;
+				CloseVRHandMenu();
 				VRCharacter->SpawnPointer();
 			}
 		}

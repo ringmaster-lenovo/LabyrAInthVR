@@ -80,7 +80,7 @@ void AVRMainCharacter::PauseMenuOpened()
 void AVRMainCharacter::PauseMenuClosed()
 {
 	AWidgetController* WidgetController = Cast<AWidgetController>(UGameplayStatics::GetActorOfClass(GetWorld(), AWidgetController::StaticClass()));
-	//TODO  CHIAMARE RESUME GAME
+	WidgetController->OnResumeGame();
 }
 
 

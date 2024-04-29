@@ -9,6 +9,7 @@
 #include "LabyrAInthVR/Music/MusicController.h"
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "LabyrAInthVR/Player/Main3DCharacter.h"
+#include "LabyrAInthVR/Widgets/MenuContainer.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Core_Log);
 
@@ -370,6 +371,8 @@ void AVRGameMode::RestartGame()
 
 	SceneController->OnActorsRespawned.AddUObject(this, &AVRGameMode::StartGame);
 	SceneController->RespawnMovableActors(LabyrinthDTO);
+
+	BasePlayerController->CloseVRHandMenu();
 }
 
 void AVRGameMode::RePrepareGame(const bool bComeBackToLobby)

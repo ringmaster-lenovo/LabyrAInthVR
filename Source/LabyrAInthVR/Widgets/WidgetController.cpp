@@ -455,26 +455,38 @@ void AWidgetController::OnPauseGamePressed()
 	ABasePlayerController* PlayerController = Cast<ABasePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PlayerController && MenuWidgetClass)
 	{
-		if (!bIsInVR && PlayerController->InGame)
+		if (PlayerController->InGame)
 		{
-			if (MenuWidget && MenuWidget->IsInViewport())
+			if(!bIsInVR)
 			{
-				MenuWidget->RemoveFromParent();
-				MenuWidget = nullptr;
-				ShowGameUI();
-				OnResumeGameEvent.Broadcast();
-			}
-			else
-			{
-				RemoveAllWidgets(GetWorld());
+				if (MenuWidget && MenuWidget->IsInViewport())
+				{
+					MenuWidget->RemoveFromParent();
+					MenuWidget = nullptr;
+					ShowGameUI();
+					OnResumeGameEvent.Broadcast();
+				}
+				else
+				{
+					RemoveAllWidgets(GetWorld());
 				
-				MenuWidget = CreateWidget<UMenuWidget>(PlayerController, MenuWidgetClass);
-				MenuWidget->WidgetController = this;
-				MenuWidget->AddToViewport(0);
+					MenuWidget = CreateWidget<UMenuWidget>(PlayerController, MenuWidgetClass);
+					MenuWidget->WidgetController = this;
+					MenuWidget->AddToViewport(0);
+					OnPauseGameEvent.Broadcast();
+				}
+			} else
+			{
 				OnPauseGameEvent.Broadcast();
 			}
+			
 		}
 	}
+}
+
+void AWidgetController::OnResumeGame()
+{
+	OnResumeGameEvent.Broadcast();
 }
 
 
