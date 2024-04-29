@@ -46,27 +46,6 @@ void AVRMainCharacter::Tick(float const DeltaTime)
 // Called to bind functionality to input
 void AVRMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	// Super::SetupPlayerInputComponent(PlayerInputComponent);
-	//
-	// PlayerInputComponent->BindAxis("ControllersForward", this, &AVRMainCharacter::MoveForwardControllers);
-	// PlayerInputComponent->BindAxis("KeyboardForward", this, &AVRMainCharacter::MoveForwardKeyboard);
-	// PlayerInputComponent->BindAxis("ControllersHorizontal", this, &AVRMainCharacter::MoveRightControllers);
-	// PlayerInputComponent->BindAxis("KeyboardHorizontal", this, &AVRMainCharacter::MoveRightKeyboard);
-	// PlayerInputComponent->BindAxis("VRRootHeight", this, &AVRMainCharacter::ChangeVRRootHeight);
-	// PlayerInputComponent->BindAxis("RotateCameraOnYawAxis", this, &AVRMainCharacter::RotateCameraOnYawAxis);
-	// PlayerInputComponent->BindAction(TEXT("RightTrigger"), EInputEvent::IE_Pressed, this, &AVRMainCharacter::RightTriggerPressed);
-	// PlayerInputComponent->BindAction(TEXT("RightTrigger"), EInputEvent::IE_Released, this, &AVRMainCharacter::RightTriggerReleased);
-	// PlayerInputComponent->BindAction(TEXT("LeftTrigger"), EInputEvent::IE_Pressed, this, &AVRMainCharacter::LeftTriggerPressed);
-	// PlayerInputComponent->BindAction(TEXT("LeftTrigger"), EInputEvent::IE_Released, this, &AVRMainCharacter::LeftTriggerReleased);
-	// PlayerInputComponent->BindAction(TEXT("RightBPressed"), EInputEvent::IE_Pressed, this, &AVRMainCharacter::RightBPressed);
-	// PlayerInputComponent->BindAction(TEXT("LeftYPressed"), EInputEvent::IE_Pressed, this, &AVRMainCharacter::LeftYPressed);
-	// PlayerInputComponent->BindAction(TEXT("LeftXPressed"), EInputEvent::IE_Pressed, this, &AVRMainCharacter::LeftXPressed);
-	// PlayerInputComponent->BindAction("LeftGrip", IE_Pressed, this, &AVRMainCharacter::GripLeft);
-	// PlayerInputComponent->BindAction("LeftGrip", IE_Released, this, &AVRMainCharacter::ReleaseLeft);
-	// PlayerInputComponent->BindAction("RightGrip", IE_Pressed, this, &AVRMainCharacter::GripRight);
-	// PlayerInputComponent->BindAction("RightGrip", IE_Released, this, &AVRMainCharacter::ReleaseRight);
-	// PlayerInputComponent->BindAction("ResetVRRoot", IE_Pressed, this, &AVRMainCharacter::ResetVRRootPosition);
-	
 }
 
 // usages: -Metarace: used to go to the next PlayerSpectatorPosition
@@ -89,7 +68,6 @@ void AVRMainCharacter::LeftXPressed()
 {
 	LeftXPressedEvent.Broadcast();
 }
-
 
 // A function that rotate the VRRoot of the player along the yaw axis, but does not execute continuously when the button is held down
 // it waits a while before it can be used again

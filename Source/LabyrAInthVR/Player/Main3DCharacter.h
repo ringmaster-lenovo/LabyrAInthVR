@@ -17,7 +17,7 @@ class LABYRAINTHVR_API AMain3DCharacter : public AMainCharacter
 
 public:
 	AMain3DCharacter();
-
+	virtual void ResetWeapon() override;
 protected:
 	virtual void BeginPlay() override;
 
@@ -32,9 +32,6 @@ private:
 	UPROPERTY(EditAnywhere, Category=Gameplay)
 	UCameraComponent* FirstPersonCamera;
 
-	UPROPERTY(EditAnywhere, Category=Gameplay)
-	USpotLightComponent* Flashlight;
-
 	UPROPERTY(EditAnywhere, Category=Input)
 	UInputAction* MoveInputAction;
 
@@ -45,25 +42,16 @@ private:
 	UInputAction* JumpInputAction;
 
 	UPROPERTY(EditAnywhere, Category=Input)
-	UInputAction* FlashlightInputAction;
-
-	UPROPERTY(EditAnywhere, Category=Input)
 	UInputAction* PickupInputAction;
 
 	UPROPERTY(EditAnywhere, Category=Input)
-	UInputAction* ShootInputAction;
-
-	UPROPERTY(EditAnywhere, Category=Input)
-	UInputAction* SprintInputAction;
-
-	bool bHasWeapon;
+	UInputAction* ReleasePickupInputAction;
 	
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void ToggleFlashlight(const FInputActionValue& Value);
 	void PickupObject(const FInputActionValue& Value);
-	void Shoot(const FInputActionValue& Value);
-	void Sprint(const FInputActionValue& Value, bool bSprint);
+
+	//virtual void PickupWeapon(const FInputActionValue& Value) override;
 public:
 	FORCEINLINE bool GetHasWeapon() {return bHasWeapon; }
 };

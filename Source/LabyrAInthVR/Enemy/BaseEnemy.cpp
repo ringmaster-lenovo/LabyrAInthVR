@@ -79,6 +79,13 @@ float ABaseEnemy::GetSpeed()
 	return GetCharacterMovement()->Velocity.Size();
 }
 
+void ABaseEnemy::Freeze(uint8 Time)
+{
+	LastKnownEnemyState = EnemyState;
+	EnemyState = EES_Frozen;
+	GetWorldTimerManager().SetTimer(FreezingTimerHandle, this, &ThisClass::FreezeTimerFinished, Time, false);
+}
+
 void ABaseEnemy::NavMeshFinishedBuilding(ANavigationData* NavigationData)
 {
 	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s: Enemy set to EES_Idle, ready for patrolling"), *GetName());
@@ -127,6 +134,13 @@ void ABaseEnemy::OnHearNoise(APawn* NoiseInstigator, const FVector& Location, fl
 	MoveRequest.SetGoalLocation(Location);
 	MoveRequest.SetAcceptanceRadius(0.f);
 	AIController->MoveTo(MoveRequest);
+
+	UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Heard sound, going to the sound location"), *GetName())
+}
+
+void ABaseEnemy::FreezeTimerFinished()
+{
+	EnemyState = LastKnownEnemyState;
 }
 
 void ABaseEnemy::OnMoveFinished(FAIRequestID RequestID, const FPathFollowingResult& PathFollowingResult)

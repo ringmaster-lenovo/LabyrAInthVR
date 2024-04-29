@@ -87,7 +87,7 @@ private:
 	int PortalIndexPosition = -1;
 
 	UPROPERTY()
-	ULabyrinthDTO* LabyrinthDTO;
+	ULabyrinthDTO* Labyrinth;
 
 public:
 	// Called every frame
@@ -105,6 +105,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Weapons")
 	TArray<TSubclassOf<AActor>> WeaponsClasses;
 
+	UPROPERTY(EditAnywhere, Category = "Weapons")
+	TArray<TSubclassOf<AActor>> PickupsClasses;
+
 	UPROPERTY(EditAnywhere, Category = "Portals")
 	TSubclassOf<AActor> PlayerSpawnPoint;
 
@@ -115,7 +118,7 @@ public:
 
 	FRotator PlayerStartRotation;
 
-	FString SpawnActorsInLabyrinth(ULabyrinthDTO* LabyrinthDTOReference);
+	FString SpawnActorsInLabyrinth(const ULabyrinthDTO* LabyrinthDtoReference);
 
 	void FindPotentialSpawnLocations(const ULabyrinthDTO* LabyrinthDTO, int Row, int Column);
 
