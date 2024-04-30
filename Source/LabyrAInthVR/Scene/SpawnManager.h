@@ -115,8 +115,10 @@ public:
 	TSubclassOf<AActor> Portal;
 
 	FVector PlayerStartPosition;
-
 	FRotator PlayerStartRotation;
+	
+	FVector EndPortalPosition;
+	FRotator EndPortalRotation;
 
 	FString SpawnActorsInLabyrinth(const ULabyrinthDTO* LabyrinthDtoReference);
 
@@ -136,7 +138,7 @@ public:
 
 	FString SpawnWeapons() const;
 
-	FString SpawnPortal() const;
+	FString SpawnPortal();
 
 	FString SpawnPlayerStart();
 

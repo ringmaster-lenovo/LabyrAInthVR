@@ -44,6 +44,9 @@ public:
 	UFUNCTION()
 	void GetPlayerStartPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
 
+	UFUNCTION()
+	void GeEndPortalPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
+
 private:
 	UPROPERTY()
 	ALabyrinthParser* LabyrinthParser;
