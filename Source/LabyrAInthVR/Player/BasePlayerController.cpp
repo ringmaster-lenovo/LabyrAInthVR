@@ -4,8 +4,14 @@
 
 #include "PlayerStatistics.h"
 #include "VRMainCharacter.h"
+#include "EnhancedInputSubsystems.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Player_Log);
+
+void ABasePlayerController::BeginPlay()
+{
+
+}
 
 void ABasePlayerController::SetControlledCharacter(AMainCharacter* AMainCharacter)
 {
@@ -78,12 +84,29 @@ FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRo
 			UPlayerStatistics* PlayerStatistics = MainCharacter->GetPlayerStatistics();
 			if (!IsValid(PlayerStatistics)) return "Cannot start level timer, PlayerStatistics ref is not valid";
 			PlayerStatistics->StartLevelTimer();
+			if(const ULocalPlayer* LocalPlayer = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
+			{
+				if(UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem =
+					ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+				{
+					EnhancedInputLocalPlayerSubsystem->AddMappingContext(InputMappingContext, 0);
+				}
+			}
 		}
 		else
 		{
+			
 			UPlayerStatistics* PlayerStatistics = MainCharacter->GetPlayerStatistics();
 			if (!IsValid(PlayerStatistics)) return "Cannot stop level timer, PlayerStatistics ref is not valid";
 			PlayerStatistics->StopLevelTimer();
+			if(const ULocalPlayer* LocalPlayer = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
+			{
+				if(UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem =
+					ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+				{
+					EnhancedInputLocalPlayerSubsystem->RemoveMappingContext(InputMappingContext);
+				}
+			}
 		}
 		if (AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(MainCharacter); VRCharacter != nullptr)
 		{

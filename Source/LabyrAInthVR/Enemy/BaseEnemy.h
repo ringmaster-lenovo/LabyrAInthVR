@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "LabyrAInthVR/Interagibles/StatsChangerComponent.h"
 #include "LabyrAInthVR/Interfaces/DamageableActor.h"
+#include "LabyrAInthVR/Interfaces/FreezableActor.h"
 #include "LabyrAInthVR/Interfaces/MovableActor.h"
 #include "LabyrAInthVR/Interfaces/SpawnableActor.h"
 #include "Navigation/PathFollowingComponent.h"
@@ -64,7 +65,7 @@ struct FEnemyDirection
 };
 
 UCLASS()
-class LABYRAINTHVR_API ABaseEnemy : public ACharacter, public IDamageableActor, public ISpawnableActor, public IMovableActor
+class LABYRAINTHVR_API ABaseEnemy : public ACharacter, public IDamageableActor, public ISpawnableActor, public IMovableActor, public IFreezableActor
 {
 	GENERATED_BODY()
 
@@ -73,8 +74,7 @@ public:
 	void SetMatrixPosition(uint8 Row, uint8 Column);
 	float GetSpeed();
 
-	UFUNCTION(BlueprintCallable)
-	void Freeze(uint8 Time);
+	virtual void Freeze(int32 Time) override;
 protected:
 	virtual void BeginPlay() override;
 	void StartPatrolling();
@@ -84,7 +84,7 @@ protected:
 	void UpdateMatrixPosition();
 	bool IsFacing();
 	bool IsCharacterOnNavMesh();
-	
+
 	EEnemyState EnemyState{EEnemyState::EES_WaitingForNav};
 
 	UFUNCTION(BlueprintCallable)
@@ -141,7 +141,7 @@ private:
 	FVector End{};
 	FTimerHandle PatrollingTimerHandle;
 	FTimerHandle FreezingTimerHandle;
-
+	
 	uint8 MatrixRow{0};
 	uint8 MatrixColumn{0};
 

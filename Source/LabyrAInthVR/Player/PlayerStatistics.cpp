@@ -167,6 +167,7 @@ void UPlayerStatistics::ResetStats()
 	bHasShield = false;
 	LevelTime = 0.f;
 	MainCharacter->ResetWeapon();
+	MainCharacter->GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 }
 

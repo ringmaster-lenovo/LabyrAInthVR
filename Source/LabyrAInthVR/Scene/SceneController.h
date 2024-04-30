@@ -44,6 +44,8 @@ public:
 	UFUNCTION()
 	void GetPlayerStartPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
 
+	void FreezeAllActors(bool bFreeze);
+
 private:
 	UPROPERTY()
 	ALabyrinthParser* LabyrinthParser;
@@ -69,5 +71,18 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Scene")
 	TSubclassOf<ASpawnManager> SpawnManager_BP;
-	
+
+	UPROPERTY()
+	TArray<AActor*> SpawnedActors;
+
+	UPROPERTY()
+	TArray<AActor*> MovableActors;
+
+	UPROPERTY()
+	TArray<IFreezableActor*> FreezableActors;
+
+public:
+	FORCEINLINE void SetSpawnedActors(TArray<AActor*> Spawned) {SpawnedActors = Spawned; }
+	FORCEINLINE void SetMovableActors(TArray<AActor*> Spawned) {MovableActors = Spawned; }
+	FORCEINLINE void SetFreezableActors(TArray<IFreezableActor*> Spawned) {FreezableActors = Spawned; }
 };

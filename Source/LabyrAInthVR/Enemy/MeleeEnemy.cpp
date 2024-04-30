@@ -59,6 +59,8 @@ void AMeleeEnemy::Tick(float DeltaSeconds)
 		break;
 	case EES_Dead:
 		break;
+	case EES_Frozen:
+		break;
 	default: ;
 	}
 

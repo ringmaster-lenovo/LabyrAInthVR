@@ -9,6 +9,9 @@
 #include "SpawnManager.generated.h"
 
 
+class IMovableActor;
+class UFreezableActor;
+class IFreezableActor;
 class APowerUp;
 class ATrap;
 class ABaseEnemy;
@@ -114,10 +117,27 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Portals")
 	TSubclassOf<AActor> Portal;
 
+	UPROPERTY()
+	TArray<IFreezableActor*> FreezableActors;
+
+	UPROPERTY()
+	TArray<AActor*> MovableActors;
+
+	UPROPERTY()
+	TArray<AActor*> SpawnedActors;
+	
+	UFUNCTION(BlueprintCallable)
+	void TriggerFrozenStar();
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveFromList(AActor* ActorToRemove);
+	
 	FVector PlayerStartPosition;
 
 	FRotator PlayerStartRotation;
-
+	
+	void UpdateSpawnableActor(AActor* SpawnedWall);
+	
 	FString SpawnActorsInLabyrinth(const ULabyrinthDTO* LabyrinthDtoReference);
 
 	void FindPotentialSpawnLocations(const ULabyrinthDTO* LabyrinthDTO, int Row, int Column);
@@ -132,11 +152,11 @@ public:
 
 	FString DifficultyDecider();
 
-	FString SpawnActors(const TArray<int>& SpawnLocations, const TArray<TSubclassOf<AActor>>& SpawnableActors) const;
+	FString SpawnActors(const TArray<int>& SpawnLocations, const TArray<TSubclassOf<AActor>>& SpawnableActors);
 
-	FString SpawnWeapons() const;
+	FString SpawnWeapons();
 
-	FString SpawnPortal() const;
+	FString SpawnPortal();
 
 	FString SpawnPlayerStart();
 
