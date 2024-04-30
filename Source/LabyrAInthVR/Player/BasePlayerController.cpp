@@ -99,6 +99,7 @@ FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRo
 			UPlayerStatistics* PlayerStatistics = MainCharacter->GetPlayerStatistics();
 			if (!IsValid(PlayerStatistics)) return "Cannot stop level timer, PlayerStatistics ref is not valid";
 			PlayerStatistics->StopLevelTimer();
+			MainCharacter->SetActorRotation(FRotator{0.f, 0.f, 0.f});
 			if(const ULocalPlayer* LocalPlayer = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
 			{
 				if(UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem =
