@@ -28,7 +28,7 @@ public:
 	class UTextBlock* ErrorText;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UUserWidget* SendButton;
+	class UButtonWidget* SendButton;
 
 	DECLARE_MULTICAST_DELEGATE(FWidgetsErrorEvent);
 	FWidgetsErrorEvent OnWidgetSError;

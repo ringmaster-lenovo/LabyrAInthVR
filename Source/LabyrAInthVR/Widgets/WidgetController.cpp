@@ -82,6 +82,20 @@ void AWidgetController::ShowMainMenu()
 {
 	if (LobbyWidgetClass)
 	{
+		UWorld* World = GetWorld();
+		if (!World)
+		{
+			UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("No World!"));
+			OnWidgetSError.Broadcast();
+			return;
+		}
+		AVRGameState* GameState = World->GetGameState<AVRGameState>();
+		if (!GameState)
+		{
+			UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("No GameState!"));
+			OnWidgetSError.Broadcast();
+			return;
+		}
 		if (bIsInVR)
 		{
 			WidgetContainer->Widget->SetWidgetClass(LobbyWidgetClass);
@@ -92,6 +106,10 @@ void AWidgetController::ShowMainMenu()
 				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
 				OnWidgetSError.Broadcast();
 			}
+			FString PlayerLogged = GameState->GetPlayerName();
+			FText PlayerText = FText::FromString(PlayerLogged);
+			FText WelcomeText = FText::Format(FText::FromString(TEXT("Welcome {0}!")), PlayerText);
+			LobbyWidget->WelcomeText->SetText(WelcomeText);
 			LobbyWidget->WidgetController = this;
 		} else
 		{
@@ -101,6 +119,10 @@ void AWidgetController::ShowMainMenu()
 			
 			LobbyWidget = CreateWidget<ULobbyWidget>(PlayerController, LobbyWidgetClass);
 			LobbyWidget->WidgetController = this;
+			FString PlayerLogged = GameState->GetPlayerName();
+			FText PlayerText = FText::FromString(PlayerLogged);
+			FText WelcomeText = FText::Format(FText::FromString(TEXT("Welcome {0}!")), PlayerText);
+			LobbyWidget->WelcomeText->SetText(WelcomeText);
 			FInputModeUIOnly InputMode;
 			InputMode.SetWidgetToFocus(LobbyWidget->TakeWidget());
 			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
