@@ -221,3 +221,27 @@ void ULabyrAInthVRGameInstance::LoadGame(const FString& PlayerName, TArray<int>&
 		}
 	}
 }
+
+void ULabyrAInthVRGameInstance::LoadPlayerNames(TArray<FString>& PlayerNames)
+{
+	// Open the file
+	const FString GameSavesPath = FPaths::ProjectSavedDir() + TEXT("SaveGames/GameSaves.csv");
+	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+	if (!PlatformFile.FileExists(*GameSavesPath))
+	{
+		// there are no saved games
+		return;
+	}
+	// Search for the PlayerName in the file, if it exists, load its data
+	FString FileData;
+	FFileHelper::LoadFileToString(FileData, *GameSavesPath);
+	TArray<FString> Lines;
+	FileData.ParseIntoArrayLines(Lines);
+	for (int32 i = 0; i < Lines.Num(); i++)
+	{
+		FString Line = Lines[i];
+		TArray<FString> Tokens;
+		Line.ParseIntoArray(Tokens, TEXT(", "));  // Split the line by ", " as per the csv format
+		PlayerNames.Add(Tokens[0]);
+	}
+}

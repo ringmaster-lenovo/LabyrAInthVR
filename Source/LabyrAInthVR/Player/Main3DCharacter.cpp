@@ -48,7 +48,7 @@ void AMain3DCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	if(UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
 		EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &ThisClass::Look);
@@ -75,7 +75,7 @@ void AMain3DCharacter::Look(const FInputActionValue& Value)
 
 void AMain3DCharacter::PickupObject(const FInputActionValue& Value)
 {
-	if(!IsValid(OverlappingPickup) || !IsValid(FirstPersonMesh) || !IsValid(OverlappingPickup->GetWeapon())) return;
+	if (!IsValid(OverlappingPickup) || !IsValid(FirstPersonMesh) || !IsValid(OverlappingPickup->GetWeapon())) return;
 	
 	const USkeletalMeshSocket* Socket = FirstPersonMesh->GetSocketByName(FName("GripPoint"));
 
@@ -83,7 +83,7 @@ void AMain3DCharacter::PickupObject(const FInputActionValue& Value)
 	FVector PickupLocation{OverlappingPickup->GetActorLocation()};
 	
 	// I already have an equipped weapon
-	if(IsValid(EquippedWeapon))
+	if (IsValid(EquippedWeapon))
 	{
 		AuxPickup = EquippedWeapon->GetPickup();
 		EquippedWeapon->Destroy();
@@ -92,7 +92,7 @@ void AMain3DCharacter::PickupObject(const FInputActionValue& Value)
 	UE_LOG(LabyrAInthVR_Player_Log, Warning, TEXT("Current pickup: %s"), *OverlappingPickup->GetName())
 	EquippedWeapon = GetWorld()->SpawnActor<AWeapon>(OverlappingPickup->GetWeapon());
 	
-	if(!IsValid(EquippedWeapon)) return;
+	if (!IsValid(EquippedWeapon)) return;
 
 	Socket->AttachActor(EquippedWeapon, FirstPersonMesh);
 	bHasWeapon = true;
@@ -101,7 +101,7 @@ void AMain3DCharacter::PickupObject(const FInputActionValue& Value)
 	OverlappingPickup->SetActorHiddenInGame(true);
 	OverlappingPickup->SetActorEnableCollision(false);  // BEWARE: after this line OverlappingPickup is not valid anymore
 
-	if(!IsValid(AuxPickup)) return;
+	if (!IsValid(AuxPickup)) return;
 	
 	AuxPickup->SetActorHiddenInGame(false);
 	AuxPickup->SetActorEnableCollision(true);
