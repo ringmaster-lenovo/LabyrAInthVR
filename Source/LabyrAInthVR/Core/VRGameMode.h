@@ -117,7 +117,7 @@ private:
 
 	void CloseGame() const;
 
-	void TeleportPlayerBackToLobby();
+	void TeleportPlayerBackToLobby(int Result = 2);
 
 public:
 

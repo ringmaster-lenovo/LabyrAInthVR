@@ -313,7 +313,7 @@ void AVRGameMode::EndGame(const int Result)
 	WidgetController->OnResumeGameEvent.RemoveAll(this);
 
 	// teleport player back to lobby
-	TeleportPlayerBackToLobby();
+	TeleportPlayerBackToLobby(Result);
 	
 	if (Result == 0) // player has won the game
 	{
@@ -400,7 +400,7 @@ void AVRGameMode::RePrepareGame(const bool bComeBackToLobby)
 	}
 }
 
-void AVRGameMode::TeleportPlayerBackToLobby()
+void AVRGameMode::TeleportPlayerBackToLobby(int Result)
 {
 	AActor* StartActor = FindPlayerStart(BasePlayerController, "LobbyStart");
 	if (!IsValid(StartActor))
@@ -408,30 +408,35 @@ void AVRGameMode::TeleportPlayerBackToLobby()
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Error: cannot find player start actor"));
 		CloseGame();
 	}
-	float DeltaXPosFromStart = 400.0f;
-	float DeltaYPosFromStart = 400.0f;
-	FVector EndPortalPosition;
-	FRotator EndPortalRotation;
-	SceneController->GeEndPortalPositionAndRotation(EndPortalPosition, EndPortalRotation);
-    if (EndPortalRotation.Yaw == 90.0f)
-	{
-		if (LabyrinthDTO->Height * WallSettings::WallOffset / 2 <= EndPortalPosition.Y)  // the portal is on the upper half
-		{
-			DeltaYPosFromStart = -DeltaYPosFromStart;
-		}
-		DeltaXPosFromStart = 0.0f;
-	}
-	else
-	{
-		if (LabyrinthDTO->Width * WallSettings::WallOffset / 2 <= EndPortalPosition.X)  // the portal is on the left half
-		{
-			DeltaXPosFromStart = -DeltaXPosFromStart;
-		}
-		DeltaYPosFromStart = 0.0f;
-	}
 	FVector StartActorLocation = StartActor->GetActorLocation();
-	FVector PlayerStartPosition = FVector(StartActorLocation.X + DeltaXPosFromStart, StartActorLocation.Y + DeltaYPosFromStart, StartActorLocation.Z + 110.0f);
+	FVector PlayerStartPosition = StartActor->GetActorLocation();
 	FRotator PlayerStartRotation = StartActor->GetActorRotation();
+	if (Result == 0)
+	{
+		float DeltaXPosFromStart = 400.0f;
+		float DeltaYPosFromStart = 400.0f;
+		FVector EndPortalPosition;
+		FRotator EndPortalRotation;
+		SceneController->GeEndPortalPositionAndRotation(EndPortalPosition, EndPortalRotation);
+	    if (EndPortalRotation.Yaw == 90.0f)
+		{
+			if (LabyrinthDTO->Height * WallSettings::WallOffset / 2 <= EndPortalPosition.Y)  // the portal is on the upper half
+			{
+				DeltaYPosFromStart = -DeltaYPosFromStart;
+			}
+			DeltaXPosFromStart = 0.0f;
+		}
+		else
+		{
+			if (LabyrinthDTO->Width * WallSettings::WallOffset / 2 <= EndPortalPosition.X)  // the portal is on the left half
+			{
+				DeltaXPosFromStart = -DeltaXPosFromStart;
+			}
+			DeltaYPosFromStart = 0.0f;
+		}
+		PlayerStartPosition = FVector(StartActorLocation.X + DeltaXPosFromStart, StartActorLocation.Y + DeltaYPosFromStart, StartActorLocation.Z + 110.0f);
+		PlayerStartRotation = StartActor->GetActorRotation();
+	}
 	FString ErrorMessage = BasePlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation, false);
 	if (ErrorMessage != "")
 	{

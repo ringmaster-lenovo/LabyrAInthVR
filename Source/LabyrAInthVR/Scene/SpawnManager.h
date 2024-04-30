@@ -74,9 +74,13 @@ private:
 	int NumOfWeaponsSpawned = 0;
 	
 	TArray<int> PotentialPowerUpSpawnLocations = {};
+	TArray<int> PotentialPowerUpSpawnLocationsCopy = {};
 	TArray<int> PotentialTrapSpawnLocations = {};
+	TArray<int> PotentialTrapSpawnLocationsCopy = {};
 	TArray<int> PotentialEnemySpawnLocations = {};
+	TArray<int> PotentialEnemySpawnLocationsCopy = {};
 	TArray<int> PotentialWeaponSpawnLocations = {};
+	TArray<int> PotentialWeaponSpawnLocationsCopy = {};
 	
 	TArray<int> PowerUpsLocations = {};
 	TArray<int> TrapsLocations = {};
@@ -129,6 +133,8 @@ public:
 	FString ChooseTrapsSpawnPoints(const int NumOfTrapsToSpawn);
 
 	FString ChooseEnemiesSpawnPoints(const int NumOfEnemiesToSpawn);
+
+	FString ChooseWeaponsSpawnPoints(const int NumOfWeaponsToSpawn);
 	
 	FString ChooseRandomSpawnLocation(int NumOfActorsToSpawn, TArray<int>& ActorsSpawnLocations,  TArray<int>& PotentialLocations, uint8 ConventionalValueInTheMatrix) const;
 
@@ -136,7 +142,7 @@ public:
 
 	FString SpawnActors(const TArray<int>& SpawnLocations, const TArray<TSubclassOf<AActor>>& SpawnableActors) const;
 
-	FString SpawnWeapons() const;
+	FString SpawnWeapons();
 
 	FString SpawnPortal();
 
