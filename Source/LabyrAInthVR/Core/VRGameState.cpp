@@ -10,7 +10,7 @@ void AVRGameState::StartPlayerTimer()
 {
 	//START CHRONOMETER
 	if (!GetWorld()) return; // Ensure we have a valid world context before starting the timer
-	GetWorld()->GetTimerManager().SetTimer(PlayerGameTimeHandle, this, &AVRGameState::UpdatePlayerGameTime, 1.0f, true);
+	GetWorld()->GetTimerManager().SetTimer(PlayerGameTimeHandle, this, &AVRGameState::UpdatePlayerGameTime, 1.0f, true, 1.0f);
 }
 
 void AVRGameState::UpdatePlayerGameTime()

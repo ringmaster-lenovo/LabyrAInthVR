@@ -27,6 +27,9 @@ private:
 	UPROPERTY(EditAnywhere, Category="Settings|Attack")
 	float RangedAttackTimer{5.f};
 
+	UPROPERTY(EditAnywhere, Category="Settings|Attack")
+	float RangedAttackDamage{10.f};
+
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AProjectile> ProjectileClass;
 

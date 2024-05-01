@@ -6,6 +6,8 @@
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
 #include "WidgetController.h"
+#include "LabyrAInthVR/Core/LabyrAInthVRGameInstance.h"
+#include "LabyrAInthVR/Core/VRGameMode.h"
 #include "LabyrAInthVR/Core/VRGameState.h"
 
 
@@ -34,9 +36,6 @@ void UPromptingWidget::OnSendClicked()
 {
 	if (PlayerNameTextBox)
 	{
-		FText PlayerName = PlayerNameTextBox->GetText();
-		FString PlayerNameString = PlayerName.ToString();
-		
 		UWorld* World = GetWorld();
 		if (!World)
 		{
@@ -51,29 +50,52 @@ void UPromptingWidget::OnSendClicked()
 			OnWidgetSError.Broadcast();
 			return;
 		}
-			
-		FString ErrorString = GameState->LoginPlayer(PlayerNameString);
-		if (PlayerNameString.IsEmpty() || ErrorString != "")
+		FText PlayerName = PlayerNameTextBox->GetText();
+		FString PlayerNameString = PlayerName.ToString();
+		//Check if player name already exists
+		TArray<FString> PlayerNames;
+		ULabyrAInthVRGameInstance::LoadPlayerNames(PlayerNames);
+
+		if (SendButton->TextBlock->GetText().EqualTo(FText::FromString("Load Games")) || !PlayerNames.Contains(PlayerNameString))
 		{
-			// Check if ErrorText is valid and then make it visible
+			//If the player name does not exists or the player wants to load previous games
+			FString ErrorString = GameState->LoginPlayer(PlayerNameString);
+			if (PlayerNameString.IsEmpty() || ErrorString != "")
+			{
+				// Check if ErrorText is valid and then make it visible
+				if (ErrorText)
+				{
+					ErrorText->SetVisibility(ESlateVisibility::Visible);
+				}
+			}
+			else {
+				// Optionally hide the ErrorText if it was previously visible
+				if (ErrorText)
+				{
+					ErrorText->SetVisibility(ESlateVisibility::Collapsed);
+				}
+
+				WidgetController->SendButtonClicked();
+			
+
+				// Log the name to the output log
+				UE_LOG(LogTemp, Warning, TEXT("Player Name: %s"), *PlayerNameString);
+			} 
+		} else
+		{
+			//If the player name already exists, asks for login confirmation
 			if (ErrorText)
 			{
 				ErrorText->SetVisibility(ESlateVisibility::Visible);
+				ErrorText->SetText(FText::FromString("Name already exists, do you want to load previous games?"));
+			}
+			if (SendButton)
+			{
+				// SendButton->ButtonText = FText::FromString("Load Games");
+				SendButton->TextBlock->SetText(FText::FromString("Load Games"));
 			}
 		}
-		else {
-			// Optionally hide the ErrorText if it was previously visible
-			if (ErrorText)
-			{
-				ErrorText->SetVisibility(ESlateVisibility::Collapsed);
-			}
-
-			WidgetController->SendButtonClicked();
-			
-
-			// Log the name to the output log
-			UE_LOG(LogTemp, Warning, TEXT("Player Name: %s"), *PlayerNameString);
-		} 
+		
 	}
 	else
 	{

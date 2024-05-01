@@ -4,6 +4,9 @@
 
 #include "PlayerStatistics.h"
 #include "VRMainCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Widgets/MenuContainer.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Player_Log);
 
@@ -68,7 +71,28 @@ void ABasePlayerController::ResetPlayerStats()
 	PlayerStatistics->ResetStats();
 }
 
-FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRotator& Rotation, bool InGamePassed) 
+void ABasePlayerController::CloseVRHandMenu()
+{
+	if (AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(MainCharacter); VRCharacter != nullptr)
+	{
+		AMenuContainer* MenuContainer = Cast<AMenuContainer>(UGameplayStatics::GetActorOfClass(GetWorld(), AMenuContainer::StaticClass()));
+		if(MenuContainer)
+		{
+			MenuContainer->CloseMenu();
+		}
+	}
+}
+
+void ABasePlayerController::SpawnVRPointer()
+{
+	if (AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(MainCharacter); VRCharacter != nullptr)
+	{
+		VRCharacter->IsInLobby = true;
+		VRCharacter->SpawnPointer();
+	}
+}
+
+FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRotator& Rotation, const bool InGamePassed) 
 {
 	if (MainCharacter->TeleportTo(Position, Rotation))
 	{
@@ -84,6 +108,7 @@ FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRo
 			UPlayerStatistics* PlayerStatistics = MainCharacter->GetPlayerStatistics();
 			if (!IsValid(PlayerStatistics)) return "Cannot stop level timer, PlayerStatistics ref is not valid";
 			PlayerStatistics->StopLevelTimer();
+			GetWorldTimerManager().SetTimer(TeleportTimerHandle, this, &ThisClass::BlockMovementInLobby, 1.0f, false, .5f);
 		}
 		if (AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(MainCharacter); VRCharacter != nullptr)
 		{
@@ -97,6 +122,7 @@ FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRo
 			else
 			{
 				VRCharacter->IsInLobby = true;
+				CloseVRHandMenu();
 				VRCharacter->SpawnPointer();
 			}
 		}
@@ -115,5 +141,12 @@ void ABasePlayerController::PlayerHasDied()
 {
 	NumOfDeaths++;
 	OnPLayerDeath.Broadcast();
+}
+
+void ABasePlayerController::BlockMovementInLobby()
+{
+	MainCharacter->GetCharacterMovement()->SetMovementMode(MOVE_None);
+	// stop timer for teleporting
+	GetWorldTimerManager().ClearTimer(TeleportTimerHandle);
 }
 

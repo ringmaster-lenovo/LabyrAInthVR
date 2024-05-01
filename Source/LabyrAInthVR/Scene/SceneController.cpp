@@ -163,6 +163,12 @@ void ASceneController::GetPlayerStartPositionAndRotation(FVector& PlayerStartPos
 	PlayerStartRotation = SpawnManager->PlayerStartRotation;
 }
 
+void ASceneController::GeEndPortalPositionAndRotation(FVector& PlayerEndPosition, FRotator& PlayerEndRotation) const
+{
+	PlayerEndPosition = SpawnManager->EndPortalPosition;
+	PlayerEndRotation = SpawnManager->EndPortalRotation;
+}
+
 void ASceneController::UpdateNavMeshBoundsPosition()
 {
 	NavMeshBoundsVolume->AddActorWorldOffset(FVector{1.f});

@@ -44,6 +44,13 @@ public:
 	UFUNCTION(Category = "GameLogic")
 	FString TeleportPlayer(const FVector& Position, const FRotator& Rotation, const bool InGame = true);
 
+	UFUNCTION(Category = "GameLogic")
+	void CloseVRHandMenu();
+
+	UFUNCTION(Category = "GameLogic")
+	void SpawnVRPointer();
+	
+
 	UFUNCTION(BlueprintCallable, Category = "GameLogic")
 	void CollidedWithEndPortal() const;
 
@@ -58,10 +65,15 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FOnPlayerHasDied);
 	FOnPlayerHasDied OnPLayerDeath;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
-	int NumOfDeaths = 0;
-
 	int GetNumOfDeaths() const { return NumOfDeaths; }
 
 	void ResetNumOfDeaths() { NumOfDeaths = 0; }
+
+private:
+	UPROPERTY(VisibleAnywhere, Category = "Player")
+	int NumOfDeaths = 0;
+	
+	FTimerHandle TeleportTimerHandle;
+
+	void BlockMovementInLobby();
 };

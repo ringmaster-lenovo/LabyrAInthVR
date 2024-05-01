@@ -93,6 +93,12 @@ public:
 	FLeftXPressedEvent LeftXPressedEvent;
 
 	UFUNCTION(BlueprintCallable)
+	void PauseMenuOpened();
+
+	UFUNCTION(BlueprintCallable)
+	void PauseMenuClosed();
+
+	UFUNCTION(BlueprintCallable)
 	void RotateCameraOnYawAxis(float const Value);
 
 private:
