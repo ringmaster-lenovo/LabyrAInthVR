@@ -22,33 +22,34 @@ void UPlayerStatistics::BeginPlay()
 	CurrentSpeed = WalkSpeed;
 }
 
-void UPlayerStatistics::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UPlayerStatistics::TickComponent(float DeltaTime, ELevelTick TickType,
+                                      FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	if(!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
+
+	if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
 
 	UCharacterMovementComponent* CharacterMovementComponent = MainCharacter->GetCharacterMovement();
 	FTimerManager& WorldTimerManager = GetWorld()->GetTimerManager();
 	float Vel = CharacterMovementComponent->Velocity.Size();
 	
-	if (Vel > 0 && Vel <= WalkSpeed && !GetWorld()->GetTimerManager().IsTimerActive(FootstepsSoundWalkTimerHandle))
-	{
-		bIsRunning = false;
-		WorldTimerManager.ClearTimer(FootstepsSoundRunTimerHandle);
-		WorldTimerManager.SetTimer(FootstepsSoundWalkTimerHandle, this, &ThisClass::PlayFootstepSound, WalkSoundInterval, true);
-	}
-	else if (Vel > WalkSpeed && !GetWorld()->GetTimerManager().IsTimerActive(FootstepsSoundRunTimerHandle))
-	{
-		bIsRunning = true;
-		WorldTimerManager.ClearTimer(FootstepsSoundWalkTimerHandle);
-		WorldTimerManager.SetTimer(FootstepsSoundRunTimerHandle, this, &ThisClass::PlayFootstepSound, RunSoundInterval, true);
-	}
-	else if(Vel == 0)
+	if (Vel == 0)
 	{
 		bIsRunning = false;
 		WorldTimerManager.ClearTimer(FootstepsSoundWalkTimerHandle);
 		WorldTimerManager.ClearTimer(FootstepsSoundRunTimerHandle);
+	}
+	if (!bIsRunning && !GetWorld()->GetTimerManager().IsTimerActive(FootstepsSoundWalkTimerHandle))
+	{
+		WorldTimerManager.ClearTimer(FootstepsSoundRunTimerHandle);
+		WorldTimerManager.SetTimer(FootstepsSoundWalkTimerHandle, this, &ThisClass::PlayFootstepSound,
+		                           WalkSoundInterval, true);
+	}
+	else if (bIsRunning && !GetWorld()->GetTimerManager().IsTimerActive(FootstepsSoundRunTimerHandle))
+	{
+		WorldTimerManager.ClearTimer(FootstepsSoundWalkTimerHandle);
+		WorldTimerManager.SetTimer(FootstepsSoundRunTimerHandle, this, &ThisClass::PlayFootstepSound, RunSoundInterval,
+		                           true);
 	}
 }
 
@@ -56,7 +57,8 @@ void UPlayerStatistics::PlayFootstepSound()
 {
 	if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetPawnNoiseEmitterComponent())) return;
 	UGameplayStatics::PlaySound2D(this, bIsRunning ? FootstepsRun : FootstepsWalk);
-	if (bIsRunning) MainCharacter->GetPawnNoiseEmitterComponent()->MakeNoise(MainCharacter, 1.0f, MainCharacter->GetActorLocation());
+	if (bIsRunning) MainCharacter->GetPawnNoiseEmitterComponent()->MakeNoise(
+		MainCharacter, 1.0f, MainCharacter->GetActorLocation());
 }
 
 void UPlayerStatistics::ChangeStatFloat(EStatModifier Stat, float Amount)
@@ -70,7 +72,7 @@ void UPlayerStatistics::ChangeStatFloat(EStatModifier Stat, float Amount)
 		if (Health <= 0.f)
 		{
 			ABasePlayerController* PlayerController = Cast<ABasePlayerController>(MainCharacter->GetController());
-			
+
 			if (PlayerController)
 				PlayerController->PlayerHasDied();
 			else
@@ -103,7 +105,8 @@ void UPlayerStatistics::ChangeTimedStat(EStatModifier Stat, float Amount, float 
 	{
 	case Esm_Speed:
 		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display,
-		       TEXT("%s -> Changing timed Speed from %f to %f for %f seconds"), *GetName(), CurrentSpeed, CurrentSpeed + Amount, Time)
+		       TEXT("%s -> Changing timed Speed from %f to %f for %f seconds"), *GetName(), CurrentSpeed,
+		       CurrentSpeed + Amount, Time)
 		SpeedPowerupModifier = Amount;
 		UE_LOG(LogTemp, Warning, TEXT("ChangeTimedStat"))
 		UpdateSpeed(CurrentSpeed);
@@ -161,7 +164,7 @@ FPlayerTime UPlayerStatistics::GetPlayerTime()
 void UPlayerStatistics::ResetStats()
 {
 	if (!IsValid(MainCharacter) || !IsValid(GetWorld())) return;
-	
+
 	Health = DefaultHealth;
 	CurrentSpeed = WalkSpeed;
 	bHasShield = false;
@@ -180,10 +183,10 @@ void UPlayerStatistics::SetSpeedModifier(float NewSpeedModifier)
 
 void UPlayerStatistics::Sprint(bool bSprint)
 {
-	if(!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
-	
+	if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
+
 	CurrentSpeed = (bSprint ? RunSpeed : WalkSpeed);
-	
+	bIsRunning = bSprint;
 	UpdateSpeed(CurrentSpeed);
 }
 
@@ -199,10 +202,10 @@ void UPlayerStatistics::ResetToDefaultValue(EStatModifier Stat)
 	case Esm_Health:
 		break;
 	case Esm_Speed:
-		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Resetting Speed from %f to %f"), *GetName(),
-		       CurrentSpeed, bIsRunning ? RunSpeed : WalkSpeed)
+		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Resetting Speed modifier from %f to %f"), *GetName(),
+		       SpeedPowerupModifier, 0.f)
 		CurrentSpeed = bIsRunning ? RunSpeed : WalkSpeed;
-		UE_LOG(LogTemp, Warning, TEXT("ResetToDefaultValue"))
+		SpeedPowerupModifier = 0.f;
 		UpdateSpeed(CurrentSpeed);
 		break;
 	default: ;
@@ -212,6 +215,6 @@ void UPlayerStatistics::ResetToDefaultValue(EStatModifier Stat)
 void UPlayerStatistics::UpdateSpeed(float NewSpeed)
 {
 	if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
-	
+
 	MainCharacter->GetCharacterMovement()->MaxWalkSpeed = NewSpeed - SpeedTrapModifier + SpeedPowerupModifier;
 }
