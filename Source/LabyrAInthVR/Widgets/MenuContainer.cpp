@@ -2,6 +2,9 @@
 
 #include "MenuContainer.h"
 
+#include "WidgetController.h"
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 AMenuContainer::AMenuContainer()
@@ -16,4 +19,16 @@ void AMenuContainer::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void AMenuContainer::PauseMenuOpened()
+{
+	AWidgetController* WidgetController = Cast<AWidgetController>(UGameplayStatics::GetActorOfClass(GetWorld(), AWidgetController::StaticClass()));
+	WidgetController->OnPauseGamePressed();
+}
+
+void AMenuContainer::PauseMenuClosed()
+{
+	AWidgetController* WidgetController = Cast<AWidgetController>(UGameplayStatics::GetActorOfClass(GetWorld(), AWidgetController::StaticClass()));
+	WidgetController->OnResumeGame();
 }
