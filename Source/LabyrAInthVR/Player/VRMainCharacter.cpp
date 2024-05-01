@@ -8,6 +8,8 @@
 #include "Components/PostProcessComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Delegates/DelegateSignatureImpl.inl"
+#include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Widgets/WidgetController.h"
 
 
 // This is the main character class for the VR game mode. It handles the VR camera, the VR controllers, and the VR movement.
@@ -68,6 +70,19 @@ void AVRMainCharacter::LeftXPressed()
 {
 	LeftXPressedEvent.Broadcast();
 }
+
+void AVRMainCharacter::PauseMenuOpened()
+{
+	AWidgetController* WidgetController = Cast<AWidgetController>(UGameplayStatics::GetActorOfClass(GetWorld(), AWidgetController::StaticClass()));
+	WidgetController->OnPauseGamePressed();
+}
+
+void AVRMainCharacter::PauseMenuClosed()
+{
+	AWidgetController* WidgetController = Cast<AWidgetController>(UGameplayStatics::GetActorOfClass(GetWorld(), AWidgetController::StaticClass()));
+	WidgetController->OnResumeGame();
+}
+
 
 // A function that rotate the VRRoot of the player along the yaw axis, but does not execute continuously when the button is held down
 // it waits a while before it can be used again

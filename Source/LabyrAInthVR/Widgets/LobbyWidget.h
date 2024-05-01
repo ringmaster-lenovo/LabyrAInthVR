@@ -26,6 +26,12 @@ public:
 	AWidgetController* WidgetController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UTextBlock* WelcomeText;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UUserWidget* LogoutButton;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* NewGameButton;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
@@ -54,5 +60,8 @@ public:
 
 	UFUNCTION()
 	void OnQuitClicked();
+
+	UFUNCTION()
+	void OnLogoutClicked();
 	
 };

@@ -44,6 +44,13 @@ public:
 	UFUNCTION(Category = "GameLogic")
 	FString TeleportPlayer(const FVector& Position, const FRotator& Rotation, const bool InGame = true);
 
+	UFUNCTION(Category = "GameLogic")
+	void CloseVRHandMenu();
+
+	UFUNCTION(Category = "GameLogic")
+	void SpawnVRPointer();
+	
+
 	UFUNCTION(BlueprintCallable, Category = "GameLogic")
 	void CollidedWithEndPortal() const;
 

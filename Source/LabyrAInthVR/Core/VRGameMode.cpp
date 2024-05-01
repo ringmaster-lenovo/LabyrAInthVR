@@ -365,6 +365,8 @@ void AVRGameMode::RestartGame()
 
 	SceneController->OnActorsRespawned.AddUObject(this, &AVRGameMode::StartGame);
 	SceneController->RespawnMovableActors(LabyrinthDTO);
+
+	BasePlayerController->CloseVRHandMenu();
 }
 
 void AVRGameMode::RePrepareGame(const bool bComeBackToLobby)
