@@ -436,14 +436,16 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 					{
 						InX = WallSettings::WallOffset * (Column + k) - (k * Weapons::DistanceFromWall);
 						InY = WallSettings::WallOffset * (Row);
-						SpawnRotation = {0, 0, 0};
+						if (ObjectClass == ABasePickup::StaticClass()) SpawnRotation = {0, 0, 0};
+						else SpawnRotation = {0, 90, 0};
 						break;
 					}
 					else if (Labyrinth->LabyrinthStructure[Row + j][Column] == 1)
 					{
 						InX = WallSettings::WallOffset * (Column);
 						InY = WallSettings::WallOffset * (Row + j) - (j * Weapons::DistanceFromWall);
-						SpawnRotation = {0, 90, 0};
+						if (ObjectClass == ABasePickup::StaticClass()) SpawnRotation = {0, 90, 0};
+						else SpawnRotation = {0, 0, 0};
 						break;
 					}
 				}
