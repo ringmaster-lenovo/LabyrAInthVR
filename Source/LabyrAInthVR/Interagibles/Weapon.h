@@ -11,6 +11,7 @@
 
 class ABasePickup;
 class UStatsChangerComponent;
+class AMainCharacter;
 
 UCLASS()
 class LABYRAINTHVR_API AWeapon : public AActor, public ISpawnableActor, public IMovableActor
@@ -59,4 +60,7 @@ private:
 
 public:
 	FORCEINLINE float GetDamage() {return Damage; }
+
+	UFUNCTION(BlueprintCallable)
+	void AssignToPlayer();
 };
