@@ -33,16 +33,20 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 {
 	if (!IsValid(Cast<UObject>(LabyrinthDTO))) return "Invalid LabyrinthDTO";
 
-	if (!IsValid(LabyrinthParser_BP) || !IsValid(SpawnManager_BP)) return "LabyrinthParser or SpawnManager not set in SceneController";
+	if (!IsValid(LabyrinthParser_BP) || !IsValid(SpawnManager_BP))
+		return
+			"LabyrinthParser or SpawnManager not set in SceneController";
 
 	// Instantiate the LabyrinthParser and build the labyrinth
 	LabyrinthParser = GetWorld()->SpawnActor<ALabyrinthParser>(LabyrinthParser_BP);
 	if (!IsValid(LabyrinthParser)) return "Invalid LabyrinthParserActor";
-	
+
 	// Instantiate the SpawnManager and spawn the actors in the labyrinth
 	SpawnManager = GetWorld()->SpawnActor<ASpawnManager>(SpawnManager_BP);
 	if (!IsValid(SpawnManager)) return "Invalid SpawnManagerActor";
-	
+
+	SpawnManager->Owner = this;
+	LabyrinthParser->Owner = SpawnManager;
 	FString ErrorMessage = LabyrinthParser->BuildLabyrinth(LabyrinthDTO, SpawnManager);
 	if (ErrorMessage != "")
 	{
@@ -54,9 +58,9 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 	{
 		return ErrorMessage;
 	}
-	
+
 	UpdateNavMeshBoundsVolume(LabyrinthDTO);
-	
+
 	OnSceneReady.Broadcast();
 	return "";
 }
@@ -69,23 +73,19 @@ FString ASceneController::CleanUpOnlyLevel() const
 	{
 		return "No valid world found";
 	}
-	
-	for (TActorIterator<AActor> ActorItr(World); ActorItr; ++ActorItr)
-	{
-		AActor* Actor = *ActorItr;
-		if (Actor == nullptr) continue;
 
-		// Check if the actor's class matches any of the classes to destroy
-		if (Actor->Implements<USpawnableActor>())
-		{
-			Actor->Destroy();
-		}
+	for (int i = SpawnedActors.Num(); i > 0; i--)
+	{
+		if (!IsValid(SpawnedActors[i - 1])) continue;
+		SpawnedActors[i - 1]->Destroy();
 	}
+
 	OnSceneCleanedUp.Broadcast();
 	return "";
 }
 
-FString ASceneController::CleanUpLevelAndDoStatistics(int &NumOfEnemiesKilled, int &NumOfTrapsExploded, int &NumOfPowerUpsCollected, int &NumOfWeaponsFound) const
+FString ASceneController::CleanUpLevelAndDoStatistics(int& NumOfEnemiesKilled, int& NumOfTrapsExploded,
+                                                      int& NumOfPowerUpsCollected, int& NumOfWeaponsFound) const
 {
 	// Get a reference to the game world
 	const UWorld* World = GetWorld();
@@ -93,7 +93,7 @@ FString ASceneController::CleanUpLevelAndDoStatistics(int &NumOfEnemiesKilled, i
 	{
 		return "No valid world found";
 	}
-	
+
 	int NumOfEnemiesAlive = 0;
 	int NumOfTrapsActive = 0;
 	int NumOfPowerUpsNotCollected = 0;
@@ -102,25 +102,21 @@ FString ASceneController::CleanUpLevelAndDoStatistics(int &NumOfEnemiesKilled, i
 	int NumOfTrapsSpawned = 0;
 	int NumOfPowerUpsSpawned = 0;
 	int NumOfWeaponsSpawned = 0;
-	SpawnManager->GetNumOfActorSpawned(NumOfEnemiesSpawned, NumOfTrapsSpawned, NumOfPowerUpsSpawned, NumOfWeaponsSpawned);
-	for (TActorIterator<AActor> ActorItr(World); ActorItr; ++ActorItr)
+	SpawnManager->GetNumOfActorSpawned(NumOfEnemiesSpawned, NumOfTrapsSpawned, NumOfPowerUpsSpawned,
+	                                   NumOfWeaponsSpawned);
+	for (int i = SpawnedActors.Num(); i > 0; i--)
 	{
-		AActor* Actor = *ActorItr;
-		if (Actor == nullptr) continue;
+		if (!IsValid(SpawnedActors[i - 1])) continue;
 
-		// Check if the actor's class matches any of the classes to destroy
-		if (Actor->Implements<USpawnableActor>())
+		if (SpawnedActors[i - 1]->IsA<ABaseEnemy>()) NumOfEnemiesAlive++;
+		if (SpawnedActors[i - 1]->IsA<ATrap>()) NumOfTrapsActive++;
+		if (SpawnedActors[i - 1]->IsA<APowerUp>()) NumOfPowerUpsNotCollected++;
+		if (SpawnedActors[i - 1]->IsA<ABasePickup>())
 		{
-			if (Actor->IsA<ABaseEnemy>()) NumOfEnemiesAlive++;
-			if (Actor->IsA<ATrap>()) NumOfTrapsActive++;
-			if (Actor->IsA<APowerUp>()) NumOfPowerUpsNotCollected++;
-			if (Actor->IsA<ABasePickup>())
-			{
-				ABasePickup* Pickup = Cast<ABasePickup>(Actor);
-				if (Pickup != nullptr && Pickup->HasBeenFound()) NumOfWeaponsFound++;
-			}
-			Actor->Destroy();
+			ABasePickup* Pickup = Cast<ABasePickup>(SpawnedActors[i - 1]);
+			if (Pickup != nullptr && Pickup->HasBeenFound()) NumOfWeaponsFound++;
 		}
+		SpawnedActors[i - 1]->Destroy();
 	}
 	NumOfEnemiesKilled = NumOfEnemiesSpawned - NumOfEnemiesAlive;
 	NumOfTrapsExploded = NumOfTrapsSpawned - NumOfTrapsActive;
@@ -136,16 +132,10 @@ FString ASceneController::RespawnMovableActors(ULabyrinthDTO* LabyrinthDto) cons
 	{
 		return "No valid world found";
 	}
-	for (TActorIterator<AActor> ActorItr(World); ActorItr; ++ActorItr)
+	for (int i = MovableActors.Num(); i > 0; i--)
 	{
-		AActor* Actor = *ActorItr;
-		if (Actor == nullptr) continue;
-
-		// Check if the actor's class matches any of the classes to destroy
-		if (Actor->Implements<UMovableActor>())
-		{
-			Actor->Destroy();
-		}
+		if (!IsValid(MovableActors[i - 1])) continue;
+		MovableActors[i - 1]->Destroy();
 	}
 	FString ErrorMessage = SpawnManager->SpawnActorsInLabyrinth(LabyrinthDto);
 	if (ErrorMessage != "")
@@ -163,6 +153,26 @@ void ASceneController::GetPlayerStartPositionAndRotation(FVector& PlayerStartPos
 	PlayerStartRotation = SpawnManager->PlayerStartRotation;
 }
 
+void ASceneController::FreezeAllActors(bool bFreeze)
+{
+	if (bFreeze)
+	{
+		for (const auto& Freezable : FreezableActors)
+		{
+			if (!Freezable->Implements<UFreezableActor>()) continue;
+			Cast<IFreezableActor>(Freezable)->Freeze(-1);
+		}
+	}
+	else
+	{
+		for (const auto& Freezable : FreezableActors)
+		{
+			if (!Freezable->Implements<UFreezableActor>()) continue;
+			Cast<IFreezableActor>(Freezable)->Unfreeze();
+		}
+	}
+}
+
 void ASceneController::UpdateNavMeshBoundsPosition()
 {
 	NavMeshBoundsVolume->AddActorWorldOffset(FVector{1.f});
@@ -170,22 +180,26 @@ void ASceneController::UpdateNavMeshBoundsPosition()
 
 	UNavigationSystemV1* NavigationSystemV1 = UNavigationSystemV1::GetNavigationSystem(this);
 
-	if(!IsValid(NavigationSystemV1)) return;
+	if (!IsValid(NavigationSystemV1)) return;
 
 	NavigationSystemV1->OnNavigationBoundsUpdated(NavMeshBoundsVolume);
 }
 
 void ASceneController::UpdateNavMeshBoundsVolume(const ULabyrinthDTO* LabyrinthDto)
 {
-	NavMeshBoundsVolume = Cast<ANavMeshBoundsVolume>(UGameplayStatics::GetActorOfClass(this, ANavMeshBoundsVolume::StaticClass()));
-	
+	NavMeshBoundsVolume = Cast<ANavMeshBoundsVolume>(
+		UGameplayStatics::GetActorOfClass(this, ANavMeshBoundsVolume::StaticClass()));
+
 	if (!IsValid(NavMeshBoundsVolume)) return;
 
-	const FVector NewScale {std::size(LabyrinthDto->LabyrinthStructure[0])*WallSettings::WallOffset,
-	std::size(LabyrinthDto->LabyrinthStructure)*WallSettings::WallOffset,
-	100.f};
+	const FVector NewScale{
+		std::size(LabyrinthDto->LabyrinthStructure[0]) * WallSettings::WallOffset,
+		std::size(LabyrinthDto->LabyrinthStructure) * WallSettings::WallOffset,
+		100.f
+	};
 	NavMeshBoundsVolume->SetActorScale3D(NewScale);
 	NavMeshBoundsVolume->SetActorLocation(FVector{0.f, 0.f, 0.f});
-	
-	GetWorldTimerManager().SetTimer(NavMeshBoundsTimerHandle, this, &ASceneController::UpdateNavMeshBoundsPosition, 0.25f, false);
+
+	GetWorldTimerManager().SetTimer(NavMeshBoundsTimerHandle, this, &ASceneController::UpdateNavMeshBoundsPosition,
+	                                0.25f, false);
 }

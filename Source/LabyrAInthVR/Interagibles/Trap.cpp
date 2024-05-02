@@ -13,6 +13,11 @@ ATrap::ATrap()
 
 }
 
+void ATrap::Freeze(int32 Time)
+{
+	IFreezableActor::Freeze(Time);
+}
+
 // Called when the game starts or when spawned
 void ATrap::BeginPlay()
 {

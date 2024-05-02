@@ -52,7 +52,8 @@ void AMainCharacter::Tick(float const DeltaTime)
 
 void AMainCharacter::ResetWeapon()
 {
-	
+	if(!IsValid(EquippedWeapon)) return;
+	EquippedWeapon->Destroy();
 }
 
 float AMainCharacter::GetWeaponDamage()

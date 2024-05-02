@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "BasePlayerController.generated.h"
 
+class UInputMappingContext;
 class AMainCharacter;
 DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Player_Log, Display, All);
 
@@ -20,6 +21,7 @@ class LABYRAINTHVR_API ABasePlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	virtual void BeginPlay() override;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
 	AMainCharacter* MainCharacter;
 	
@@ -64,4 +66,7 @@ public:
 	int GetNumOfDeaths() const { return NumOfDeaths; }
 
 	void ResetNumOfDeaths() { NumOfDeaths = 0; }
+
+	UPROPERTY(EditAnywhere, Category=Input)
+	UInputMappingContext* InputMappingContext;
 };

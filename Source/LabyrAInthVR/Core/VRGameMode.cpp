@@ -14,6 +14,8 @@ DEFINE_LOG_CATEGORY(LabyrAInthVR_Core_Log);
 
 AVRGameMode::AVRGameMode()
 {
+	PrimaryActorTick.bTickEvenWhenPaused = true;
+	
 	bIsVRHMDConnected = false;
 	
 	PlayerControllerClass = ABasePlayerController::StaticClass();
@@ -174,8 +176,8 @@ void AVRGameMode::PlayerWantsToPlayGame()
 	
 	WidgetController->ShowLoadingScreen();
 	
-	// MockNetwork();  // uncomment this line and comment the followings to test the game without the backend
-	NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
+	MockNetwork();  // uncomment this line and comment the followings to test the game without the backend
+	/*NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
 	NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
 
 	const int32 LevelToPlay = VRGameState->GetCurrentLevel();
@@ -183,7 +185,7 @@ void AVRGameMode::PlayerWantsToPlayGame()
 	ULabyrinthRequestDTO* LabyrinthRequestDTO = NewObject<ULabyrinthRequestDTO>();
 	LabyrinthDTO->Level = LevelToPlay;
 	LabyrinthRequestDTO->Level = LevelToPlay;
-	NetworkController->GetLabyrinthFromBE(LabyrinthRequestDTO, LabyrinthDTO);
+	NetworkController->GetLabyrinthFromBE(LabyrinthRequestDTO, LabyrinthDTO);*/
 }
 
 void AVRGameMode::MockNetwork()
@@ -259,6 +261,8 @@ void AVRGameMode::StartGame()
 
 void AVRGameMode::PauseGame()
 {
+	//SceneController->FreezeAllActors(true);
+	UGameplayStatics::SetGamePaused(this, true);
 	if (VRGameState->GetCurrentStateOfTheGame() != EGameState::Egs_Playing)
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Pause Game, but game is not playing"));
@@ -276,6 +280,8 @@ void AVRGameMode::PauseGame()
 
 void AVRGameMode::ResumeGame()
 {
+	//SceneController->FreezeAllActors(false);
+	UGameplayStatics::SetGamePaused(this, false);
 	if (VRGameState->GetCurrentStateOfTheGame() != EGameState::Egs_Pausing)
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Resume Game, but game is not in pause state"));
@@ -302,7 +308,9 @@ void AVRGameMode::EndGame(const int Result)
 	// Set up the game to be in Ending state
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Ending);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
-
+	
+	UGameplayStatics::SetGamePaused(this, false);
+	
 	// unbind all game events
 	BasePlayerController->OnPLayerDeath.RemoveAll(this);
 	BasePlayerController->OnCollisionWithEndPortal.RemoveAll(this);
@@ -370,6 +378,8 @@ void AVRGameMode::RestartGame()
 
 	SceneController->OnActorsRespawned.AddUObject(this, &AVRGameMode::StartGame);
 	SceneController->RespawnMovableActors(LabyrinthDTO);
+
+	UGameplayStatics::SetGamePaused(this, false);
 }
 
 void AVRGameMode::RePrepareGame(const bool bComeBackToLobby)

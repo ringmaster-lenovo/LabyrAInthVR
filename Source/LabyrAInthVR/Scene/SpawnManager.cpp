@@ -6,9 +6,9 @@
 #include "SceneController.h"
 #include "Utils.h"
 #include "LabyrAInthVR/Enemy/RangedEnemy.h"
+#include "LabyrAInthVR/Scene/ProceduralSplineWall.h"
 #include "LabyrAInthVR/Interagibles/PowerUp.h"
 #include "LabyrAInthVR/Interagibles/Trap.h"
-#include "LabyrAInthVR/Interagibles/Weapon.h"
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 
 // Sets default values
@@ -73,6 +73,29 @@ void ASpawnManager::FindPotentialSpawnLocations(const ULabyrinthDTO* LabyrinthDT
 	{
 		PotentialEnemySpawnLocations.Add(UUtils::ConvertToIndex(Row, Column));
 	}
+}
+
+void ASpawnManager::TriggerFrozenStar()
+{
+	if(FreezableActors.Num() <= 0) return;
+	
+	for(const auto& FreezableActor : FreezableActors)
+	{
+		if(!FreezableActor->Implements<UFreezableActor>()) continue;
+		Cast<IFreezableActor>(FreezableActor)->Freeze(10.f);
+	}
+}
+
+void ASpawnManager::RemoveFromList(AActor* ActorToRemove)
+{
+	UE_LOG(LogTemp, Error, TEXT("Before: %d %d"), MovableActors.Num(), SpawnedActors.Num())
+	
+	if (!ActorToRemove->IsA<AProceduralSplineWall>())
+		MovableActors.Remove(ActorToRemove);
+
+	SpawnedActors.Remove(ActorToRemove);
+
+	UE_LOG(LogTemp, Error, TEXT("After: %d %d"), MovableActors.Num(), SpawnedActors.Num())
 }
 
 /**
@@ -169,6 +192,23 @@ FString ASpawnManager::SpawnActorsInLabyrinth(const ULabyrinthDTO* LabyrinthDtoR
 		return ErrorMessage;
 	}
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("LabyrinthMatrix:\n%s"), *UUtils::MatrixToString(&Labyrinth->LabyrinthStructure));
+	
+	/*for(const auto& Spawned : SpawnedActors)
+	{
+		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Spawned actor: %s"), *Spawned->GetName());
+	}
+
+	for(const auto& Spawned : MovableActors)
+	{
+		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Movable actor: %s"), *Spawned->GetName());
+	}*/
+	ASceneController* SceneController = Cast<ASceneController>(GetOwner());
+
+	if(!IsValid(SceneController)) return "Error while casting Owner to SceneController";
+	
+	SceneController->SetSpawnedActors(SpawnedActors);
+	SceneController->SetMovableActors(MovableActors);
+	SceneController->SetFreezableActors(FreezableActors);
 	return "";
 }
 
@@ -338,7 +378,7 @@ FString ASpawnManager::DifficultyDecider()
  * @param SpawnableActors the actors to spawn
  * @return an error message describing the blocking error that occured while spawning the actors
  */
-FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArray<TSubclassOf<AActor>>& SpawnableActors) const
+FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArray<TSubclassOf<AActor>>& SpawnableActors)
 {
 	// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("SpawnLocations: %d"), SpawnLocations.Num());
 	// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("SpawnableActors: %d"), SpawnableActors.Num());
@@ -392,6 +432,9 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 		AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(SpawnableActors[Index], SpawnPoint, FRotator(0, FMath::RandRange(0, 360), 0));
 		if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 		else
+		{
+			if(ActorSpawned->Implements<UFreezableActor>()) FreezableActors.Add(ActorSpawned);
+			
 			if (ObjectClass == ARangedEnemy::StaticClass() || ObjectClass == AMeleeEnemy::StaticClass())
 			{
 				ABaseEnemy* EnemyInstance = Cast<ABaseEnemy>(ActorSpawned);
@@ -399,12 +442,16 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 				EnemyInstance->SetLabyrinthMatrix(Labyrinth);
 				EnemyInstance->SetMatrixPosition(Row, Column);
 			}
+
+			SpawnedActors.Add(ActorSpawned);
+			MovableActors.Add(ActorSpawned);
+		}
 			UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor spawned: %s"), *ActorSpawned->GetName());
 	}
 	return "";
 }
 
-FString ASpawnManager::SpawnWeapons() const
+FString ASpawnManager::SpawnWeapons()
 {
 	if (WeaponsClasses.IsEmpty()) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Non blocking scene Error: No Weapons Set"));
 	if (PickupsClasses.IsEmpty()) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Non blocking scene Error: No Pickups Set"));
@@ -443,23 +490,27 @@ FString ASpawnManager::SpawnWeapons() const
 	SpawnPoint = FVector { InX, InY,Weapons::SpawnHeight };
 	PickupsSpawnPoint = FVector { 170, 20,140 };
 	const UClass* ObjectClass = WeaponsClasses[0]->GetSuperClass();
-	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(WeaponsClasses[0], SpawnPoint, FRotator(0, 0, 0));
+	AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(WeaponsClasses[0], SpawnPoint, FRotator(0, 0, 0));
 	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 	else
 	{
 		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor spawned: %s"), *ActorSpawned->GetName());
+		SpawnedActors.Add(ActorSpawned);
+		MovableActors.Add(ActorSpawned);
 	}
-	const AActor* AnotherActorSpawned = GetWorld()->SpawnActor<AActor>(PickupsClasses[0], PickupsSpawnPoint, FRotator(0, 90, 0));
+	AActor* AnotherActorSpawned = GetWorld()->SpawnActor<AActor>(PickupsClasses[0], PickupsSpawnPoint, FRotator(0, 90, 0));
 	if (AnotherActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 	else
 	{
 		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor spawned: %s"), *AnotherActorSpawned->GetName());
+		SpawnedActors.Add(AnotherActorSpawned);
+		MovableActors.Add(AnotherActorSpawned);
 	}
 	return "";
 }
 
 
-FString ASpawnManager::SpawnPortal() const
+FString ASpawnManager::SpawnPortal()
 {
 	if (PortalIndexPosition == -1) return "Did not found the portal position, invalid matrix";
 	if (Portal == nullptr) return "Portal asset not set, cannot play";
@@ -479,8 +530,10 @@ FString ASpawnManager::SpawnPortal() const
 			YawRotation = 0;
 		}
 	}
-	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(Portal, SpawnPoint, FRotator(0, YawRotation, 0));
+	AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(Portal, SpawnPoint, FRotator(0, YawRotation, 0));
 	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
+	SpawnedActors.Add(ActorSpawned);
+	MovableActors.Add(ActorSpawned);
 	return "";
 }
 
@@ -498,8 +551,10 @@ FString ASpawnManager::SpawnPlayerStart()
 	};
 	PlayerStartPosition = {SpawnPoint.X, SpawnPoint.Y, SpawnPoint.Z + 110};
 	PlayerStartRotation = {0, 0, 0};
-	const AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(PlayerSpawnPoint, SpawnPoint, FRotator(0, 0, 0));
+	AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(PlayerSpawnPoint, SpawnPoint, FRotator(0, 0, 0));
 	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
+	MovableActors.Add(ActorSpawned);
+	SpawnedActors.Add(ActorSpawned);
 	return "";
 }
 
@@ -509,4 +564,9 @@ void ASpawnManager::GetNumOfActorSpawned(int &NumOfEnemies, int &NumOfTraps, int
 	NumOfTraps = NumOfTrapsSpawned;
 	NumOfPowerUps = NumOfPowerUpsSpawned;
 	NumOfWeapons = NumOfWeaponsSpawned;
+}
+
+void ASpawnManager::UpdateSpawnableActor(AActor* SpawnedWall)
+{
+	SpawnedActors.Add(SpawnedWall);
 }
