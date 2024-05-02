@@ -76,6 +76,7 @@ FString ASceneController::CleanUpOnlyLevel() const
 
 	for (int i = SpawnedActors.Num(); i > 0; i--)
 	{
+		if (!IsValid(SpawnedActors[i - 1])) continue;
 		SpawnedActors[i - 1]->Destroy();
 	}
 
@@ -105,8 +106,8 @@ FString ASceneController::CleanUpLevelAndDoStatistics(int& NumOfEnemiesKilled, i
 	                                   NumOfWeaponsSpawned);
 	for (int i = SpawnedActors.Num(); i > 0; i--)
 	{
-		if(!IsValid(SpawnedActors[i-1])) continue;
-		
+		if (!IsValid(SpawnedActors[i - 1])) continue;
+
 		if (SpawnedActors[i - 1]->IsA<ABaseEnemy>()) NumOfEnemiesAlive++;
 		if (SpawnedActors[i - 1]->IsA<ATrap>()) NumOfTrapsActive++;
 		if (SpawnedActors[i - 1]->IsA<APowerUp>()) NumOfPowerUpsNotCollected++;
@@ -133,6 +134,7 @@ FString ASceneController::RespawnMovableActors(ULabyrinthDTO* LabyrinthDto) cons
 	}
 	for (int i = MovableActors.Num(); i > 0; i--)
 	{
+		if (!IsValid(MovableActors[i - 1])) continue;
 		MovableActors[i - 1]->Destroy();
 	}
 	FString ErrorMessage = SpawnManager->SpawnActorsInLabyrinth(LabyrinthDto);
@@ -153,18 +155,19 @@ void ASceneController::GetPlayerStartPositionAndRotation(FVector& PlayerStartPos
 
 void ASceneController::FreezeAllActors(bool bFreeze)
 {
-	if(bFreeze)
+	if (bFreeze)
 	{
-		for(const auto& Freezable : FreezableActors)
+		for (const auto& Freezable : FreezableActors)
 		{
-			if(!Freezable->Implements<UFreezableActor>()) continue;
+			if (!Freezable->Implements<UFreezableActor>()) continue;
 			Cast<IFreezableActor>(Freezable)->Freeze(-1);
 		}
-	} else
+	}
+	else
 	{
-		for(const auto& Freezable : FreezableActors)
+		for (const auto& Freezable : FreezableActors)
 		{
-			if(!Freezable->Implements<UFreezableActor>()) continue;
+			if (!Freezable->Implements<UFreezableActor>()) continue;
 			Cast<IFreezableActor>(Freezable)->Unfreeze();
 		}
 	}
