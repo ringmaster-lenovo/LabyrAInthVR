@@ -156,11 +156,17 @@ void ASceneController::FreezeAllActors(bool bFreeze)
 	if(bFreeze)
 	{
 		for(const auto& Freezable : FreezableActors)
-			Freezable->Freeze(-1);
+		{
+			if(!Freezable->Implements<UFreezableActor>()) continue;
+			Cast<IFreezableActor>(Freezable)->Freeze(-1);
+		}
 	} else
 	{
 		for(const auto& Freezable : FreezableActors)
-			Freezable->Unfreeze();
+		{
+			if(!Freezable->Implements<UFreezableActor>()) continue;
+			Cast<IFreezableActor>(Freezable)->Unfreeze();
+		}
 	}
 }
 

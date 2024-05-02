@@ -79,10 +79,10 @@ private:
 	TArray<AActor*> MovableActors;
 
 	UPROPERTY()
-	TArray<IFreezableActor*> FreezableActors;
+	TArray<AActor*> FreezableActors;
 
 public:
 	FORCEINLINE void SetSpawnedActors(TArray<AActor*> Spawned) {SpawnedActors = Spawned; }
 	FORCEINLINE void SetMovableActors(TArray<AActor*> Spawned) {MovableActors = Spawned; }
-	FORCEINLINE void SetFreezableActors(TArray<IFreezableActor*> Spawned) {FreezableActors = Spawned; }
+	FORCEINLINE void SetFreezableActors(TArray<AActor*> Spawned) {FreezableActors = Spawned; }
 };

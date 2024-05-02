@@ -118,7 +118,7 @@ public:
 	TSubclassOf<AActor> Portal;
 
 	UPROPERTY()
-	TArray<IFreezableActor*> FreezableActors;
+	TArray<AActor*> FreezableActors;
 
 	UPROPERTY()
 	TArray<AActor*> MovableActors;

@@ -5,12 +5,14 @@
 #include "Config.h"
 #include "SceneController.h"
 #include "Utils.h"
+#include "CADKernel/UI/Display.h"
 #include "LabyrAInthVR/Enemy/RangedEnemy.h"
 #include "LabyrAInthVR/Scene/ProceduralSplineWall.h"
 #include "LabyrAInthVR/Interagibles/PowerUp.h"
 #include "LabyrAInthVR/Interagibles/Trap.h"
 #include "LabyrAInthVR/Interagibles/Weapon.h"
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
+#include "Logging/StructuredLog.h"
 
 // Sets default values
 ASpawnManager::ASpawnManager()
@@ -82,7 +84,8 @@ void ASpawnManager::TriggerFrozenStar()
 	
 	for(const auto& FreezableActor : FreezableActors)
 	{
-		FreezableActor->Freeze(10.f);
+		if(!FreezableActor->Implements<UFreezableActor>()) continue;
+		Cast<IFreezableActor>(FreezableActor)->Freeze(10.f);
 	}
 }
 
@@ -433,7 +436,7 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 		if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 		else
 		{
-			if(ActorSpawned->Implements<UFreezableActor>()) FreezableActors.Add(Cast<IFreezableActor>(ActorSpawned));
+			if(ActorSpawned->Implements<UFreezableActor>()) FreezableActors.Add(ActorSpawned);
 			
 			if (ObjectClass == ARangedEnemy::StaticClass() || ObjectClass == AMeleeEnemy::StaticClass())
 			{
