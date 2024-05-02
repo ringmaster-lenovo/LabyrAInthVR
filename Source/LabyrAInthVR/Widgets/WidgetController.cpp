@@ -19,6 +19,7 @@ AWidgetController::AWidgetController()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bTickEvenWhenPaused = true;
 }
 
 void AWidgetController::BeginPlay()
@@ -27,7 +28,7 @@ void AWidgetController::BeginPlay()
 	
 	EnableInput(GetWorld()->GetFirstPlayerController());
 
-	InputComponent->BindAction("PauseGame", IE_Pressed, this, &AWidgetController::OnPauseGamePressed);
+	InputComponent->BindAction("PauseGame", IE_Pressed, this, &AWidgetController::OnPauseGamePressed).bExecuteWhenPaused = true;
 
 	AVRGameMode* GameMode = Cast<AVRGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	bIsInVR = GameMode->IsInVR();
