@@ -463,6 +463,7 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 		AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(SpawnableActors[Index], SpawnPoint, SpawnRotation);
 		if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 		else
+		{
 			if (ObjectClass == ARangedEnemy::StaticClass() || ObjectClass == AMeleeEnemy::StaticClass())
 			{
 				ABaseEnemy* EnemyInstance = Cast<ABaseEnemy>(ActorSpawned);
@@ -471,6 +472,7 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 				EnemyInstance->SetMatrixPosition(Row, Column);
 			}
 			UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor spawned: %s"), *ActorSpawned->GetName());
+		}
 	}
 	return "";
 }
