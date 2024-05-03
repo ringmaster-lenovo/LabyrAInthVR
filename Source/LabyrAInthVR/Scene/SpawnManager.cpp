@@ -14,6 +14,7 @@
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
 #include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 ASpawnManager::ASpawnManager()
@@ -33,6 +34,11 @@ void ASpawnManager::BeginPlay()
 void ASpawnManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if(!IsValid(CompassInstance) || !IsValid(MainCharacter)) return;
+	FVector ToPortal = (PortalActor->GetActorLocation() - MainCharacter->GetActorLocation()).GetSafeNormal() * 500.f;
+	CompassInstance->SetWorldLocation(MainCharacter->GetActorLocation());
+	CompassInstance->SetWorldRotation(ToPortal.Rotation());
 }
 
 /**
@@ -92,7 +98,7 @@ void ASpawnManager::TriggerFrozenStar()
 
 void ASpawnManager::TriggerCompass(UParticleSystem* CompassEffect)
 {
-	APortal* PortalActor = nullptr;
+	PortalActor = nullptr;
 	for(const auto& SpawnedActor : SpawnedActors)
 	{
 		if(!SpawnedActor->IsA<APortal>()) continue;
@@ -101,29 +107,26 @@ void ASpawnManager::TriggerCompass(UParticleSystem* CompassEffect)
 		break;
 	}
 	
-	AMainCharacter* MainCharacter = Cast<AMainCharacter>(UGameplayStatics::GetActorOfClass(this, AMainCharacter::StaticClass()));
+	MainCharacter = Cast<AMainCharacter>(UGameplayStatics::GetActorOfClass(this, AMainCharacter::StaticClass()));
 
 	if(!IsValid(MainCharacter) || !IsValid(PortalActor)) return;
 
-	FVector ToPortal = (PortalActor->GetActorLocation() - MainCharacter->GetActorLocation()).GetSafeNormal() * 500.f + MainCharacter->GetActorLocation();
-
-	DrawDebugLine(GetWorld(), MainCharacter->GetActorLocation(), ToPortal, FColor::Red, true);
+	FVector ToPortal = (PortalActor->GetActorLocation() - MainCharacter->GetActorLocation()).GetSafeNormal() * 500.f;
+	
+	//DrawDebugLine(GetWorld(), MainCharacter->GetActorLocation(), ToPortal, FColor::Red, true);
 
 	if(!IsValid(CompassEffect)) return;
 
-	UGameplayStatics::SpawnEmitterAtLocation(this, CompassEffect, MainCharacter->GetActorLocation(), ToPortal.Rotation());
+	CompassInstance = UGameplayStatics::SpawnEmitterAtLocation(this, CompassEffect, MainCharacter->GetActorLocation(), ToPortal.Rotation());
 }
 
 void ASpawnManager::RemoveFromList(AActor* ActorToRemove)
 {
-	UE_LOG(LogTemp, Error, TEXT("Before: %d %d"), MovableActors.Num(), SpawnedActors.Num())
 	
 	if (!ActorToRemove->IsA<AProceduralSplineWall>())
 		MovableActors.Remove(ActorToRemove);
 
 	SpawnedActors.Remove(ActorToRemove);
-
-	UE_LOG(LogTemp, Error, TEXT("After: %d %d"), MovableActors.Num(), SpawnedActors.Num())
 }
 
 /**

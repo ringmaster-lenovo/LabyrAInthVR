@@ -9,6 +9,8 @@
 #include "SpawnManager.generated.h"
 
 
+class APortal;
+class AMainCharacter;
 class IMovableActor;
 class UFreezableActor;
 class IFreezableActor;
@@ -134,6 +136,15 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void RemoveFromList(AActor* ActorToRemove);
+
+	UPROPERTY()
+	UParticleSystemComponent* CompassInstance;
+
+	UPROPERTY()
+	AMainCharacter* MainCharacter;
+
+	UPROPERTY()
+	APortal* PortalActor;
 	
 	FVector PlayerStartPosition;
 
