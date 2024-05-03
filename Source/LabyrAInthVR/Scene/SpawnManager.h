@@ -130,6 +130,9 @@ public:
 	void TriggerFrozenStar();
 
 	UFUNCTION(BlueprintCallable)
+	void TriggerCompass(UParticleSystem* CompassEffect);
+
+	UFUNCTION(BlueprintCallable)
 	void RemoveFromList(AActor* ActorToRemove);
 	
 	FVector PlayerStartPosition;

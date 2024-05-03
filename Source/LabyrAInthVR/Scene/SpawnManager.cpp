@@ -5,11 +5,15 @@
 #include "Config.h"
 #include "SceneController.h"
 #include "Utils.h"
+#include "Kismet/GameplayStatics.h"
 #include "LabyrAInthVR/Enemy/RangedEnemy.h"
+#include "LabyrAInthVR/Interagibles/Portal.h"
 #include "LabyrAInthVR/Scene/ProceduralSplineWall.h"
 #include "LabyrAInthVR/Interagibles/PowerUp.h"
 #include "LabyrAInthVR/Interagibles/Trap.h"
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
+#include "LabyrAInthVR/Player/MainCharacter.h"
+#include "Particles/ParticleSystem.h"
 
 // Sets default values
 ASpawnManager::ASpawnManager()
@@ -84,6 +88,30 @@ void ASpawnManager::TriggerFrozenStar()
 		if(!FreezableActor->Implements<UFreezableActor>()) continue;
 		Cast<IFreezableActor>(FreezableActor)->Freeze(10.f);
 	}
+}
+
+void ASpawnManager::TriggerCompass(UParticleSystem* CompassEffect)
+{
+	APortal* PortalActor = nullptr;
+	for(const auto& SpawnedActor : SpawnedActors)
+	{
+		if(!SpawnedActor->IsA<APortal>()) continue;
+		
+		PortalActor = Cast<APortal>(SpawnedActor);
+		break;
+	}
+	
+	AMainCharacter* MainCharacter = Cast<AMainCharacter>(UGameplayStatics::GetActorOfClass(this, AMainCharacter::StaticClass()));
+
+	if(!IsValid(MainCharacter) || !IsValid(PortalActor)) return;
+
+	FVector ToPortal = (PortalActor->GetActorLocation() - MainCharacter->GetActorLocation()).GetSafeNormal() * 500.f + MainCharacter->GetActorLocation();
+
+	DrawDebugLine(GetWorld(), MainCharacter->GetActorLocation(), ToPortal, FColor::Red, true);
+
+	if(!IsValid(CompassEffect)) return;
+
+	UGameplayStatics::SpawnEmitterAtLocation(this, CompassEffect, MainCharacter->GetActorLocation(), ToPortal.Rotation());
 }
 
 void ASpawnManager::RemoveFromList(AActor* ActorToRemove)
