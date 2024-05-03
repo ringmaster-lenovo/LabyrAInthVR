@@ -66,6 +66,11 @@ public:
 		return 13;
 	}
 
+	uint8 GetDefaultComplexity()
+	{
+		return 0;
+	}
+
 	// std::vector<std::vector<uint8>> LabyrinthStructure{
 	// 		{1,1,1,1,1,1,1,1,1,1,1,1,1},
 	// 		{1,2,1,0,0,0,1,0,0,0,0,0,1},

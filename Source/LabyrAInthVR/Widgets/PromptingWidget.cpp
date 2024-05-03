@@ -56,7 +56,7 @@ void UPromptingWidget::OnSendClicked()
 		TArray<FString> PlayerNames;
 		ULabyrAInthVRGameInstance::LoadPlayerNames(PlayerNames);
 
-		if (SendButton->TextBlock->GetText().EqualTo(FText::FromString("Load Games")) || !PlayerNames.Contains(PlayerNameString))
+		if (SendButton->TextBlock->GetText().EqualTo(FText::FromString("Load Game")) || !PlayerNames.Contains(PlayerNameString))
 		{
 			//If the player name does not exists or the player wants to load previous games
 			FString ErrorString = GameState->LoginPlayer(PlayerNameString);
@@ -92,7 +92,7 @@ void UPromptingWidget::OnSendClicked()
 			if (SendButton)
 			{
 				// SendButton->ButtonText = FText::FromString("Load Games");
-				SendButton->TextBlock->SetText(FText::FromString("Load Games"));
+				SendButton->TextBlock->SetText(FText::FromString("Load Game"));
 			}
 		}
 		

@@ -251,8 +251,9 @@ AProceduralSplineWall* ALabyrinthParser::SpawnWall(FVector& Location, const ETra
 	AProceduralSplineWall* ProceduralSplineWallInstance = GetWorld()->SpawnActor<AProceduralSplineWall>(
 		ProceduralWallClass);
 
-	if (ProceduralSplineWallInstance == nullptr) return nullptr;
+	if (!IsValid(ProceduralSplineWallInstance) || !IsValid(GetOwner())) return nullptr;
 
+	Cast<ASpawnManager>(GetOwner())->UpdateSpawnableActor(ProceduralSplineWallInstance);
 	ProceduralSplineWallInstance->SetActorScale3D(FVector(1.f, 1.f, 3.f));
 
 	float WallAge;

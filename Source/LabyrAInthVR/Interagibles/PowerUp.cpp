@@ -4,6 +4,8 @@
 #include "PowerUp.h"
 #include <Kismet/GameplayStatics.h>
 
+#include "LabyrAInthVR/Core/VRGameMode.h"
+
 // Sets default values
 APowerUp::APowerUp()
 {
@@ -24,5 +26,20 @@ void APowerUp::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void APowerUp::TriggerFrozenStar()
+{
+	// AVRGameMode* GameMode = Cast<AVRGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	// if (GameMode == nullptr) return;
+	// ASceneController* SceneController = GameMode->GetSceneController();
+	// if (FreezableActors.Num() <= 0) return;
+	//
+	// for (const auto& FreezableActor : FreezableActors)
+	// {
+	// 	if (FreezableActor == nullptr) continue;
+	// 	if (!FreezableActor->Implements<UFreezableActor>()) continue;
+	// 	Cast<IFreezableActor>(FreezableActor)->Freeze(10.f);
+	// }
 }
 

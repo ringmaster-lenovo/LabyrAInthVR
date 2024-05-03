@@ -10,11 +10,16 @@
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "LabyrAInthVR/Player/Main3DCharacter.h"
 #include "LabyrAInthVR/Scene/Config.h"
+#include <thread>
+#include <chrono>
+
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Core_Log);
 
 AVRGameMode::AVRGameMode()
 {
+	PrimaryActorTick.bTickEvenWhenPaused = true;
+	
 	bIsVRHMDConnected = false;
 	
 	PlayerControllerClass = ABasePlayerController::StaticClass();
@@ -175,16 +180,16 @@ void AVRGameMode::PlayerWantsToPlayGame()
 	
 	WidgetController->ShowLoadingScreen();
 	
-	MockNetwork();  // uncomment this line and comment the followings to test the game without the backend
-	// NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
-	// NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
+	// MockNetwork();  // uncomment this line and comment the followings to test the game without the backend
+	NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
+	NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
 
-	// const int32 LevelToPlay = VRGameState->GetCurrentLevel();
-	// UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Requesting Labyrinth for level %d"), LevelToPlay);
-	// ULabyrinthRequestDTO* LabyrinthRequestDTO = NewObject<ULabyrinthRequestDTO>();
-	// LabyrinthDTO->Level = LevelToPlay;
-	// LabyrinthRequestDTO->Level = LevelToPlay;
-	// NetworkController->GetLabyrinthFromBE(LabyrinthRequestDTO, LabyrinthDTO);
+	const int32 LevelToPlay = VRGameState->GetCurrentLevel();
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Requesting Labyrinth for level %d"), LevelToPlay);
+	ULabyrinthRequestDTO* LabyrinthRequestDTO = NewObject<ULabyrinthRequestDTO>();
+	LabyrinthDTO->Level = LevelToPlay;
+	LabyrinthRequestDTO->Level = LevelToPlay;
+	NetworkController->GetLabyrinthFromBE(LabyrinthRequestDTO, LabyrinthDTO);
 }
 
 void AVRGameMode::MockNetwork()
@@ -195,6 +200,7 @@ void AVRGameMode::MockNetwork()
 	LabyrinthDTO->Level = LabyrinthDTO->GetDefaultLevel();
 	LabyrinthDTO->Width = LabyrinthDTO->GetDefaultWidth();
 	LabyrinthDTO->Height = LabyrinthDTO->GetDefaultHeight();
+	LabyrinthDTO->Complexity = LabyrinthDTO->GetDefaultComplexity();
 	LabyrinthDTO->LabyrinthStructure = LabyrinthDTO->GetDefaultLabyrinthStructure();
 	UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("NetworkError, using mocked Labyinth "));
 	PrepareGame();
@@ -269,7 +275,10 @@ void AVRGameMode::PauseGame()
 	}
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Pausing);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
+	
+	UGameplayStatics::SetGamePaused(this, true);
 
+	//TODO: PAUSE PLAYER TIMER
 	// unbind pause event and re-bind all pause widget events
 	WidgetController->OnPauseGameEvent.RemoveAll(this);
 	WidgetController->OnResumeGameEvent.AddUObject(this, &AVRGameMode::ResumeGame);
@@ -287,6 +296,9 @@ void AVRGameMode::ResumeGame()
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Playing);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
 
+	UGameplayStatics::SetGamePaused(this, false);
+	
+	//TODO: RESUME PLAYER TIMER
 	// unbind all widgets events re-bind pause event
 	WidgetController->OnResumeGameEvent.RemoveAll(this);
 	WidgetController->OnRestartLevelEvent.RemoveAll(this);
@@ -305,7 +317,9 @@ void AVRGameMode::EndGame(const int Result)
 	// Set up the game to be in Ending state
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Ending);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
-
+	
+	UGameplayStatics::SetGamePaused(this, false);
+	
 	// unbind all game events
 	BasePlayerController->OnPLayerDeath.RemoveAll(this);
 	BasePlayerController->OnCollisionWithEndPortal.RemoveAll(this);
@@ -365,7 +379,8 @@ void AVRGameMode::RestartGame()
 
 	SceneController->OnActorsRespawned.AddUObject(this, &AVRGameMode::StartGame);
 	SceneController->RespawnMovableActors(LabyrinthDTO);
-
+	
+	UGameplayStatics::SetGamePaused(this, false);
 	BasePlayerController->CloseVRHandMenu();
 }
 
@@ -529,6 +544,13 @@ void AVRGameMode::SaveGame() const
 	// 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("FinishGameRequest failed"));
 	// 	});
 	NetworkController->FinishGame(FinishGameRequestDto, FinishGameResponseDto);
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("FinishGameRequest sent"));
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Game Saved. Games Saves Stats values added:\n"));
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("PlayerName: %s"), *PlayerName);
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Level: %d"), Level);
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Labyrinth height and width: %d-%d"), LabyrinthDTO->Height, LabyrinthDTO->Width);
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Labyrinth complexity: %d"), LabyrinthDTO->Complexity);
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("TimeOnLevel: %d"), TimeOnLevel);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("NumOfDeaths: %d"), NumOfDeaths);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("NumOfEnemiesKilled: %d"), NumOfEnemiesKilled);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("NumOfTrapsExploded: %d"), NumOfTrapsExploded);

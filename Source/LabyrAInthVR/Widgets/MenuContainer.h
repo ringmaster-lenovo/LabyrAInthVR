@@ -20,10 +20,17 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void CloseMenu();
+	
 
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable)
+	void PauseMenuOpened();
+
+	UFUNCTION(BlueprintCallable)
+	void PauseMenuClosed();
 	
 };

@@ -11,6 +11,7 @@
 
 class ABasePickup;
 class UStatsChangerComponent;
+class AMainCharacter;
 
 UCLASS()
 class LABYRAINTHVR_API AWeapon : public AActor, public ISpawnableActor, public IMovableActor
@@ -56,7 +57,19 @@ private:
 
 	UPROPERTY()
 	ABasePickup* Pickup;
+		
+	UPROPERTY()
+	bool bHasBeenFound = false;
 
 public:
 	FORCEINLINE float GetDamage() {return Damage; }
+
+	UFUNCTION(BlueprintCallable)
+	void AssignToPlayer();
+	
+	UFUNCTION(BlueprintCallable)
+	bool HasBeenFound() const { return bHasBeenFound; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetHasBeenFound() { bHasBeenFound = true; }
 };
