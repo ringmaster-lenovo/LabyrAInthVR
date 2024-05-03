@@ -10,6 +10,7 @@
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
 #include "LabyrAInthVR/Scene/Config.h"
+#include "LabyrAInthVR/Scene/SpawnManager.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "Perception/PawnSensingComponent.h"
 
@@ -79,11 +80,17 @@ float ABaseEnemy::GetSpeed()
 	return GetCharacterMovement()->Velocity.Size();
 }
 
-void ABaseEnemy::Freeze(uint8 Time)
+void ABaseEnemy::Freeze(int32 Time)
 {
+	IFreezableActor::Freeze(Time);
+
+	if(!IsValid(AIController)) return;
+
+	GetWorldTimerManager().ClearTimer(PatrollingTimerHandle);
+	CustomTimeDilation = 0.f;
 	LastKnownEnemyState = EnemyState;
 	EnemyState = EES_Frozen;
-	GetWorldTimerManager().SetTimer(FreezingTimerHandle, this, &ThisClass::FreezeTimerFinished, Time, false);
+	if(Time > 0) GetWorldTimerManager().SetTimer(FreezingTimerHandle, this, &ThisClass::FreezeTimerFinished, Time, false);
 }
 
 void ABaseEnemy::NavMeshFinishedBuilding(ANavigationData* NavigationData)
@@ -101,6 +108,7 @@ void ABaseEnemy::PatrollingTimerFinished()
 	EnemyState = EES_Patrolling;
 
 	End = GetNextDestination(MatrixRow, MatrixColumn, LastKnownDirection);
+	
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalLocation(End);
 	MoveRequest.SetAcceptanceRadius(0.f);
@@ -130,6 +138,7 @@ void ABaseEnemy::OnHearNoise(APawn* NoiseInstigator, const FVector& Location, fl
 	GetWorldTimerManager().ClearTimer(PatrollingTimerHandle);
 
 	EnemyState = EES_Patrolling;
+	
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalLocation(Location);
 	MoveRequest.SetAcceptanceRadius(0.f);
@@ -140,7 +149,12 @@ void ABaseEnemy::OnHearNoise(APawn* NoiseInstigator, const FVector& Location, fl
 
 void ABaseEnemy::FreezeTimerFinished()
 {
-	EnemyState = LastKnownEnemyState;
+	/*GetMesh()->bNoSkeletonUpdate = false;
+	UE_LOG(LogTemp, Warning, TEXT("Enemy state after: %s"), *UEnum::GetValueAsString(EnemyState))
+	*/
+	//AIController->MoveTo(MoveRequest);
+	EnemyState = EES_Idle;
+	CustomTimeDilation = 1.f;
 }
 
 void ABaseEnemy::OnMoveFinished(FAIRequestID RequestID, const FPathFollowingResult& PathFollowingResult)
@@ -185,7 +199,7 @@ void ABaseEnemy::UpdateMatrixPosition()
 	//UE_LOG(LogTemp, Warning, TEXT("New position: %d %d"), MatrixRow, MatrixColumn);
 
 	FVector NewPos{MatrixColumn * WallSettings::WallOffset, MatrixRow * WallSettings::WallOffset, 0.f};
-	DrawDebugSphere(GetWorld(), NewPos, 20.f, 15, FColor::Green, true);
+	//DrawDebugSphere(GetWorld(), NewPos, 20.f, 15, FColor::Green, true);
 }
 
 void ABaseEnemy::StartPatrolling()
@@ -204,7 +218,9 @@ void ABaseEnemy::Chase()
 	if (!IsValid(AIController)) return;
 	
 	GetWorldTimerManager().ClearTimer(PatrollingTimerHandle);
+	
 	EnemyState = EES_Chasing;
+	
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalActor(SeenCharacter);
 	MoveRequest.SetAcceptanceRadius(0.f);
@@ -213,7 +229,7 @@ void ABaseEnemy::Chase()
 
 void ABaseEnemy::RotateToCharacter()
 {
-	if (!IsValid(SeenCharacter)) return;
+	if (!IsValid(SeenCharacter) || EnemyState == EES_Frozen) return;
 
 	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(),
 	                                                                 SeenCharacter->GetActorLocation());
@@ -283,6 +299,10 @@ void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamage
 	AIController->StopMovement();
 	EnemyState = EES_Dead;
 	PlayMontage(DeathMontage);
+
+	ASpawnManager* SpawnManager = Cast<ASpawnManager>(UGameplayStatics::GetActorOfClass(this, ASpawnManager::StaticClass()));
+	if(!IsValid(SpawnManager)) return;
+	SpawnManager->RemoveFromList(this);
 }
 
 FVector ABaseEnemy::GetNextDestination(uint8& Row, uint8& Column, EEnemyDirection& LastDirection)

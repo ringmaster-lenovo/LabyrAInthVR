@@ -93,10 +93,10 @@ private:
 	FTimerHandle FootstepsSoundRunTimerHandle;
 
 	UPROPERTY(EditAnywhere, Category="Speed")
-	float WalkSpeed{400.f};
+	float WalkSpeed = 400.f;
 
 	UPROPERTY(EditAnywhere, Category="Speed")
-	float RunSpeed{800.f};
+	float RunSpeed = WalkSpeed * 2;
 	
 	UPROPERTY(EditAnywhere, Category="Speed")
 	float RunModifier {400.f};
@@ -105,7 +105,9 @@ private:
 	
 	bool bIsRunning {false};
 
-	float SpeedModifier {0.f};
+	float SpeedTrapModifier {0.f};
+
+	float SpeedPowerupModifier{0.f};
 public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeStatFloat(EStatModifier Stat, float Amount);
