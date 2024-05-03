@@ -180,7 +180,9 @@ void AWidgetController::ShowGameUI()
 		{
 			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 			StatisticsWidget = CreateWidget<UStatisticsWidget>(PlayerController, StatisticsWidgetClass);
-			StatisticsWidget->AddToViewport(0);
+			StatisticsWidget->AddToViewport(1);
+			DamageWidget = CreateWidget<UDamageWidget>(PlayerController, DamageWidgetClass);
+			DamageWidget->AddToViewport(0);
 		}
 	}
 }
