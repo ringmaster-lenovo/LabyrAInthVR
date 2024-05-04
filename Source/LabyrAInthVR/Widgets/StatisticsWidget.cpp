@@ -15,7 +15,6 @@ void UStatisticsWidget::NativeConstruct()
 	Super::NativeConstruct();
 			
 	StartTimer(time); //mocked starting TimeOnCurrentLevel
-	// SetStatisticsValues(100, 20, 34, 0.68); //mocked stats
 }
 
 void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -32,7 +31,7 @@ void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
     SetStatisticsValues(MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Speed),
         MainCharacter->GetPlayerStatistics()->HasShield(),
         MainCharacter->GetWeaponDamage(),
-        MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Health)/100);
+        MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Health) / MainCharacter->GetPlayerStatistics()->GetDefaultHealth());
 }
 
 void UStatisticsWidget::SetStatisticsValues(int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage)

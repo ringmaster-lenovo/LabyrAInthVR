@@ -86,8 +86,8 @@ void UPlayerStatistics::ChangeStatBool(EStatModifier Stat, bool bEnable)
 {
 	switch (Stat)
 	{
-	case Esm_Armor:
-		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Changing untimed Armor from %s to %s"),
+	case Esm_Shield:
+		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Changing untimed Shield from %s to %s"),
 		       *GetName(), bHasShield ? *FString("True") : *FString("False"),
 		       bEnable ? *FString("True") : *FString("False"))
 		bHasShield = bEnable;
@@ -106,10 +106,10 @@ void UPlayerStatistics::ChangeTimedStat(EStatModifier Stat, float Amount, float 
 		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display,
 		       TEXT("%s -> Changing timed Speed from %f to %f for %f seconds"), *GetName(), CurrentSpeed,
 		       CurrentSpeed + Amount, Time)
-		SpeedPowerupModifier = Amount;
-		UE_LOG(LogTemp, Warning, TEXT("ChangeTimedStat"))
-		UpdateSpeed(CurrentSpeed);
-		Delegate.BindUObject(this, &ThisClass::ResetToDefaultValue, Esm_Speed);
+		SpeedPowerupModifier += Amount;
+		UE_LOG(LogTemp, Display, TEXT("ChangeTimedStat"))
+		UpdateSpeed();
+		Delegate.BindUObject(this, &ThisClass::ResetThisPowerUpSpeedModifier, Esm_Speed, Amount);
 		GetWorld()->GetTimerManager().SetTimer(DefaultValueTimerHandle, Delegate, Time, false);
 		break;
 	default: ;
@@ -135,7 +135,7 @@ float UPlayerStatistics::GetLevelTime()
 	return LevelTime;
 }
 
-float UPlayerStatistics::GetDefaultHealth()
+float UPlayerStatistics::GetDefaultHealth() const
 {
 	return DefaultHealth;
 }
@@ -175,18 +175,18 @@ void UPlayerStatistics::ResetStats()
 
 void UPlayerStatistics::SetSpeedModifier(float NewSpeedModifier)
 {
-	SpeedTrapModifier = NewSpeedModifier;
+	SpeedTrapModifier += NewSpeedModifier;
 	UE_LOG(LogTemp, Warning, TEXT("SetSpeedModifier"))
-	UpdateSpeed(CurrentSpeed);
+	UpdateSpeed();
 }
 
 void UPlayerStatistics::Sprint(bool bSprint)
 {
 	if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
 
-	CurrentSpeed = (bSprint ? RunSpeed : WalkSpeed);
+	RunSpeedModifier = (bSprint ? BaseRunSpeedModifier : 0);
 	bIsRunning = bSprint;
-	UpdateSpeed(CurrentSpeed);
+	UpdateSpeed();
 }
 
 void UPlayerStatistics::UpdateTimer()
@@ -194,25 +194,23 @@ void UPlayerStatistics::UpdateTimer()
 	LevelTime++;
 }
 
-void UPlayerStatistics::ResetToDefaultValue(EStatModifier Stat)
+void UPlayerStatistics::ResetThisPowerUpSpeedModifier(EStatModifier Stat, float Amount)
 {
 	switch (Stat)
 	{
-	case Esm_Health:
-		break;
 	case Esm_Speed:
 		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Resetting Speed modifier from %f to %f"), *GetName(), SpeedPowerupModifier, 0.f)
-		CurrentSpeed = bIsRunning ? RunSpeed : WalkSpeed;
-		SpeedPowerupModifier = 0.f;
-		UpdateSpeed(CurrentSpeed);
+		SpeedPowerupModifier -= Amount;
+		UpdateSpeed();
 		break;
 	default: ;
 	}
 }
 
-void UPlayerStatistics::UpdateSpeed(float NewSpeed)
+void UPlayerStatistics::UpdateSpeed()
 {
 	if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
 
-	MainCharacter->GetCharacterMovement()->MaxWalkSpeed = NewSpeed - SpeedTrapModifier + SpeedPowerupModifier;
+	CurrentSpeed = FMath::Max(50, WalkSpeed + RunSpeedModifier + SpeedPowerupModifier - SpeedTrapModifier);
+	MainCharacter->GetCharacterMovement()->MaxWalkSpeed = CurrentSpeed;
 }

@@ -13,7 +13,7 @@ enum EStatModifier : uint8
 {
 	Esm_Health UMETA(DisplayName = "Health"),
 	Esm_Speed UMETA(DisplayName = "Speed"),
-	Esm_Armor UMETA(DisplayName = "Armor")
+	Esm_Shield UMETA(DisplayName = "Shield")
 };
 
 USTRUCT(Blueprintable)
@@ -70,9 +70,9 @@ private:
 	void UpdateTimer();
 
 	UFUNCTION()
-	void ResetToDefaultValue(EStatModifier Stat);
+	void ResetThisPowerUpSpeedModifier(EStatModifier Stat, float Amount);
 
-	void UpdateSpeed(float NewSpeed);
+	void UpdateSpeed();
 
 	UPROPERTY(EditAnywhere, Category="Sounds")
 	USoundCue* FootstepsWalk;
@@ -95,19 +95,17 @@ private:
 	UPROPERTY(EditAnywhere, Category="Speed")
 	float WalkSpeed = 400.f;
 
-	UPROPERTY(EditAnywhere, Category="Speed")
-	float RunSpeed = WalkSpeed * 2;
-	
-	UPROPERTY(EditAnywhere, Category="Speed")
-	float RunModifier {400.f};
+	float BaseRunSpeedModifier = 200.f;
 
 	float InternalRunModifier;
 	
 	bool bIsRunning {false};
 
+	float RunSpeedModifier {0.f};
+
 	float SpeedTrapModifier {0.f};
 
-	float SpeedPowerupModifier{0.f};
+	float SpeedPowerupModifier {0.f};
 public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeStatFloat(EStatModifier Stat, float Amount);
@@ -120,11 +118,12 @@ public:
 
 	template<typename T>
 	T GetStat(EStatModifier Stat);
+
+	float GetDefaultHealth() const;
 	
 	void StartLevelTimer();
 	void StopLevelTimer();
 	float GetLevelTime();
-	float GetDefaultHealth();
 	float GetCurrentWeaponDamage();
 	FPlayerTime GetPlayerTime();
 	void ResetStats();
@@ -148,7 +147,7 @@ T UPlayerStatistics::GetStat(EStatModifier Stat)
 		return Health;
 	case Esm_Speed:
 		return CurrentSpeed;
-	case Esm_Armor:
+	case Esm_Shield:
 		return bHasShield;
 	}
 

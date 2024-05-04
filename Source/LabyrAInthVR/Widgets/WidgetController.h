@@ -16,6 +16,7 @@
 #include "LoseWidget.h"
 #include "StatisticsWidget.h"
 #include "ButtonWidget.h"
+#include "DamageWidget.h"
 #include "WidgetController.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Widget_Log, Display, All);
@@ -72,6 +73,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<UButtonWidget> ButtonWidgetClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UDamageWidget> DamageWidgetClass;
+
+	UPROPERTY()
+	UDamageWidget* DamageWidget = nullptr;
+	
 	UPROPERTY()
 	ULobbyWidget* LobbyWidget = nullptr;
 	

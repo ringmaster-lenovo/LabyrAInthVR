@@ -61,6 +61,9 @@ private:
 	UPROPERTY()
 	bool bHasBeenFound = false;
 
+	UPROPERTY(EditAnywhere, Category = "Interaction")
+	USoundBase* FireSound;
+
 public:
 	FORCEINLINE float GetDamage() {return Damage; }
 
