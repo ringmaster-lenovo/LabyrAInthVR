@@ -4,6 +4,7 @@
 #include "StatisticsWidget.h"
 
 #include "PlayerStatsSubSystem.h"
+#include "Components/Border.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "Kismet/GameplayStatics.h"
@@ -51,6 +52,11 @@ void UStatisticsWidget::SetStatisticsValues(int SpeedValue, bool bHasShield, int
 	if (health)
     {
         health->SetPercent(HealthPercentage);
+    }
+
+    if (shield)
+    {
+        shield->SetVisibility(bHasShield ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
     }
 }
 
