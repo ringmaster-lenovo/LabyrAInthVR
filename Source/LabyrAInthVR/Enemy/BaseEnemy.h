@@ -75,6 +75,9 @@ public:
 	float GetSpeed();
 
 	virtual void Freeze(int32 Time) override;
+
+	UFUNCTION(BlueprintCallable)
+	void FreezeEnemy();
 protected:
 	virtual void BeginPlay() override;
 	void StartPatrolling();
