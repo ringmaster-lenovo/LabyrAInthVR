@@ -66,6 +66,9 @@ private:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	float LevelTime {0.f};
 
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	float LevelTimer {0.f};
+
 	UFUNCTION()
 	void UpdateTimer();
 
@@ -106,6 +109,7 @@ private:
 	float SpeedTrapModifier {0.f};
 
 	float SpeedPowerupModifier {0.f};
+	
 public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeStatFloat(EStatModifier Stat, float Amount);
@@ -120,10 +124,13 @@ public:
 	T GetStat(EStatModifier Stat);
 
 	float GetDefaultHealth() const;
+
+	void SetLevelTimer(const float Time) { LevelTimer = Time; }
 	
 	void StartLevelTimer();
 	void StopLevelTimer();
 	float GetLevelTime();
+	float GetLevelTimer();
 	float GetCurrentWeaponDamage();
 	FPlayerTime GetPlayerTime();
 	void ResetStats();

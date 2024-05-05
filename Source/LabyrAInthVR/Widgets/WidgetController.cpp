@@ -213,8 +213,6 @@ void AWidgetController::ShowGameUI()
 		OnWidgetSError.Broadcast();
 		return;
 	}
-	DamageWidget = CreateWidget<UDamageWidget>(PlayerController, DamageWidgetClass);
-	DamageWidget->AddToViewport(0);
 	if (!bIsInVR)
 	{
 		RemoveAllWidgets(GetWorld());
@@ -227,6 +225,8 @@ void AWidgetController::ShowGameUI()
 			StatisticsWidget->AddToViewport(1);
 		}
 	}
+	DamageWidget = CreateWidget<UDamageWidget>(PlayerController, DamageWidgetClass);
+	DamageWidget->AddToViewport(0);
 }
 
 void AWidgetController::ShowWinScreen(const int32 TimeOnLevel)
@@ -235,9 +235,13 @@ void AWidgetController::ShowWinScreen(const int32 TimeOnLevel)
 	{
 		if (bIsInVR)
 		{
+			if (DamageWidget)
+			{
+				DamageWidget->RemoveFromParent();
+			}
 			WidgetContainer->Widget->SetWidgetClass(WinWidgetClass);
 			WinWidget = Cast<UWinWidget>(WidgetContainer->Widget->GetUserWidgetObject());
-			if(!WinWidget)
+			if (!WinWidget)
 			{
 				FString ErrorString = "No WinWidget!";
 				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
@@ -264,19 +268,24 @@ void AWidgetController::ShowWinScreen(const int32 TimeOnLevel)
 	}
 }
 
-void AWidgetController::ShowLoseScreen()
+void AWidgetController::ShowLoseScreen(const bool bIsPlayerDead)
 {
 	if (LoseWidgetClass)
 	{
 		if (bIsInVR)
 		{
+			if (DamageWidget)
+			{
+				DamageWidget->RemoveFromParent();
+			}
 			WidgetContainer->Widget->SetWidgetClass(LoseWidgetClass);
 			LoseWidget = Cast<ULoseWidget>(WidgetContainer->Widget->GetUserWidgetObject());
-			if(!LoseWidget)
+			if (!LoseWidget)
 			{
 				FString ErrorString = "No WinWidget!";
 				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
 				OnWidgetSError.Broadcast();
+				return;
 			}
 			LoseWidget->WidgetController = this;
 		} else
@@ -293,7 +302,13 @@ void AWidgetController::ShowLoseScreen()
 			PlayerController->SetInputMode(InputMode);
 			PlayerController->bShowMouseCursor = true;
 			LoseWidget->AddToViewport(0);
-			
+		}
+		if (bIsPlayerDead)
+		{
+			LoseWidget->SetLoseText("You Died!");
+		} else
+		{
+			LoseWidget->SetLoseText("You Lost!");
 		}
 	}
 }

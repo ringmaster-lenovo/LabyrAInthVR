@@ -100,7 +100,7 @@ private:
 	void ResumeGame();
 	
 	UFUNCTION()
-	void EndGame(int Result = 2);
+	void EndGame(int Result = 3);
 
 	UFUNCTION()
 	void RestartGame();
@@ -117,7 +117,9 @@ private:
 
 	void CloseGame() const;
 
-	void TeleportPlayerBackToLobby(int Result = 2);
+	void TeleportPlayerBackToLobby(int Result = 3);
+
+	int ChooseLevelTimer(int Level) const;
 
 public:
 

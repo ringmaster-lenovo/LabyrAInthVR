@@ -247,6 +247,7 @@ void AVRGameMode::StartGame()
 	SceneController->OnActorsRespawned.RemoveAll(this);
 	
 	BasePlayerController->ResetPlayerStats();
+	BasePlayerController->SetLevelTimer(ChooseLevelTimer(VRGameState->GetCurrentLevel()));
 	
 	FVector PlayerStartPosition;
 	FRotator PlayerStartRotation;
@@ -264,6 +265,7 @@ void AVRGameMode::StartGame()
 	WidgetController->OnPauseGameEvent.AddUObject(this, &AVRGameMode::PauseGame);
 	BasePlayerController->OnCollisionWithEndPortal.AddUObject(this, &AVRGameMode::EndGame, 0);
 	BasePlayerController->OnPLayerDeath.AddUObject(this, &AVRGameMode::EndGame, 1);
+	BasePlayerController->OnPLayerFinishedTimer.AddUObject(this, &AVRGameMode::EndGame, 2);
 }
 
 void AVRGameMode::PauseGame()
@@ -283,7 +285,7 @@ void AVRGameMode::PauseGame()
 	WidgetController->OnPauseGameEvent.RemoveAll(this);
 	WidgetController->OnResumeGameEvent.AddUObject(this, &AVRGameMode::ResumeGame);
 	WidgetController->OnRestartLevelEvent.AddUObject(this, &AVRGameMode::RestartGame);
-	WidgetController->OnReturnToMainMenuEvent.AddUObject(this, &AVRGameMode::EndGame, 2);
+	WidgetController->OnReturnToMainMenuEvent.AddUObject(this, &AVRGameMode::EndGame, 3);
 }
 
 void AVRGameMode::ResumeGame()
@@ -328,6 +330,7 @@ void AVRGameMode::EndGame(const int Result)
 
 	// teleport player back to lobby
 	TeleportPlayerBackToLobby(Result);
+	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), 1, 0);  // reset the pitch modulation
 	
 	if (Result == 0) // player has won the game
 	{
@@ -343,14 +346,22 @@ void AVRGameMode::EndGame(const int Result)
 
 		SaveGame();
 	}
-	else if (Result == 1) // player has lost the game
+	else if (Result == 1 || Result == 2) // player has lost the game
 	{
 		// bind return to main menu event and restart level event
 		WidgetController->OnReturnToMainMenuEvent.AddUObject(this, &AVRGameMode::RePrepareGame, true);
 		WidgetController->OnRestartLevelEvent.AddUObject(this, &AVRGameMode::RestartGame);
-		WidgetController->ShowLoseScreen();
+		if (Result == 1)
+		{
+			UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has died"));
+			WidgetController->ShowLoseScreen(true);
+		}
+		else
+		{
+			UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has run out of time"));
+			WidgetController->ShowLoseScreen(false);
+		}
 		
-		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has lost the game"));
 		MusicController->StartFinalResultMusic(false);
 	}
 	else // player just wants to go back to the lobby
@@ -460,6 +471,11 @@ void AVRGameMode::TeleportPlayerBackToLobby(int Result)
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Error: cannot teleport player back to lobby"));
 		CloseGame();
 	}
+}
+
+int AVRGameMode::ChooseLevelTimer(int Level) const
+{
+	return (Level - 1) * 15 + 60;  // 60 seconds for the first level, 15 seconds more for each next level
 }
 
 void AVRGameMode::CloseGame() const

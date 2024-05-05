@@ -22,6 +22,7 @@ class LABYRAINTHVR_API ABasePlayerController : public APlayerController
 
 public:
 	virtual void BeginPlay() override;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
 	AMainCharacter* MainCharacter;
 	
@@ -37,6 +38,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	AMainCharacter* GetControlledCharacter() const;
 
+	void SetLevelTimer(const float Time) const;
+
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	int32 GetPlayerTimeOnCurrentLevel() const;
 
@@ -51,13 +54,15 @@ public:
 
 	UFUNCTION(Category = "GameLogic")
 	void SpawnVRPointer();
-	
 
 	UFUNCTION(BlueprintCallable, Category = "GameLogic")
 	void CollidedWithEndPortal() const;
 
 	UFUNCTION(BlueprintCallable, Category = "GameLogic")
 	void PlayerHasDied();
+
+	UFUNCTION(BlueprintCallable, Category = "GameLogic")
+	void PlayerTimerWentOff();
 
 	bool InGame;
 
@@ -66,6 +71,9 @@ public:
 
 	DECLARE_MULTICAST_DELEGATE(FOnPlayerHasDied);
 	FOnPlayerHasDied OnPLayerDeath;
+
+	DECLARE_MULTICAST_DELEGATE(FOnPlayerHasDied);
+	FOnPlayerHasDied OnPLayerFinishedTimer;
 
 	int GetNumOfDeaths() const { return NumOfDeaths; }
 

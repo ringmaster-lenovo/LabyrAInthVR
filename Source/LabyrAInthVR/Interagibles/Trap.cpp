@@ -17,16 +17,15 @@ ATrap::ATrap()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 void ATrap::Freeze(int32 Time)
 {
-	if(Time > 0)
+	if (Time > 0)
 	{
 		IFreezableActor::Freeze(Time);
 		UE_LOG(LabyrAInthVR_Trap_Log, Display, TEXT("%s -> Frozen for %d second"), *GetName(), Time)
-		bIsFrozen=true;
+		bIsFrozen = true;
 		CustomTimeDilation = 0.f;
 		ReceiveFreeze();
 		GetWorldTimerManager().SetTimer(FreezingTimerHandle, this, &ThisClass::FreezeTimerFinished, Time, false);
@@ -39,7 +38,7 @@ void ATrap::FreezeTimerFinished()
 	UE_LOG(LogTemp, Warning, TEXT("Enemy state after: %s"), *UEnum::GetValueAsString(EnemyState))
 	*/
 	//AIController->MoveTo(MoveRequest);
-	bIsFrozen=false;
+	bIsFrozen = false;
 	CustomTimeDilation = 1.f;
 	ReceiveFreezeResume();
 	UE_LOG(LabyrAInthVR_Trap_Log, Display, TEXT("%s -> Resume after being frozen"), *GetName())
@@ -49,16 +48,13 @@ void ATrap::FreezeTimerFinished()
 void ATrap::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 // Called every frame
 void ATrap::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
-
 
 /*Utilities*/
 
@@ -78,18 +74,18 @@ void ATrap::DamagePlayer(AActor* Actor, float Damage)
 {
 	
 	AMainCharacter* MainCharacter=Cast<AMainCharacter>(Actor);
-	if(MainCharacter!=nullptr && IsValid(MainCharacter->GetPlayerStatistics()))
+	if (MainCharacter != nullptr && IsValid(MainCharacter->GetPlayerStatistics()))
 	{
-		UPlayerStatistics* PlayerStatistics=MainCharacter->GetPlayerStatistics();
-		PlayerStatistics->ChangeStatFloat(Esm_Health, Damage*(-1));
+		UPlayerStatistics* PlayerStatistics = MainCharacter->GetPlayerStatistics();
+		PlayerStatistics->ChangeStatFloat(Esm_Health, -Damage);
 		UE_LOG(LabyrAInthVR_Trap_Log, Display, TEXT("%s -> MainCharacter took %f damage"), *GetName(), Damage)
 	}
 }
 
 void ATrap::DamageEnemy(AActor* Actor, float Damage)
 {
-	ARangedEnemy* RangedEnemy=Cast<ARangedEnemy>(Actor);
-	if (RangedEnemy!=nullptr)
+	ARangedEnemy* RangedEnemy = Cast<ARangedEnemy>(Actor);
+	if (RangedEnemy != nullptr)
 	{
 		UGameplayStatics::ApplyDamage(Actor, Damage, GetOwner()->GetInstigatorController(), this,
 								  UDamageType::StaticClass());
@@ -97,7 +93,7 @@ void ATrap::DamageEnemy(AActor* Actor, float Damage)
 	}
 	else
 	{
-		AMeleeEnemy* MeleeEnemy=Cast<AMeleeEnemy>(Actor);
+		AMeleeEnemy* MeleeEnemy = Cast<AMeleeEnemy>(Actor);
 		if(MeleeEnemy!=nullptr)
 		{
 			UGameplayStatics::ApplyDamage(Actor, Damage, GetOwner()->GetInstigatorController(), this,
@@ -106,8 +102,6 @@ void ATrap::DamageEnemy(AActor* Actor, float Damage)
 		}
 	}
 }
-
-
 
 /*Exposed function*/
 
@@ -163,8 +157,6 @@ bool ATrap::IsTrapWorking()
 {
 	return bCharacterInSensingArea && !bIsFrozen;
 }
-
-
 
 void ATrap::ApplyDamage(AActor* Actor, float Damage)
 {

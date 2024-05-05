@@ -277,7 +277,7 @@ void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamage
 	if (bHasShield)
 	{
 		DectivateShield();
-		if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Received damage but had shield, shield is destroyed"), *GetName());
+		if (EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Received damage but had shield, shield is destroyed"), *GetName());
 		return;
 	}
 	

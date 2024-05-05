@@ -67,9 +67,19 @@ void UPlayerStatistics::ChangeStatFloat(EStatModifier Stat, float Amount)
 	case Esm_Health:
 		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Changing untimed Health from %f to %f"),
 		       *GetName(), Health, Health + Amount)
-		Health += Amount;
+		if (bHasShield && Amount < 0.f)
+		{
+			UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Shield is active, not taking damage"), *GetName())
+			bHasShield = false;
+			return;
+		}
+		Health = FMath::Min(GetDefaultHealth(), Health + Amount);  // Health can't go above DefaultHealth
 		if (Health <= 0.f)
 		{
+			if (!IsValid(MainCharacter))
+			{
+				UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("MainCharacter not found, Player cannot die"));
+			}
 			ABasePlayerController* PlayerController = Cast<ABasePlayerController>(MainCharacter->GetController());
 
 			if (PlayerController)
@@ -110,7 +120,7 @@ void UPlayerStatistics::ChangeTimedStat(EStatModifier Stat, float Amount, float 
 		UE_LOG(LogTemp, Display, TEXT("ChangeTimedStat"))
 		UpdateSpeed();
 		Delegate.BindUObject(this, &ThisClass::ResetThisPowerUpSpeedModifier, Esm_Speed, Amount);
-		GetWorld()->GetTimerManager().SetTimer(DefaultValueTimerHandle, Delegate, Time, false);
+		GetWorld()->GetTimerManager().SetTimer(DefaultValueTimerHandle, Delegate, Time, false, 1);
 		break;
 	default: ;
 	}
@@ -122,7 +132,23 @@ void UPlayerStatistics::StartLevelTimer()
 
 	if (!IsValid(GetWorld())) return;
 
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ThisClass::UpdateTimer, TimerInterval, true);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ThisClass::UpdateTimer, TimerInterval, true, 1.f);
+}
+
+void UPlayerStatistics::UpdateTimer()
+{
+	LevelTime++;
+	LevelTimer--;
+	if (LevelTimer <= 0)
+	{
+		if (!IsValid(MainCharacter))
+		{
+			UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("MainCharacter not found, Player cannot lose"));
+		}
+		ABasePlayerController* PlayerController = Cast<ABasePlayerController>(MainCharacter->GetController());
+		if (PlayerController) PlayerController->PlayerTimerWentOff();
+		else UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("PlayerController not found"));
+	}
 }
 
 void UPlayerStatistics::StopLevelTimer()
@@ -133,6 +159,11 @@ void UPlayerStatistics::StopLevelTimer()
 float UPlayerStatistics::GetLevelTime()
 {
 	return LevelTime;
+}
+
+float UPlayerStatistics::GetLevelTimer()
+{
+	return LevelTimer;
 }
 
 float UPlayerStatistics::GetDefaultHealth() const
@@ -189,11 +220,6 @@ void UPlayerStatistics::Sprint(bool bSprint)
 	UpdateSpeed();
 }
 
-void UPlayerStatistics::UpdateTimer()
-{
-	LevelTime++;
-}
-
 void UPlayerStatistics::ResetThisPowerUpSpeedModifier(EStatModifier Stat, float Amount)
 {
 	switch (Stat)
@@ -211,6 +237,6 @@ void UPlayerStatistics::UpdateSpeed()
 {
 	if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
 
-	CurrentSpeed = FMath::Max(50, WalkSpeed + RunSpeedModifier + SpeedPowerupModifier - SpeedTrapModifier);
+	CurrentSpeed = FMath::Max(50, WalkSpeed + RunSpeedModifier + SpeedPowerupModifier - SpeedTrapModifier);  // Speed can't go below 50
 	MainCharacter->GetCharacterMovement()->MaxWalkSpeed = CurrentSpeed;
 }
