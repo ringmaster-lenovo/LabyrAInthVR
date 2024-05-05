@@ -77,4 +77,6 @@ protected:
 	virtual void PickupWeapon();*/
 public:
 	FORCEINLINE void SetOverlappedPickup(ABasePickup* Pickup) {OverlappingPickup = Pickup; }
+
+	FORCEINLINE void SetEquippedWeapon(AWeapon* Weapon) {EquippedWeapon = Weapon; }
 };

@@ -187,5 +187,8 @@ public:
 	void OnPauseGamePressed();
 
 	UFUNCTION(Category = "Widgets")
+	void OnResumeGame();
+
+	UFUNCTION(Category = "Widgets")
 	void SendButtonClicked();
 };

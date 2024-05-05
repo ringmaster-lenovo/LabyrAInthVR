@@ -20,16 +20,23 @@ public:
 	// Sets default values for this actor's properties
 	APowerUp();
 
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
 	/** Sound to play on collect */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	USoundBase* CollectSound;
+
+	UFUNCTION(BlueprintCallable)
+	void TriggerFrozenStar();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+private:
+	UPROPERTY(EditAnywhere, Category = "Stats Changer")
+	float FreezeTime = 10.0f;
+
 
 };

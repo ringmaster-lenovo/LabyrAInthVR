@@ -26,6 +26,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void Freeze(int32 Time) override;
+	
 protected:
 	virtual void BeginPlay() override;
 

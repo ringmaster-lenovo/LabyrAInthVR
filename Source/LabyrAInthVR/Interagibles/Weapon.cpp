@@ -1,9 +1,11 @@
 #include "Weapon.h"
+#include "LabyrAInthVR/Player/Main3DCharacter.h"
 
 #include "Components/PawnNoiseEmitterComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
 #include "Particles/ParticleSystem.h"
+#include <Kismet/GameplayStatics.h>
 
 AWeapon::AWeapon()
 {
@@ -116,3 +118,9 @@ void AWeapon::ResetShooting()
 	bCanShoot = true;
 	BulletsFired = 0;
 }
+void AWeapon::AssignToPlayer()
+{
+	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	Character->SetEquippedWeapon(this);
+}
+

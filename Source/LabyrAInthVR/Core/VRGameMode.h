@@ -117,6 +117,8 @@ private:
 
 	void CloseGame() const;
 
+	void TeleportPlayerBackToLobby(int Result = 2);
+
 public:
 
 	UFUNCTION(BlueprintCallable)

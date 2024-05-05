@@ -25,7 +25,6 @@ AMainCharacter::AMainCharacter()
 	
 	Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
 	Flashlight->SetAttenuationRadius(500000.f);
-	Flashlight->SetOuterConeAngle(25.f);
 
 	PawnNoiseEmitterComponent = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("PawnNoiseEmitter"));
 }
@@ -40,7 +39,7 @@ void AMainCharacter::BeginPlay()
 void AMainCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	if(!IsValid(PlayerStats)) return;
+	if (!IsValid(PlayerStats)) return;
 
 	PlayerStats->MainCharacter = this;
 }
@@ -52,7 +51,7 @@ void AMainCharacter::Tick(float const DeltaTime)
 
 void AMainCharacter::ResetWeapon()
 {
-	if(!IsValid(EquippedWeapon)) return;
+	if (!IsValid(EquippedWeapon)) return;
 	EquippedWeapon->Destroy();
 }
 
@@ -64,7 +63,7 @@ float AMainCharacter::GetWeaponDamage()
 
 bool AMainCharacter::IsAlive()
 {
-	if(!IsValid(PlayerStats)) return false;
+	if (!IsValid(PlayerStats)) return false;
 
 	return PlayerStats->IsAlive();
 }
@@ -73,7 +72,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	
-	if(UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(FlashlightInputAction, ETriggerEvent::Triggered, this, &ThisClass::ToggleFlashlight);
 		
@@ -89,14 +88,14 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void AMainCharacter::ReleasePickupObject()
 {
-	if(!IsValid(EquippedWeapon) || !IsValid(EquippedWeapon->GetPickup())) return;
+	if (!IsValid(EquippedWeapon) || !IsValid(EquippedWeapon->GetPickup())) return;
 
 	ABasePickup* AuxPickup = EquippedWeapon->GetPickup();
 	
 	EquippedWeapon->Destroy();
 	bHasWeapon = false;
 
-	if(!IsValid(AuxPickup)) return;
+	if (!IsValid(AuxPickup)) return;
 	
 	AuxPickup->SetActorHiddenInGame(false);
 	AuxPickup->SetActorEnableCollision(true);
@@ -105,7 +104,7 @@ void AMainCharacter::ReleasePickupObject()
 
 void AMainCharacter::Sprint(const FInputActionValue& Value, bool bSprint)
 {
-	if(!IsValid(PlayerStats)) return;
+	if (!IsValid(PlayerStats)) return;
 
 	PlayerStats->Sprint(bSprint);
 }
@@ -120,7 +119,7 @@ void AMainCharacter::Shoot(const FInputActionValue& Value, bool bIsPressingShoot
 
 void AMainCharacter::ToggleFlashlight(const FInputActionValue& Value)
 {
-	if(!IsValid(Flashlight)) return;
+	if (!IsValid(Flashlight)) return;
 
 	Flashlight->SetVisibility(!Flashlight->GetVisibleFlag());
 }
@@ -140,7 +139,7 @@ void AMainCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDa
 {
 	UE_LOG(LabyrAInthVR_Character_Log, Display, TEXT("%s -> Taken %f damage by: %s"), *GetName(), Damage, *DamageCauser->GetName())
 
-	if(!IsValid(PlayerStats) || !IsAlive()) return;
+	if (!IsValid(PlayerStats) || !IsAlive()) return;
 
 	PlayerStats->ChangeStatFloat(Esm_Health, -Damage);
 }

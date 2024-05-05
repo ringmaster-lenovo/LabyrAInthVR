@@ -22,8 +22,7 @@ void UPlayerStatistics::BeginPlay()
 	CurrentSpeed = WalkSpeed;
 }
 
-void UPlayerStatistics::TickComponent(float DeltaTime, ELevelTick TickType,
-                                      FActorComponentTickFunction* ThisTickFunction)
+void UPlayerStatistics::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -31,7 +30,7 @@ void UPlayerStatistics::TickComponent(float DeltaTime, ELevelTick TickType,
 
 	UCharacterMovementComponent* CharacterMovementComponent = MainCharacter->GetCharacterMovement();
 	FTimerManager& WorldTimerManager = GetWorld()->GetTimerManager();
-	float Vel = CharacterMovementComponent->Velocity.Size();
+	const float Vel = CharacterMovementComponent->Velocity.Size();
 	
 	if (Vel == 0)
 	{
@@ -202,8 +201,7 @@ void UPlayerStatistics::ResetToDefaultValue(EStatModifier Stat)
 	case Esm_Health:
 		break;
 	case Esm_Speed:
-		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Resetting Speed modifier from %f to %f"), *GetName(),
-		       SpeedPowerupModifier, 0.f)
+		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Resetting Speed modifier from %f to %f"), *GetName(), SpeedPowerupModifier, 0.f)
 		CurrentSpeed = bIsRunning ? RunSpeed : WalkSpeed;
 		SpeedPowerupModifier = 0.f;
 		UpdateSpeed(CurrentSpeed);

@@ -83,7 +83,7 @@ void UStatisticsWidget::StartTimer(int32 InitialTimeInSeconds)
     if (!GetWorld()) return; // Ensure we have a valid world context before starting the timer
 
 	UpdateTimer();
-    GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UStatisticsWidget::UpdateTimer, TimerInterval, true);
+    GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UStatisticsWidget::UpdateTimer, TimerInterval, true, 1.0f);
 }
 
 //Stop timer function to call when the pause is called

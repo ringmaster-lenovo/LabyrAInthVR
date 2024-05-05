@@ -10,6 +10,7 @@
 class AMainCharacter;
 class ABasePickup;
 class UStatsChangerComponent;
+class AMainCharacter;
 
 UENUM(BlueprintType)
 enum class EWeaponType : uint8
@@ -64,6 +65,9 @@ private:
 
 	UPROPERTY()
 	ABasePickup* Pickup;
+		
+	UPROPERTY()
+	bool bHasBeenFound = false;
 
 	UPROPERTY()
 	AMainCharacter* MainCharacter;
@@ -84,4 +88,13 @@ public:
 	FORCEINLINE void SetPickup(ABasePickup* BasePickup) { Pickup = BasePickup; }
 	FORCEINLINE ABasePickup* GetPickup() {return Pickup; }
 	FORCEINLINE void SetMainCharacter(AMainCharacter* CharacterMain) { MainCharacter = CharacterMain; }
+
+	UFUNCTION(BlueprintCallable)
+	void AssignToPlayer();
+	
+	UFUNCTION(BlueprintCallable)
+	bool HasBeenFound() const { return bHasBeenFound; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetHasBeenFound() { bHasBeenFound = true; }
 };

@@ -57,6 +57,15 @@ void ULobbyWidget::NativeConstruct()
 			QuitButtonWidget->OnClicked.AddDynamic(this, &ULobbyWidget::OnQuitClicked);
 		}
 	}
+
+	if (LogoutButton)
+	{
+		UButton* LogoutButtonButtonWidget = Cast<UButton>(LogoutButton->GetWidgetFromName(TEXT("ButtonHit")));
+		if (LogoutButtonButtonWidget)
+		{
+			LogoutButtonButtonWidget->OnClicked.AddDynamic(this, &ULobbyWidget::OnLogoutClicked);
+		}
+	}
 }
 
 void ULobbyWidget::OnStartNewGameButtonClicked()
@@ -82,4 +91,9 @@ void ULobbyWidget::OnSettingsClicked()
 void ULobbyWidget::OnQuitClicked()
 {
 	WidgetController->QuitButtonClicked();
+}
+
+void ULobbyWidget::OnLogoutClicked()
+{
+	WidgetController->ShowPromptingWidget();
 }

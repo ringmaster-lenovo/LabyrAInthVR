@@ -79,9 +79,13 @@ private:
 	int NumOfWeaponsSpawned = 0;
 	
 	TArray<int> PotentialPowerUpSpawnLocations = {};
+	TArray<int> PotentialPowerUpSpawnLocationsCopy = {};
 	TArray<int> PotentialTrapSpawnLocations = {};
+	TArray<int> PotentialTrapSpawnLocationsCopy = {};
 	TArray<int> PotentialEnemySpawnLocations = {};
+	TArray<int> PotentialEnemySpawnLocationsCopy = {};
 	TArray<int> PotentialWeaponSpawnLocations = {};
+	TArray<int> PotentialWeaponSpawnLocationsCopy = {};
 	
 	TArray<int> PowerUpsLocations = {};
 	TArray<int> TrapsLocations = {};
@@ -147,11 +151,13 @@ public:
 	APortal* PortalActor;
 	
 	FVector PlayerStartPosition;
-
 	FRotator PlayerStartRotation;
 	
 	void UpdateSpawnableActor(AActor* SpawnedWall);
 	
+	FVector EndPortalPosition;
+	FRotator EndPortalRotation;
+
 	FString SpawnActorsInLabyrinth(const ULabyrinthDTO* LabyrinthDtoReference);
 
 	void FindPotentialSpawnLocations(const ULabyrinthDTO* LabyrinthDTO, int Row, int Column);
@@ -161,6 +167,8 @@ public:
 	FString ChooseTrapsSpawnPoints(const int NumOfTrapsToSpawn);
 
 	FString ChooseEnemiesSpawnPoints(const int NumOfEnemiesToSpawn);
+
+	FString ChooseWeaponsSpawnPoints(const int NumOfWeaponsToSpawn);
 	
 	FString ChooseRandomSpawnLocation(int NumOfActorsToSpawn, TArray<int>& ActorsSpawnLocations,  TArray<int>& PotentialLocations, uint8 ConventionalValueInTheMatrix) const;
 

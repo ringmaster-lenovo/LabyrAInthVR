@@ -4,6 +4,8 @@
 #include "MenuWidget.h"
 #include "Components/Button.h"
 #include "WidgetController.h"
+#include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Core/VRGameMode.h"
 
 
 void UMenuWidget::NativeConstruct()
@@ -37,19 +39,29 @@ void UMenuWidget::NativeConstruct()
 			MainMenuButtonWidget->OnClicked.AddDynamic(this, &UMenuWidget::OnMainMenuClicked);
 		}
 	}
+	WidgetController = Cast<AWidgetController>(UGameplayStatics::GetActorOfClass(GetWorld(), AWidgetController::StaticClass()));
 }
 
 void UMenuWidget::OnSettingsClicked()
 {
-	WidgetController->SettingsButtonClicked();
+	if (WidgetController)
+	{
+		WidgetController->SettingsButtonClicked();
+	}
 }
 
 void UMenuWidget::OnRestartClicked()
 {
-	WidgetController->RestartButtonClicked();
+	if (WidgetController)
+	{
+		WidgetController->RestartButtonClicked();
+	}
 }
 
 void UMenuWidget::OnMainMenuClicked()
 {
-	WidgetController->MainMenuButtonClicked();
+	if (WidgetController)
+	{
+		WidgetController->MainMenuButtonClicked();
+	}
 }

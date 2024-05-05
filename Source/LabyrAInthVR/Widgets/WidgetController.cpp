@@ -7,8 +7,6 @@
 #include "LobbyWidget.h"
 #include "LoadLevelsWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
-#include "Components/Button.h"
-#include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/VerticalBox.h"
 #include "Components/TextBlock.h"
@@ -85,6 +83,20 @@ void AWidgetController::ShowMainMenu()
 {
 	if (LobbyWidgetClass)
 	{
+		UWorld* World = GetWorld();
+		if (!World)
+		{
+			UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("No World!"));
+			OnWidgetSError.Broadcast();
+			return;
+		}
+		AVRGameState* GameState = World->GetGameState<AVRGameState>();
+		if (!GameState)
+		{
+			UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("No GameState!"));
+			OnWidgetSError.Broadcast();
+			return;
+		}
 		if (bIsInVR)
 		{
 			WidgetContainer->Widget->SetWidgetClass(LobbyWidgetClass);
@@ -95,14 +107,29 @@ void AWidgetController::ShowMainMenu()
 				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
 				OnWidgetSError.Broadcast();
 			}
+			FString PlayerLogged = GameState->GetPlayerName();
+			FText PlayerText = FText::FromString(PlayerLogged);
+			FText WelcomeText = FText::Format(FText::FromString(TEXT("Welcome {0}!")), PlayerText);
+			LobbyWidget->WelcomeText->SetText(WelcomeText);
 			LobbyWidget->WidgetController = this;
 		} else
 		{
 			RemoveAllWidgets(GetWorld());
 			
 			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+			
 			LobbyWidget = CreateWidget<ULobbyWidget>(PlayerController, LobbyWidgetClass);
 			LobbyWidget->WidgetController = this;
+			FString PlayerLogged = GameState->GetPlayerName();
+			FText PlayerText = FText::FromString(PlayerLogged);
+			FText WelcomeText = FText::Format(FText::FromString(TEXT("Welcome {0}!")), PlayerText);
+			LobbyWidget->WelcomeText->SetText(WelcomeText);
+			FInputModeUIOnly InputMode;
+			InputMode.SetWidgetToFocus(LobbyWidget->TakeWidget());
+			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+			PlayerController->SetInputMode(InputMode);
+			PlayerController->bShowMouseCursor = true;
 			// set the background color of the widget
 			// LobbyWidget->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.5f));
 			LobbyWidget->AddToViewport(0);
@@ -137,6 +164,12 @@ void AWidgetController::ShowPromptingWidget()
 			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 			PromptingWidget = CreateWidget<UPromptingWidget>(PlayerController, PromptingWidgetClass);
 			PromptingWidget->WidgetController = this;
+			FInputModeUIOnly InputMode;
+			InputMode.SetWidgetToFocus(PromptingWidget->TakeWidget());
+			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+			PlayerController->SetInputMode(InputMode);
+			PlayerController->bShowMouseCursor = true;
 			// set the background color of the widget
 			// LobbyWidget->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.5f));
 			PromptingWidget->AddToViewport(0);
@@ -179,7 +212,11 @@ void AWidgetController::ShowGameUI()
 		if (StatisticsWidgetClass)
 		{
 			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+			FInputModeGameOnly InputMode;
+			PlayerController->SetInputMode(InputMode);
+			PlayerController->bShowMouseCursor = false;
 			StatisticsWidget = CreateWidget<UStatisticsWidget>(PlayerController, StatisticsWidgetClass);
+			
 			StatisticsWidget->AddToViewport(0);
 		}
 	}
@@ -207,6 +244,12 @@ void AWidgetController::ShowWinScreen(int32 TimeOnLevel)
 			
 			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 			WinWidget = CreateWidget<UWinWidget>(PlayerController, WinWidgetClass);
+			FInputModeUIOnly InputMode;
+			InputMode.SetWidgetToFocus(WinWidget->TakeWidget());
+			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+			PlayerController->SetInputMode(InputMode);
+			PlayerController->bShowMouseCursor = true;
 			WinWidget->SetTime(TimeOnLevel);
 			WinWidget->WidgetController = this;
 			WinWidget->AddToViewport(0);
@@ -236,6 +279,12 @@ void AWidgetController::ShowLoseScreen()
 			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 			LoseWidget = CreateWidget<ULoseWidget>(PlayerController, LoseWidgetClass);
 			LoseWidget->WidgetController = this;
+			FInputModeUIOnly InputMode;
+			InputMode.SetWidgetToFocus(LoseWidget->TakeWidget());
+			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+			PlayerController->SetInputMode(InputMode);
+			PlayerController->bShowMouseCursor = true;
 			LoseWidget->AddToViewport(0);
 			
 		}
@@ -456,26 +505,44 @@ void AWidgetController::OnPauseGamePressed()
 	ABasePlayerController* PlayerController = Cast<ABasePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PlayerController && MenuWidgetClass)
 	{
-		if (!bIsInVR && PlayerController->InGame)
+		if (PlayerController->InGame)
 		{
-			if (MenuWidget && MenuWidget->IsInViewport())
+			if(!bIsInVR)
 			{
-				MenuWidget->RemoveFromParent();
-				MenuWidget = nullptr;
-				ShowGameUI();
-				OnResumeGameEvent.Broadcast();
-			}
-			else
-			{
-				RemoveAllWidgets(GetWorld());
+				if (MenuWidget && MenuWidget->IsInViewport())
+				{
+					MenuWidget->RemoveFromParent();
+					MenuWidget = nullptr;
+					ShowGameUI();
+					OnResumeGameEvent.Broadcast();
+				}
+				else
+				{
+					RemoveAllWidgets(GetWorld());
 				
-				MenuWidget = CreateWidget<UMenuWidget>(PlayerController, MenuWidgetClass);
-				MenuWidget->WidgetController = this;
-				MenuWidget->AddToViewport(0);
+					MenuWidget = CreateWidget<UMenuWidget>(PlayerController, MenuWidgetClass);
+					MenuWidget->WidgetController = this;
+					FInputModeGameAndUI InputMode;
+					InputMode.SetWidgetToFocus(MenuWidget->TakeWidget());
+					InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+					
+					PlayerController->SetInputMode(InputMode);
+					PlayerController->bShowMouseCursor = true;
+					MenuWidget->AddToViewport(0);
+					OnPauseGameEvent.Broadcast();
+				}
+			} else
+			{
 				OnPauseGameEvent.Broadcast();
 			}
+			
 		}
 	}
+}
+
+void AWidgetController::OnResumeGame()
+{
+	OnResumeGameEvent.Broadcast();
 }
 
 

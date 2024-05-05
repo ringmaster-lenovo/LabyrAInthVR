@@ -93,13 +93,13 @@ private:
 	FTimerHandle FootstepsSoundRunTimerHandle;
 
 	UPROPERTY(EditAnywhere, Category="Speed")
-	float WalkSpeed{500.f};
+	float WalkSpeed = 400.f;
 
 	UPROPERTY(EditAnywhere, Category="Speed")
-	float RunSpeed{1000.f};
+	float RunSpeed = WalkSpeed * 2;
 	
 	UPROPERTY(EditAnywhere, Category="Speed")
-	float RunModifier {500.f};
+	float RunModifier {400.f};
 
 	float InternalRunModifier;
 	

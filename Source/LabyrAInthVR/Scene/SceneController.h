@@ -45,6 +45,9 @@ public:
 	void GetPlayerStartPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
 
 	void FreezeAllActors(bool bFreeze);
+	
+	UFUNCTION()
+	void GeEndPortalPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
 
 private:
 	UPROPERTY()

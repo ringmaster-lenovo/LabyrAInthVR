@@ -9,6 +9,7 @@
 #include "LabyrAInthVR/Interagibles/PowerUp.h"
 #include "LabyrAInthVR/Interagibles/Trap.h"
 #include "LabyrAInthVR/Enemy/BaseEnemy.h"
+#include "LabyrAInthVR/Interagibles/Weapon.h"
 #include "NavMesh/NavMeshBoundsVolume.h"
 
 ASceneController::ASceneController()
@@ -33,9 +34,7 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 {
 	if (!IsValid(Cast<UObject>(LabyrinthDTO))) return "Invalid LabyrinthDTO";
 
-	if (!IsValid(LabyrinthParser_BP) || !IsValid(SpawnManager_BP))
-		return
-			"LabyrinthParser or SpawnManager not set in SceneController";
+	if (!IsValid(LabyrinthParser_BP) || !IsValid(SpawnManager_BP)) return "LabyrinthParser or SpawnManager not set in SceneController";
 
 	// Instantiate the LabyrinthParser and build the labyrinth
 	LabyrinthParser = GetWorld()->SpawnActor<ALabyrinthParser>(LabyrinthParser_BP);
@@ -102,19 +101,24 @@ FString ASceneController::CleanUpLevelAndDoStatistics(int& NumOfEnemiesKilled, i
 	int NumOfTrapsSpawned = 0;
 	int NumOfPowerUpsSpawned = 0;
 	int NumOfWeaponsSpawned = 0;
-	SpawnManager->GetNumOfActorSpawned(NumOfEnemiesSpawned, NumOfTrapsSpawned, NumOfPowerUpsSpawned,
-	                                   NumOfWeaponsSpawned);
+	SpawnManager->GetNumOfActorSpawned(NumOfEnemiesSpawned, NumOfTrapsSpawned, NumOfPowerUpsSpawned,NumOfWeaponsSpawned);
 	for (int i = SpawnedActors.Num(); i > 0; i--)
 	{
 		if (!IsValid(SpawnedActors[i - 1])) continue;
 
 		if (SpawnedActors[i - 1]->IsA<ABaseEnemy>()) NumOfEnemiesAlive++;
-		if (SpawnedActors[i - 1]->IsA<ATrap>()) NumOfTrapsActive++;
-		if (SpawnedActors[i - 1]->IsA<APowerUp>()) NumOfPowerUpsNotCollected++;
-		if (SpawnedActors[i - 1]->IsA<ABasePickup>())
+		else if (SpawnedActors[i - 1]->IsA<ATrap>()) NumOfTrapsActive++;
+		else if (SpawnedActors[i - 1]->IsA<APowerUp>()) NumOfPowerUpsNotCollected++;
+		else if (SpawnedActors[i - 1]->IsA<ABasePickup>())
 		{
 			ABasePickup* Pickup = Cast<ABasePickup>(SpawnedActors[i - 1]);
 			if (Pickup != nullptr && Pickup->HasBeenFound()) NumOfWeaponsFound++;
+		}
+		else if (SpawnedActors[i - 1]->IsA<AWeapon>())
+		{
+			AWeapon* Weapon = Cast<AWeapon>(SpawnedActors[i - 1]);
+			if (Weapon != nullptr && Weapon->HasBeenFound()) NumOfWeaponsFound++;
+			NumOfWeaponsFound++;
 		}
 		SpawnedActors[i - 1]->Destroy();
 	}
@@ -146,8 +150,7 @@ FString ASceneController::RespawnMovableActors(ULabyrinthDTO* LabyrinthDto) cons
 	return "";
 }
 
-void ASceneController::GetPlayerStartPositionAndRotation(FVector& PlayerStartPosition,
-                                                         FRotator& PlayerStartRotation) const
+void ASceneController::GetPlayerStartPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const
 {
 	PlayerStartPosition = SpawnManager->PlayerStartPosition;
 	PlayerStartRotation = SpawnManager->PlayerStartRotation;
@@ -171,6 +174,12 @@ void ASceneController::FreezeAllActors(bool bFreeze)
 			Cast<IFreezableActor>(Freezable)->Unfreeze();
 		}
 	}
+}
+
+void ASceneController::GeEndPortalPositionAndRotation(FVector& PlayerEndPosition, FRotator& PlayerEndRotation) const
+{
+	PlayerEndPosition = SpawnManager->EndPortalPosition;
+	PlayerEndRotation = SpawnManager->EndPortalRotation;
 }
 
 void ASceneController::UpdateNavMeshBoundsPosition()

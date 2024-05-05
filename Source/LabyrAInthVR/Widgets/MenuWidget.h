@@ -21,6 +21,9 @@ public:
 	UPROPERTY()
 	AWidgetController* WidgetController;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Game Mode")
+	TSubclassOf<AWidgetController> BP_WidgetController;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* SettingsButton;
 

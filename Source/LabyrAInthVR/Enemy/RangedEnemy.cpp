@@ -19,7 +19,7 @@ void ARangedEnemy::AttackInternal()
 	// If distance is between ranged and melee then start shooting mode
 	bShootingMode = GetDistanceToCharacter() <= RangedAttackDistance && GetDistanceToCharacter() > MeleeAttackDistance;
 
-	if(!AIController->LineOfSightTo(SeenCharacter))
+	if (!AIController->LineOfSightTo(SeenCharacter))
 	{
 		UE_LOG(LabyrAInthVR_Enemy_Log, Warning, TEXT("Initiating chase action to: %s from LostSight"), *SeenCharacter->GetName());
 		Chase();
@@ -61,7 +61,7 @@ void ARangedEnemy::ShootProjectile()
 	
 	UGameplayStatics::SpawnEmitterAtLocation(this, MuzzleEffectParticle, SocketLocation);
 	
-	if(ProjectileClass == nullptr || !IsValid(GetMesh())) return;
+	if (ProjectileClass == nullptr || !IsValid(GetMesh())) return;
 	
 	FVector EndVector = SeenCharacter->GetActorLocation() - SocketLocation;
 	
@@ -69,5 +69,7 @@ void ARangedEnemy::ShootProjectile()
 	SpawnParameters.Instigator = this;
 	SpawnParameters.Owner = this;
 	
-	GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SocketLocation, EndVector.Rotation(), SpawnParameters);
+	AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SocketLocation, EndVector.Rotation(), SpawnParameters);
+	if (!IsValid(SpawnedProjectile)) return;
+	SpawnedProjectile->SetDamage(RangedAttackDamage);
 }
