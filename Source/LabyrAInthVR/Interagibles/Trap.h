@@ -17,6 +17,9 @@ class LABYRAINTHVR_API ATrap : public AActor, public IDamageableActor, public IS
 public:
 	ATrap();
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	TArray<AActor*> ActorInRange;
+	
 	/** Sound to play on collect */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	USoundBase* CollectSound;
@@ -64,7 +67,7 @@ public:
 private:
 	bool bCharacterInSensingArea{false};
 	bool bIsFrozen{false};
-	TArray<AActor*> ActorInRange;
+	
 
 	FTimerHandle FreezingTimerHandle;
 
