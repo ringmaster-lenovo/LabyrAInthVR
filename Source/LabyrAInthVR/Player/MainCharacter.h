@@ -52,7 +52,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UPawnNoiseEmitterComponent* PawnNoiseEmitterComponent;
 	
-	UPROPERTY(EditAnywhere, Category=Gameplay)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	USpotLightComponent* Flashlight;
 	
 	UPROPERTY(EditAnywhere, Category=Input)

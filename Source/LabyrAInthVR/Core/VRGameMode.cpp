@@ -10,8 +10,6 @@
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "LabyrAInthVR/Player/Main3DCharacter.h"
 #include "LabyrAInthVR/Scene/Config.h"
-#include <thread>
-#include <chrono>
 
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Core_Log);
@@ -338,7 +336,7 @@ void AVRGameMode::EndGame(const int Result)
 		// bind return to main menu event and play next level event
 		WidgetController->OnReturnToMainMenuEvent.AddUObject(this, &AVRGameMode::RePrepareGame, true);
 		WidgetController->OnPlayGameButtonClicked.AddUObject(this, &AVRGameMode::RePrepareGame, false);
-		int32 TimeOnLevel = BasePlayerController->GetPlayerTimeOnCurrentLevel();
+		const int32 TimeOnLevel = BasePlayerController->GetPlayerTimeOnCurrentLevel();
 		UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Player has finished the level in %d seconds"), TimeOnLevel);
 		WidgetController->ShowWinScreen(TimeOnLevel);
 		
@@ -419,8 +417,8 @@ void AVRGameMode::RePrepareGame(const bool bComeBackToLobby)
 	{
 		SceneController->OnSceneCleanedUp.AddUObject(this, &AVRGameMode::PlayerWantsToPlayGame);
 	}
-	
-	FString ErrorString = SceneController->CleanUpOnlyLevel();
+
+	const FString ErrorString = SceneController->CleanUpOnlyLevel();
 	if (ErrorString != "")
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Error: cannot clean scene at the end of a game"));
@@ -430,13 +428,13 @@ void AVRGameMode::RePrepareGame(const bool bComeBackToLobby)
 
 void AVRGameMode::TeleportPlayerBackToLobby(int Result)
 {
-	AActor* StartActor = FindPlayerStart(BasePlayerController, "LobbyStart");
+	const AActor* StartActor = FindPlayerStart(BasePlayerController, "LobbyStart");
 	if (!IsValid(StartActor))
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Error: cannot find player start actor"));
 		CloseGame();
 	}
-	FVector StartActorLocation = StartActor->GetActorLocation();
+	const FVector StartActorLocation = StartActor->GetActorLocation();
 	FVector PlayerStartPosition = StartActor->GetActorLocation();
 	FRotator PlayerStartRotation = StartActor->GetActorRotation();
 	if (Result == 0)
@@ -465,7 +463,7 @@ void AVRGameMode::TeleportPlayerBackToLobby(int Result)
 		PlayerStartPosition = FVector(StartActorLocation.X + DeltaXPosFromStart, StartActorLocation.Y + DeltaYPosFromStart, StartActorLocation.Z + 110.0f);
 		PlayerStartRotation = StartActor->GetActorRotation();
 	}
-	FString ErrorMessage = BasePlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation, false);
+	const FString ErrorMessage = BasePlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation, false);
 	if (ErrorMessage != "")
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Error: cannot teleport player back to lobby"));
@@ -473,7 +471,7 @@ void AVRGameMode::TeleportPlayerBackToLobby(int Result)
 	}
 }
 
-int AVRGameMode::ChooseLevelTimer(int Level) const
+int AVRGameMode::ChooseLevelTimer(int Level)
 {
 	return (Level - 1) * 15 + 60;  // 60 seconds for the first level, 15 seconds more for each next level
 }
@@ -503,7 +501,7 @@ void AVRGameMode::CloseGame() const
 	if (MusicController) MusicController->StopMusic();
 
 	// get World and PlayerController, if they are invalid, crash the game
-	UWorld* World = GetWorld();
+	const UWorld* World = GetWorld();
 	if (!World || !BasePlayerController)
 	{
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Invalid World or PlayerController, cannot exit game gracefully"));
@@ -532,17 +530,17 @@ void AVRGameMode::CrashCloseGame() const
 
 void AVRGameMode::SaveGame() const
 {
-	int NumOfDeaths = BasePlayerController->GetNumOfDeaths();
+	const int NumOfDeaths = BasePlayerController->GetNumOfDeaths();
 	int NumOfEnemiesKilled, NumOfTrapsExploded, NumOfPowerUpsCollected, NumOfWeaponsFound;
-	FString ErrorMessage = SceneController->CleanUpLevelAndDoStatistics(NumOfEnemiesKilled, NumOfTrapsExploded, NumOfPowerUpsCollected, NumOfWeaponsFound);
+	const FString ErrorMessage = SceneController->CleanUpLevelAndDoStatistics(NumOfEnemiesKilled, NumOfTrapsExploded, NumOfPowerUpsCollected, NumOfWeaponsFound);
 	if (ErrorMessage != "")
 	{ 
 		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Error: cannot clean scene at the end of a game"));
 		CloseGame();
 	}
 	FString PlayerName = VRGameState->GetPlayerName();
-	int32 Level = VRGameState->GetCurrentLevel();
-	int32 TimeOnLevel = BasePlayerController->GetPlayerTimeOnCurrentLevel();
+	const int32 Level = VRGameState->GetCurrentLevel();
+	const int32 TimeOnLevel = BasePlayerController->GetPlayerTimeOnCurrentLevel();
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("%s finished the Labyrinth of Level %d in %d seconds"), *PlayerName, Level, TimeOnLevel);
 	UFinishGameRequestDTO* FinishGameRequestDto = NewObject<UFinishGameRequestDTO>();
 	FinishGameRequestDto->Username = PlayerName;

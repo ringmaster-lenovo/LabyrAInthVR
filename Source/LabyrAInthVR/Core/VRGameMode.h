@@ -119,7 +119,7 @@ private:
 
 	void TeleportPlayerBackToLobby(int Result = 3);
 
-	int ChooseLevelTimer(int Level) const;
+	static int ChooseLevelTimer(int Level);
 
 public:
 
