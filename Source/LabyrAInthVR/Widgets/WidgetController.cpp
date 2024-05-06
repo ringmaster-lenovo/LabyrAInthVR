@@ -343,7 +343,7 @@ void AWidgetController::StartNewGameButtonClicked() const
 		OnWidgetSError.Broadcast();
 		return;
 	}
-	GetWorld()->GetGameState<AVRGameState>()->SetCurrentLevel(0);
+	GetWorld()->GetGameState<AVRGameState>()->SetCurrentLevel(1);
 	
 	OnPlayGameButtonClicked.Broadcast();
 }

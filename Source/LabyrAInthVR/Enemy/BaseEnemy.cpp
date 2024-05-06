@@ -6,7 +6,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "LabyrAInthVR/Interagibles/StatsChangerComponent.h"
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
 #include "LabyrAInthVR/Scene/Config.h"
@@ -34,7 +33,6 @@ ABaseEnemy::ABaseEnemy()
 	GetCharacterMovement()->MaxAcceleration = 450.f;
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 
-	StatsChangerComponent = CreateDefaultSubobject<UStatsChangerComponent>(TEXT("StatsChangerComponent"));
 }
 
 void ABaseEnemy::BeginPlay()

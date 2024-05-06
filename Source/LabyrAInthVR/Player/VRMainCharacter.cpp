@@ -25,6 +25,16 @@ AVRMainCharacter::AVRMainCharacter()
 
 	PostProcessComponent = CreateDefaultSubobject<UPostProcessComponent>(TEXT("PostProcessComponent"));
 	PostProcessComponent->SetupAttachment(GetRootComponent());
+
+	UObject* CameraComponent = GetDefaultSubobjectByName(TEXT("Camera"));
+	if (CameraComponent != nullptr)
+    {
+		UCameraComponent* Camera = Cast<UCameraComponent>(CameraComponent);
+		if (Camera != nullptr)
+		{
+			Flashlight->SetupAttachment(Camera);
+		}
+	}
 }
 
 // Called when the game starts or when spawned

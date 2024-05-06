@@ -120,7 +120,7 @@ void UPlayerStatistics::ChangeTimedStat(EStatModifier Stat, float Amount, float 
 		UE_LOG(LogTemp, Display, TEXT("ChangeTimedStat"))
 		UpdateSpeed();
 		Delegate.BindUObject(this, &ThisClass::ResetThisPowerUpSpeedModifier, Esm_Speed, Amount);
-		GetWorld()->GetTimerManager().SetTimer(DefaultValueTimerHandle, Delegate, Time, false, 1);
+		GetWorld()->GetTimerManager().SetTimer(DefaultValueTimerHandle, Delegate, Time, false);
 		break;
 	default: ;
 	}

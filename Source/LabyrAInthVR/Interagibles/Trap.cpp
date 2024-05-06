@@ -3,7 +3,6 @@
 
 #include "Trap.h"
 #include <Kismet/GameplayStatics.h>
-#include "StatsChangerComponent.h"
 #include "LabyrAInthVR/Enemy/RangedEnemy.h"
 #include "LabyrAInthVR/Enemy/BaseEnemy.h"
 #include "LabyrAInthVR/Enemy/MeleeEnemy.h"
