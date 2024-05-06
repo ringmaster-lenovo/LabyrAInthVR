@@ -10,7 +10,7 @@ UENUM(Blueprintable, BlueprintType)
 enum class EStatsMapping {
 	Esm_Health,
 	Esm_Speed,
-	Esm_Resistance
+	Esm_Shield
 };
 
 USTRUCT(Blueprintable, BlueprintType)

@@ -7,8 +7,23 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "LabyrAInthVR/Widgets/MenuContainer.h"
+#include "EnhancedInputSubsystems.h"
+#include "Main3DCharacter.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Player_Log);
+
+void ABasePlayerController::BeginPlay()
+{
+	// I left this for testing in WeaponTestingMap
+	/*if(const ULocalPlayer* LocalPlayer = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
+	{
+		if(UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem =
+			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+		{
+			EnhancedInputLocalPlayerSubsystem->AddMappingContext(InputMappingContext, 0);
+		}
+	}*/
+}
 
 void ABasePlayerController::SetControlledCharacter(AMainCharacter* AMainCharacter)
 {
@@ -32,6 +47,16 @@ AMainCharacter* ABasePlayerController::GetControlledCharacter() const
 		UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot get controlled character, no character is controlled by the player controller"));
 	}
 	return MainCharacter;
+}
+
+void ABasePlayerController::SetLevelTimer(const float Time) const
+{
+	if (MainCharacter == nullptr)
+	{
+		UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot set player name, no character is controlled by the player controller"));
+		return;
+	}
+	MainCharacter->GetPlayerStatistics()->SetLevelTimer(Time);
 }
 
 int32 ABasePlayerController::GetPlayerTimeOnCurrentLevel() const
@@ -108,6 +133,7 @@ FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRo
 			UPlayerStatistics* PlayerStatistics = MainCharacter->GetPlayerStatistics();
 			if (!IsValid(PlayerStatistics)) return "Cannot stop level timer, PlayerStatistics ref is not valid";
 			PlayerStatistics->StopLevelTimer();
+			MainCharacter->SetActorRotation(FRotator{0.f, 0.f, 0.f});  // TODO DOES NOT WORK
 			GetWorldTimerManager().SetTimer(TeleportTimerHandle, this, &ThisClass::BlockMovementInLobby, 1.0f, false, .5f);
 		}
 		if (AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(MainCharacter); VRCharacter != nullptr)
@@ -126,6 +152,31 @@ FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRo
 				VRCharacter->SpawnPointer();
 			}
 		}
+		else if (AMain3DCharacter* Main3DCharacter = Cast<AMain3DCharacter>(MainCharacter); Main3DCharacter != nullptr)
+		{
+			if (InGamePassed)
+			{
+				if (const ULocalPlayer* LocalPlayer = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
+				{
+					if (UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem =
+						ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+					{
+						EnhancedInputLocalPlayerSubsystem->AddMappingContext(InputMappingContext, 0);
+					}
+				}
+			}
+			else
+			{
+				if (const ULocalPlayer* LocalPlayer = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
+				{
+					if (UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem =
+						ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+					{
+						EnhancedInputLocalPlayerSubsystem->RemoveMappingContext(InputMappingContext);
+					}
+				}
+			}
+		}
 		return "";
 	}
 	UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot teleport player, unplayable game state"));
@@ -141,6 +192,11 @@ void ABasePlayerController::PlayerHasDied()
 {
 	NumOfDeaths++;
 	OnPLayerDeath.Broadcast();
+}
+
+void ABasePlayerController::PlayerTimerWentOff()
+{
+	OnPLayerFinishedTimer.Broadcast();
 }
 
 void ABasePlayerController::BlockMovementInLobby()

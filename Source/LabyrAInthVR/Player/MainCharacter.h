@@ -39,9 +39,6 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<AWeapon> WeaponClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	FString PlayerName;
 	
 	UPROPERTY()
 	ABasePickup* OverlappingPickup;
@@ -78,4 +75,6 @@ protected:
 	virtual void PickupWeapon();*/
 public:
 	FORCEINLINE void SetOverlappedPickup(ABasePickup* Pickup) {OverlappingPickup = Pickup; }
+
+	FORCEINLINE void SetEquippedWeapon(AWeapon* Weapon) {EquippedWeapon = Weapon; }
 };

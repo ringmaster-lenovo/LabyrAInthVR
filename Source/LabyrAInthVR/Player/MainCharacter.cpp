@@ -25,7 +25,6 @@ AMainCharacter::AMainCharacter()
 	
 	Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
 	Flashlight->SetAttenuationRadius(500000.f);
-	Flashlight->SetOuterConeAngle(25.f);
 
 	PawnNoiseEmitterComponent = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("PawnNoiseEmitter"));
 }
@@ -40,7 +39,7 @@ void AMainCharacter::BeginPlay()
 void AMainCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	if(!IsValid(PlayerStats)) return;
+	if (!IsValid(PlayerStats)) return;
 
 	PlayerStats->MainCharacter = this;
 }
@@ -52,7 +51,8 @@ void AMainCharacter::Tick(float const DeltaTime)
 
 void AMainCharacter::ResetWeapon()
 {
-	
+	if (!IsValid(EquippedWeapon)) return;
+	EquippedWeapon->Destroy();
 }
 
 float AMainCharacter::GetWeaponDamage()
@@ -102,7 +102,7 @@ void AMainCharacter::ReleasePickupObject()
 
 void AMainCharacter::Sprint(const FInputActionValue& Value, bool bSprint)
 {
-	if(!IsValid(PlayerStats)) return;
+	if (!IsValid(PlayerStats)) return;
 
 	PlayerStats->Sprint(bSprint);
 }

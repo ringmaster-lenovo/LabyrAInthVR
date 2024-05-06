@@ -44,6 +44,8 @@ public:
 	UFUNCTION()
 	void GetPlayerStartPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
 
+	void FreezeAllActors(bool bFreeze);
+	
 	UFUNCTION()
 	void GeEndPortalPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
 
@@ -72,5 +74,18 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Scene")
 	TSubclassOf<ASpawnManager> SpawnManager_BP;
-	
+
+	UPROPERTY()
+	TArray<AActor*> SpawnedActors;
+
+	UPROPERTY()
+	TArray<AActor*> MovableActors;
+
+	UPROPERTY()
+	TArray<AActor*> FreezableActors;
+
+public:
+	FORCEINLINE void SetSpawnedActors(TArray<AActor*> Spawned) {SpawnedActors = Spawned; }
+	FORCEINLINE void SetMovableActors(TArray<AActor*> Spawned) {MovableActors = Spawned; }
+	FORCEINLINE void SetFreezableActors(TArray<AActor*> Spawned) {FreezableActors = Spawned; }
 };

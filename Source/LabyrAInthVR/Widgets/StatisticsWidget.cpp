@@ -4,6 +4,8 @@
 #include "StatisticsWidget.h"
 
 #include "PlayerStatsSubSystem.h"
+#include "WidgetController.h"
+#include "Components/Border.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "Kismet/GameplayStatics.h"
@@ -13,30 +15,52 @@
 void UStatisticsWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-			
-	StartTimer(time); //mocked starting TimeOnCurrentLevel
-	// SetStatisticsValues(100, 20, 34, 0.68); //mocked stats
+
+    MainCharacter = (!IsValid(MainCharacter)) ? Cast<AMainCharacter>(GetOwningPlayerPawn()) : MainCharacter;
+    if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetPlayerStatistics()))
+    {
+        UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("Main character or Player statistics not valid from widget"))
+    }
 }
 
 void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
     Super::NativeTick(MyGeometry, InDeltaTime);
-    MainCharacter = (!IsValid(MainCharacter)) ? Cast<AMainCharacter>(GetOwningPlayerPawn()) : MainCharacter;
-    
+
     if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetPlayerStatistics()))
     {
-        UE_LOG(LogTemp, Error, TEXT("Main character or Player statistics not valid from widget"))
-        return;
+        UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("Main character or Player statistics not valid from widget"))
     }
     
-    SetStatisticsValues(MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Speed),
+    SetStatisticsValues(
+        MainCharacter->GetPlayerStatistics()->GetLevelTimer(),
+        MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Speed),
         MainCharacter->GetPlayerStatistics()->HasShield(),
         MainCharacter->GetWeaponDamage(),
-        MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Health)/100);
+        MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Health) / MainCharacter->GetPlayerStatistics()->GetDefaultHealth());
 }
 
-void UStatisticsWidget::SetStatisticsValues(int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage)
+void UStatisticsWidget::SetStatisticsValues(int CurrentTime, int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage)
 {
+    if (CurrentTime)
+    {
+        int32 currentMinutes = CurrentTime / 60;
+        int32 currentSeconds = CurrentTime % 60;
+
+        FString MinutesText = FString::Printf(TEXT("%02d"), currentMinutes);
+        FString SecondsText = FString::Printf(TEXT("%02d"), currentSeconds);
+
+        if (minutes)
+        {
+            minutes->SetText(FText::FromString(MinutesText));
+        }
+
+        if (seconds)
+        {
+            seconds->SetText(FText::FromString(SecondsText));
+        }
+    }
+    
     if (speed)
     {
         FString SpeedText = FString::Printf(TEXT("Speed: %d"), SpeedValue);
@@ -52,6 +76,11 @@ void UStatisticsWidget::SetStatisticsValues(int SpeedValue, bool bHasShield, int
 	if (health)
     {
         health->SetPercent(HealthPercentage);
+    }
+
+    if (shield)
+    {
+        shield->SetVisibility(bHasShield ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
     }
 }
 

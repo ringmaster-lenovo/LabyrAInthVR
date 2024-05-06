@@ -58,7 +58,7 @@ FString AVRGameState::LoginPlayer(FString NewPlayerName)
 		UE_LOG(LogTemp, Warning, TEXT("Player name is empty!"));
 		return "Player name is empty!";
 	}
-	if (NewPlayerName.Len() > 50)
+	if (NewPlayerName.Len() > 20)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Player name is too long!"));
 		return "Player name is too long!";
@@ -68,8 +68,8 @@ FString AVRGameState::LoginPlayer(FString NewPlayerName)
 		UE_LOG(LogTemp, Warning, TEXT("Player name is default!"));
 		return "Player name is default!";
 	}
-	// define a regular expression pattern to match only alphanumeric characters
-	FRegexPattern Pattern(TEXT("^[a-zA-Z0-9]*$"));
+	// define a regular expression pattern to match only numbers, spaces, letters and letters with accents
+	const FRegexPattern Pattern(TEXT("^[a-zA-ZÀ-ÿ0-9 ]+$"));
 	FRegexMatcher Matcher(Pattern, NewPlayerName);
 	if (!Matcher.FindNext())
 	{

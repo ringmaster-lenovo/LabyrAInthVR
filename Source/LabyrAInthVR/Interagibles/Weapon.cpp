@@ -2,9 +2,9 @@
 
 
 #include "Weapon.h"
+#include "LabyrAInthVR/Player/Main3DCharacter.h"
 
 #include <Kismet/GameplayStatics.h>
-#include "StatsChangerComponent.h"
 
 // Sets default values
 AWeapon::AWeapon()
@@ -26,5 +26,11 @@ void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AWeapon::AssignToPlayer()
+{
+	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	Character->SetEquippedWeapon(this);
 }
 

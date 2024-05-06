@@ -18,7 +18,7 @@ FName parseStatistics(EStatsMapping Stat) {
 			result = "Speed";
 			break;
 
-		case EStatsMapping::Esm_Resistance:
+		case EStatsMapping::Esm_Shield:
 			result = "Shield";
 			break;
 	}
@@ -64,8 +64,6 @@ void UStatsChangerComponent::ChangeStats(TArray<FStatsType> Stats)
 	}
 	bool found;
 	float value;
-	PlayerStatisticsSubsystem->GetStatNumberValue(FName("Resistance"), found, value);
-	UE_LOG(LabyrAInthVR_Interagibles_Log, Warning, TEXT("RESISTANCE: %f"), value);
 	PlayerStatisticsSubsystem->GetStatNumberValue(FName("Shield"), found, value);
 	UE_LOG(LabyrAInthVR_Interagibles_Log, Warning, TEXT("SHIELD: %f"), value);
 	// PlayerStatisticsSubsystem->AddToCounter(FName("Health"), BonusHealth);
