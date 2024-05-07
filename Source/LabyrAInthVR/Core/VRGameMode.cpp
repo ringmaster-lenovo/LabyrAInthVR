@@ -178,16 +178,16 @@ void AVRGameMode::PlayerWantsToPlayGame()
 	
 	WidgetController->ShowLoadingScreen();
 	
-	MockNetwork();  // uncomment this line and comment the followings to test the game without the backend
-	// NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
-	// NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
+	// MockNetwork();  // uncomment this line and comment the followings to test the game without the backend
+	NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
+	NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
 
-	// const int32 LevelToPlay = VRGameState->GetCurrentLevel();
-	// UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Requesting Labyrinth for level %d"), LevelToPlay);
-	// ULabyrinthRequestDTO* LabyrinthRequestDTO = NewObject<ULabyrinthRequestDTO>();
-	// LabyrinthDTO->Level = LevelToPlay;
-	// LabyrinthRequestDTO->Level = LevelToPlay;
-	// NetworkController->GetLabyrinthFromBE(LabyrinthRequestDTO, LabyrinthDTO);
+	const int32 LevelToPlay = VRGameState->GetCurrentLevel();
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Requesting Labyrinth for level %d"), LevelToPlay);
+	ULabyrinthRequestDTO* LabyrinthRequestDTO = NewObject<ULabyrinthRequestDTO>();
+	LabyrinthDTO->Level = LevelToPlay;
+	LabyrinthRequestDTO->Level = LevelToPlay;
+	NetworkController->GetLabyrinthFromBE(LabyrinthRequestDTO, LabyrinthDTO);
 }
 
 void AVRGameMode::MockNetwork()
@@ -473,7 +473,7 @@ void AVRGameMode::TeleportPlayerBackToLobby(int Result)
 
 int AVRGameMode::ChooseLevelTimer(int Level)
 {
-	return (Level - 1) * 15 + 60;  // 60 seconds for the first level, 15 seconds more for each next level
+	return (Level - 1) * 20 + 90;  // 60 seconds for the first level, 20 seconds more for each next level
 }
 
 void AVRGameMode::CloseGame() const
