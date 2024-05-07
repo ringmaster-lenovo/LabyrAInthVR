@@ -297,6 +297,12 @@ void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamage
 	UGameplayStatics::SpawnEmitterAtLocation(this, BloodEffect, EffectSpawn);
 
 	if (Health > 0) return;
+
+	if(EnemyState == EES_Frozen)
+	{
+		GetWorldTimerManager().ClearTimer(FreezingTimerHandle);
+		CustomTimeDilation = 1.f;
+	}
 	
 	GetWorldTimerManager().ClearTimer(PatrollingTimerHandle);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

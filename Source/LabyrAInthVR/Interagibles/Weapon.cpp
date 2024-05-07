@@ -80,9 +80,11 @@ void AWeapon::ShootInternal()
 		ProjectileClass, Start, End.Rotation(), SpawnParameters);
 	
 	if (!IsValid(SpawnedProjectile)) return;
+	
 	SpawnedProjectile->SetDamage(Damage);
 
 	if (!IsValid(MainCharacter->GetPawnNoiseEmitterComponent())) return;
+	
 	MainCharacter->GetPawnNoiseEmitterComponent()->MakeNoise(
 		this, 1.0f, GetActorLocation());
 }

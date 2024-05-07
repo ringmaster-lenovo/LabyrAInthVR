@@ -180,7 +180,7 @@ void AVRGameMode::PlayerWantsToPlayGame()
 	
 	WidgetController->ShowLoadingScreen();
 	
-	// MockNetwork();  // uncomment this line and comment the followings to test the game without the backend
+	//MockNetwork();  // uncomment this line and comment the followings to test the game without the backend
 	NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
 	NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
 

@@ -4,10 +4,12 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
+#include "LabyrAInthVR/Enemy/RangedEnemy.h"
 #include "LabyrAInthVR/Interagibles/PowerUp.h"
 #include "LabyrAInthVR/Pickups/BasePickup.h"
 #include "LabyrAInthVR/Scene/ProceduralSplineWall.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
+#include "Sound/SoundCue.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_Projectiles_Log);
 
@@ -67,23 +69,33 @@ void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
 	if (OtherActor->IsA<AProceduralSplineWall>())
 	{
 		Destroy();
+		PlaySound(SurfaceHit);
 		return;
 	}
 	
 	if (!IsValid(OtherActor) || OtherActor == GetOwner() || OtherActor->IsA<APowerUp>() || OtherActor->IsA<
-		ABasePickup>())
+		ABasePickup>() || (OtherActor->IsA<AMainCharacter>() && !GetOwner()->IsA<ARangedEnemy>()))
 	{
 		return;
 	}
 
 	if (!OtherActor->Implements<UDamageableActor>())
 	{
+		PlaySound(SurfaceHit);
 		Destroy();
 		return;
 	}
 
 	UGameplayStatics::ApplyDamage(OtherActor, Damage, GetOwner()->GetInstigatorController(), this,
 	                              UDamageType::StaticClass());
-
+	UE_LOG(LogTemp, Warning, TEXT("Playing sound"))
+	PlaySound(BodyHit);
 	Destroy();
+}
+
+void AProjectile::PlaySound(USoundCue* SoundToPlay)
+{
+	if(SoundToPlay == nullptr) return;
+	UE_LOG(LogTemp, Warning, TEXT("Playing sound"))
+	UGameplayStatics::PlaySoundAtLocation(this, SoundToPlay, GetActorLocation());
 }

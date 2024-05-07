@@ -111,6 +111,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Stats")
 	TArray<FStatsType> Stats;
+	
+	UPROPERTY(EditAnywhere, Category=Audio)
+	USoundCue* EnemyHitSound;
 private:
 	UPROPERTY()
 	ULabyrinthDTO* LabyrinthDTO;
@@ -138,7 +141,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category=Animation)
 	UAnimMontage* DeathMontage;
-
+	
 	bool bRotated{false};
 	bool bHasShield{true};
 	FVector End{};
