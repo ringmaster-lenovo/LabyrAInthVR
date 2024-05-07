@@ -34,8 +34,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UProgressBar* health;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UBorder* shield;
+
 	UFUNCTION(BlueprintCallable)
-	void SetStatisticsValues(int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage);
+	void SetStatisticsValues(int CurrentTime, int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage);
 
 	int32 time = 0;
 
@@ -51,6 +54,7 @@ public:
 	UPROPERTY()
 	AMainCharacter* MainCharacter;
 private:
+	
     FTimerHandle TimerHandle;
     int32 CurrentTimeInSeconds = 0;
 	

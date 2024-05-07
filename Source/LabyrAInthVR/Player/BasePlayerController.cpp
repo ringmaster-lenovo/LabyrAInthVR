@@ -49,6 +49,16 @@ AMainCharacter* ABasePlayerController::GetControlledCharacter() const
 	return MainCharacter;
 }
 
+void ABasePlayerController::SetLevelTimer(const float Time) const
+{
+	if (MainCharacter == nullptr)
+	{
+		UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot set player name, no character is controlled by the player controller"));
+		return;
+	}
+	MainCharacter->GetPlayerStatistics()->SetLevelTimer(Time);
+}
+
 int32 ABasePlayerController::GetPlayerTimeOnCurrentLevel() const
 {
 	if (MainCharacter == nullptr)
@@ -182,6 +192,11 @@ void ABasePlayerController::PlayerHasDied()
 {
 	NumOfDeaths++;
 	OnPLayerDeath.Broadcast();
+}
+
+void ABasePlayerController::PlayerTimerWentOff()
+{
+	OnPLayerFinishedTimer.Broadcast();
 }
 
 void ABasePlayerController::BlockMovementInLobby()

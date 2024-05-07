@@ -6,7 +6,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "LabyrAInthVR/Interagibles/StatsChangerComponent.h"
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
 #include "LabyrAInthVR/Scene/Config.h"
@@ -34,7 +33,6 @@ ABaseEnemy::ABaseEnemy()
 	GetCharacterMovement()->MaxAcceleration = 450.f;
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 
-	StatsChangerComponent = CreateDefaultSubobject<UStatsChangerComponent>(TEXT("StatsChangerComponent"));
 }
 
 void ABaseEnemy::BeginPlay()
@@ -277,7 +275,7 @@ void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamage
 	if (bHasShield)
 	{
 		DectivateShield();
-		if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Received damage but had shield, shield is destroyed"), *GetName());
+		if (EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s -> Received damage but had shield, shield is destroyed"), *GetName());
 		return;
 	}
 	

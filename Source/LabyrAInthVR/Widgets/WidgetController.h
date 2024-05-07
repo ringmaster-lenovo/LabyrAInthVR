@@ -158,7 +158,7 @@ public:
 	void ShowWinScreen(int32 TimeOnLevel);
 
 	UFUNCTION(Category = "Widgets")
-	void ShowLoseScreen();
+	void ShowLoseScreen(bool bIsPlayerDead);
 
 	UFUNCTION(Category = "Widgets")
 	void MainMenuButtonClicked();

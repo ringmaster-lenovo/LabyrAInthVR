@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "LabyrAInthVR/Interagibles/StatsChangerComponent.h"
 #include "LabyrAInthVR/Interfaces/DamageableActor.h"
 #include "LabyrAInthVR/Interfaces/FreezableActor.h"
 #include "LabyrAInthVR/Interfaces/MovableActor.h"
@@ -103,11 +102,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Settings|Health")
 	float Health{100.f};
 
-	UPROPERTY(EditAnywhere, Category="Stats")
-	UStatsChangerComponent* StatsChangerComponent;
-
-	UPROPERTY(EditAnywhere, Category="Stats")
-	TArray<FStatsType> Stats;
 private:
 	UPROPERTY()
 	ULabyrinthDTO* LabyrinthDTO;

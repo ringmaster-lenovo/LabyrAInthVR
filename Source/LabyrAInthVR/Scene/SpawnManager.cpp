@@ -331,25 +331,38 @@ FString ASpawnManager::ChooseRandomSpawnLocation(const int NumOfActorsToSpawn, T
 	uint8 Subdivision = 0;
 	int NumOfActorsSpawned = 0;
 	int SpawnLocation = -1;
+	int NumTries = 0;
 	while (NumOfActorsSpawned < NumOfActorsToSpawn)
 	{
 		const int PotentialActorLocationSize = PotentialLocations.Num();
 		const int Min = PotentialActorLocationSize / LabyrinthSubdivisions * Subdivision;
-		// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Min: %d"), Min);
 		const int Max = FMath::Max(Min, (PotentialActorLocationSize / LabyrinthSubdivisions * (Subdivision + 1)) - 1);
-		// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Max: %d"), Max);
 		
 		const int Index = FMath::RandRange(Min, Max);
-		// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Index: %d"), Index);
-		SpawnLocation = PotentialLocations[Index];
-		// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("SpawnLocation: %d"), SpawnLocation);
-		
-		PotentialLocations.RemoveAt(Index);
-		ActorsSpawnLocations.Add(SpawnLocation);
+		if (Index >= PotentialLocations.Num()) return "Index out of bounds";
 		
 		int Row = -1;
 		int Column = -1;
 		UUtils::ConvertToRowColumn(SpawnLocation, Row, Column);
+		
+		// check if Index is inside the radius of 2 of the player start position
+		if (PlayerStartIndexPosition != -1)
+		{
+			int PlayerStartRow = -1;
+			int PlayerStartColumn = -1;
+			UUtils::ConvertToRowColumn(PlayerStartIndexPosition, PlayerStartRow, PlayerStartColumn);
+			if (FMath::Abs(Row - PlayerStartRow) <= 1 && FMath::Abs(Column - PlayerStartColumn) <= 1)
+			{
+				NumTries++;
+				if (NumTries < 10) continue;
+			}
+			NumTries = 0;
+		}
+		// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Index: %d"), Index);
+		SpawnLocation = PotentialLocations[Index];
+		
+		PotentialLocations.RemoveAt(Index);
+		ActorsSpawnLocations.Add(SpawnLocation);
 		
 		NumOfActorsSpawned++;
 		Subdivision = (Subdivision + 1) % LabyrinthSubdivisions;
@@ -374,8 +387,10 @@ FString ASpawnManager::DifficultyDecider()
 	
 	PowerUpsToSpawn = FMath::Floor(Level / 1);
 	TrapsToSpawn = PowerUpsToSpawn;
-	EnemiesToSpawn = FMath::Floor(Level / 3) + 1;
-	WeaponsToSpawn = EnemiesToSpawn;
+	// EnemiesToSpawn = FMath::Floor(Level / 3) + 1;
+	EnemiesToSpawn = 1;
+	// WeaponsToSpawn = EnemiesToSpawn;
+	WeaponsToSpawn = 10;
 
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Difficulty Decider: PowerUpsToSpawn= %d, TrapsToSpawn= %d, EnemiesToSpawn= %d, WeaponsToSpawn=%d"), PowerUpsToSpawn, TrapsToSpawn, EnemiesToSpawn, WeaponsToSpawn);
 	
@@ -507,7 +522,14 @@ FString ASpawnManager::SpawnWeapons()
 	int Row = -1;
 	int Column = -1;
 	UUtils::ConvertToRowColumn(PlayerStartIndexPosition, Row, Column);
-	WeaponsLocations.Push(PlayerStartIndexPosition);
+	WeaponsLocations.Insert(PlayerStartIndexPosition, 0);
+	for (const int Location : WeaponsLocations)
+	{
+		int LocationRow = -1;
+		int LocationColumn = -1;
+		UUtils::ConvertToRowColumn(Location, LocationRow, LocationColumn);
+		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("WeaponsLocations: Row: %d  Column: %d"), LocationRow, LocationColumn);
+	}
 	NumOfWeaponsSpawned++;
 
 	AVRGameMode* GameMode = Cast<AVRGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -583,7 +605,7 @@ void ASpawnManager::TriggerFrozenStar()
 	{
 		if (FreezableActor == nullptr) continue;
 		if (!FreezableActor->Implements<UFreezableActor>()) continue;
-		Cast<IFreezableActor>(FreezableActor)->Freeze(10.f);
+		Cast<IFreezableActor>(FreezableActor)->Freeze(15.f);
 	}
 }
 

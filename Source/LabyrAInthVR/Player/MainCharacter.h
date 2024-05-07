@@ -39,9 +39,6 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<AWeapon> WeaponClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	FString PlayerName;
 	
 	UPROPERTY()
 	ABasePickup* OverlappingPickup;
@@ -55,7 +52,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UPawnNoiseEmitterComponent* PawnNoiseEmitterComponent;
 	
-	UPROPERTY(EditAnywhere, Category=Gameplay)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	USpotLightComponent* Flashlight;
 	
 	UPROPERTY(EditAnywhere, Category=Input)
