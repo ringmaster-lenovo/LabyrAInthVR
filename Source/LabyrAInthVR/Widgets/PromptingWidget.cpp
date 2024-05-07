@@ -79,7 +79,7 @@ void UPromptingWidget::OnSendClicked()
 			
 
 				// Log the name to the output log
-				UE_LOG(LogTemp, Warning, TEXT("Player Name: %s"), *PlayerNameString);
+				UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Player Name: %s"), *PlayerNameString);
 			} 
 		} else
 		{
@@ -100,6 +100,6 @@ void UPromptingWidget::OnSendClicked()
 	else
 	{
 		// Optionally log an error or handle the case where PlayerNameTextBox is not valid
-		UE_LOG(LogTemp, Warning, TEXT("PlayerNameTextBox is not valid."));
+		UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("PlayerNameTextBox is not valid."));
 	}
 }

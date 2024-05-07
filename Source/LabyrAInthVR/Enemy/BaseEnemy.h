@@ -74,6 +74,9 @@ public:
 	float GetSpeed();
 
 	virtual void Freeze(int32 Time) override;
+
+	UFUNCTION(BlueprintCallable)
+	void FreezeEnemy();
 protected:
 	virtual void BeginPlay() override;
 	void StartPatrolling();
@@ -101,7 +104,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="Settings|Health")
 	float Health{100.f};
-
+	
+	UPROPERTY(EditAnywhere, Category=Audio)
+	USoundCue* EnemyHitSound;
 private:
 	UPROPERTY()
 	ULabyrinthDTO* LabyrinthDTO;
@@ -129,7 +134,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category=Animation)
 	UAnimMontage* DeathMontage;
-
+	
 	bool bRotated{false};
 	bool bHasShield{true};
 	FVector End{};

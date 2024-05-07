@@ -91,6 +91,11 @@ void ABaseEnemy::Freeze(int32 Time)
 	if(Time > 0) GetWorldTimerManager().SetTimer(FreezingTimerHandle, this, &ThisClass::FreezeTimerFinished, Time, false);
 }
 
+void ABaseEnemy::FreezeEnemy()
+{
+	Freeze(-1);
+}
+
 void ABaseEnemy::NavMeshFinishedBuilding(ANavigationData* NavigationData)
 {
 	if(EnemySettings::bEnableLog) UE_LOG(LabyrAInthVR_Enemy_Log, Display, TEXT("%s: Enemy set to EES_Idle, ready for patrolling"), *GetName());
@@ -290,6 +295,12 @@ void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamage
 	UGameplayStatics::SpawnEmitterAtLocation(this, BloodEffect, EffectSpawn);
 
 	if (Health > 0) return;
+
+	if(EnemyState == EES_Frozen)
+	{
+		GetWorldTimerManager().ClearTimer(FreezingTimerHandle);
+		CustomTimeDilation = 1.f;
+	}
 	
 	GetWorldTimerManager().ClearTimer(PatrollingTimerHandle);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

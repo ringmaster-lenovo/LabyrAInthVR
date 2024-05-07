@@ -278,7 +278,6 @@ void AVRGameMode::PauseGame()
 	
 	UGameplayStatics::SetGamePaused(this, true);
 
-	//TODO: PAUSE PLAYER TIMER
 	// unbind pause event and re-bind all pause widget events
 	WidgetController->OnPauseGameEvent.RemoveAll(this);
 	WidgetController->OnResumeGameEvent.AddUObject(this, &AVRGameMode::ResumeGame);
@@ -298,7 +297,6 @@ void AVRGameMode::ResumeGame()
 
 	UGameplayStatics::SetGamePaused(this, false);
 	
-	//TODO: RESUME PLAYER TIMER
 	// unbind all widgets events re-bind pause event
 	WidgetController->OnResumeGameEvent.RemoveAll(this);
 	WidgetController->OnRestartLevelEvent.RemoveAll(this);
@@ -473,7 +471,7 @@ void AVRGameMode::TeleportPlayerBackToLobby(int Result)
 
 int AVRGameMode::ChooseLevelTimer(int Level)
 {
-	return (Level - 1) * 20 + 90;  // 60 seconds for the first level, 20 seconds more for each next level
+	return (Level - 1) * 30 + 90;  // 60 seconds for the first level, 20 seconds more for each next level
 }
 
 void AVRGameMode::CloseGame() const

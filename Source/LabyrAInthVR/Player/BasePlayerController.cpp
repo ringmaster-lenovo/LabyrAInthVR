@@ -15,14 +15,14 @@ DEFINE_LOG_CATEGORY(LabyrAInthVR_Player_Log);
 void ABasePlayerController::BeginPlay()
 {
 	// I left this for testing in WeaponTestingMap
-	/*if(const ULocalPlayer* LocalPlayer = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
-	{
-		if(UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem =
-			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
-		{
-			EnhancedInputLocalPlayerSubsystem->AddMappingContext(InputMappingContext, 0);
-		}
-	}*/
+	// if(const ULocalPlayer* LocalPlayer = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
+	// {
+	// 	if(UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem =
+	// 		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+	// 	{
+	// 		EnhancedInputLocalPlayerSubsystem->AddMappingContext(InputMappingContext, 0);
+	// 	}
+	// }
 }
 
 void ABasePlayerController::SetControlledCharacter(AMainCharacter* AMainCharacter)
