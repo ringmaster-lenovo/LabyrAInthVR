@@ -408,7 +408,7 @@ void AWidgetController::ReplayContinueButtonClicked()
 						}
 					}
 					UButtonWidget* NewLevelButton = CreateWidget<UButtonWidget>(PlayerController, ButtonWidgetClass);
-					NewLevelButton->Level = Levels.Num();
+					NewLevelButton->Level = Levels.Num() + 1;
 					NewLevelButton->OnClickedDelegate.AddUniqueDynamic(this, &AWidgetController::OnLevelButtonClicked);
 					if (NewLevelButton && NewLevelButton->TextBlock)
 					{
@@ -442,9 +442,6 @@ void AWidgetController::ReplayContinueButtonClicked()
 			return;
 		}
 	}
-
-	// MOCKUP ONLY FOR TESTING
-	// NextLevelButtonClicked();
 }
 
 void AWidgetController::OnLevelButtonClicked(UButtonWidget* Button)

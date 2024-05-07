@@ -387,10 +387,8 @@ FString ASpawnManager::DifficultyDecider()
 	
 	PowerUpsToSpawn = FMath::Floor(Level / 1);
 	TrapsToSpawn = PowerUpsToSpawn;
-	// EnemiesToSpawn = FMath::Floor(Level / 3) + 1;
-	EnemiesToSpawn = 1;
-	// WeaponsToSpawn = EnemiesToSpawn;
-	WeaponsToSpawn = 10;
+	EnemiesToSpawn = FMath::Floor(Level / 3) + 1;
+	WeaponsToSpawn = EnemiesToSpawn;
 
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Difficulty Decider: PowerUpsToSpawn= %d, TrapsToSpawn= %d, EnemiesToSpawn= %d, WeaponsToSpawn=%d"), PowerUpsToSpawn, TrapsToSpawn, EnemiesToSpawn, WeaponsToSpawn);
 	
