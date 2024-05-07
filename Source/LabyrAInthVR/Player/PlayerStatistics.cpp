@@ -191,12 +191,20 @@ FPlayerTime UPlayerStatistics::GetPlayerTime()
 	return FPlayerTime{Seconds, Minutes, Hours};
 }
 
+void UPlayerStatistics::ResetSpeed()
+{
+	CurrentSpeed = WalkSpeed;
+	RunSpeedModifier=0.f;
+	SpeedPowerupModifier=0.f;
+	SpeedTrapModifier=0.f;
+}
+
 void UPlayerStatistics::ResetStats()
 {
 	if (!IsValid(MainCharacter) || !IsValid(GetWorld())) return;
 
 	Health = DefaultHealth;
-	CurrentSpeed = WalkSpeed;
+	ResetSpeed();
 	bHasShield = false;
 	LevelTime = 0.f;
 	MainCharacter->ResetWeapon();

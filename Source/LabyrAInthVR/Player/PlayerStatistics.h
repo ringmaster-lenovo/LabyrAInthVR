@@ -133,6 +133,7 @@ public:
 	float GetLevelTimer();
 	float GetCurrentWeaponDamage();
 	FPlayerTime GetPlayerTime();
+	void ResetSpeed();
 	void ResetStats();
 	
 	FORCEINLINE bool IsAlive() { return Health > 0; }
