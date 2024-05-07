@@ -4,6 +4,7 @@
 #include "VRMainCharacter.h"
 
 
+#include "MovieSceneSequenceID.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/World.h"
 #include "Components/PostProcessComponent.h"
@@ -25,16 +26,7 @@ AVRMainCharacter::AVRMainCharacter()
 
 	PostProcessComponent = CreateDefaultSubobject<UPostProcessComponent>(TEXT("PostProcessComponent"));
 	PostProcessComponent->SetupAttachment(GetRootComponent());
-
-	UObject* CameraComponent = GetDefaultSubobjectByName(TEXT("Camera"));
-	if (CameraComponent != nullptr)
-    {
-		UCameraComponent* Camera = Cast<UCameraComponent>(CameraComponent);
-		if (Camera != nullptr)
-		{
-			Flashlight->SetupAttachment(Camera);
-		}
-	}
+	
 }
 
 // Called when the game starts or when spawned
