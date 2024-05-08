@@ -37,10 +37,12 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 	if (!IsValid(LabyrinthParser_BP) || !IsValid(SpawnManager_BP)) return "LabyrinthParser or SpawnManager not set in SceneController";
 
 	// Instantiate the LabyrinthParser and build the labyrinth
+	if (IsValid(LabyrinthParser)) LabyrinthParser->Destroy();
 	LabyrinthParser = GetWorld()->SpawnActor<ALabyrinthParser>(LabyrinthParser_BP);
 	if (!IsValid(LabyrinthParser)) return "Invalid LabyrinthParserActor";
 
 	// Instantiate the SpawnManager and spawn the actors in the labyrinth
+	if (IsValid(SpawnManager)) SpawnManager->Destroy();
 	SpawnManager = GetWorld()->SpawnActor<ASpawnManager>(SpawnManager_BP);
 	if (!IsValid(SpawnManager)) return "Invalid SpawnManagerActor";
 

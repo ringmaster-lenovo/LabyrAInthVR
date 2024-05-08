@@ -15,14 +15,14 @@ DEFINE_LOG_CATEGORY(LabyrAInthVR_Player_Log);
 void ABasePlayerController::BeginPlay()
 {
 	// I left this for testing in WeaponTestingMap
-	/*if(const ULocalPlayer* LocalPlayer = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
-	{
-		if(UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem =
-			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
-		{
-			EnhancedInputLocalPlayerSubsystem->AddMappingContext(InputMappingContext, 0);
-		}
-	}*/
+	// if(const ULocalPlayer* LocalPlayer = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
+	// {
+	// 	if(UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem =
+	// 		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+	// 	{
+	// 		EnhancedInputLocalPlayerSubsystem->AddMappingContext(InputMappingContext, 0);
+	// 	}
+	// }
 }
 
 void ABasePlayerController::SetControlledCharacter(AMainCharacter* AMainCharacter)
@@ -47,6 +47,16 @@ AMainCharacter* ABasePlayerController::GetControlledCharacter() const
 		UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot get controlled character, no character is controlled by the player controller"));
 	}
 	return MainCharacter;
+}
+
+void ABasePlayerController::SetLevelTimer(const float Time) const
+{
+	if (MainCharacter == nullptr)
+	{
+		UE_LOG(LabyrAInthVR_Player_Log, Error, TEXT("Cannot set player name, no character is controlled by the player controller"));
+		return;
+	}
+	MainCharacter->GetPlayerStatistics()->SetLevelTimer(Time);
 }
 
 int32 ABasePlayerController::GetPlayerTimeOnCurrentLevel() const
@@ -182,6 +192,11 @@ void ABasePlayerController::PlayerHasDied()
 {
 	NumOfDeaths++;
 	OnPLayerDeath.Broadcast();
+}
+
+void ABasePlayerController::PlayerTimerWentOff()
+{
+	OnPLayerFinishedTimer.Broadcast();
 }
 
 void ABasePlayerController::BlockMovementInLobby()

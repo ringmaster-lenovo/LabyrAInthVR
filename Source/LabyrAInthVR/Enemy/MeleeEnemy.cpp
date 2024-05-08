@@ -6,6 +6,7 @@
 #include "../Player/MainCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
+#include "Sound/SoundCue.h"
 
 AMeleeEnemy::AMeleeEnemy()
 {
@@ -120,11 +121,13 @@ void AMeleeEnemy::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
                                           UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                           const FHitResult& SweepResult)
 {
-	const bool bShouldDamage = Cast<AMainCharacter>(OtherActor) == nullptr || Cast<ABaseEnemy>(OtherActor) != nullptr;
+	const bool bShouldDamage = Cast<AMainCharacter>(OtherActor) == nullptr;
 	
 	if (bShouldDamage || OtherActor == this || !OtherActor->Implements<UDamageableActor>()) return;
 
 	UGameplayStatics::ApplyDamage(OtherActor, MeleeAttackDamage, GetController(), this, UDamageType::StaticClass());
+	if(EnemyHitSound != nullptr) UGameplayStatics::PlaySound2D(this, EnemyHitSound);
+	
 	SetWeaponCollision(false, true);
 	SetWeaponCollision(false, false);
 }

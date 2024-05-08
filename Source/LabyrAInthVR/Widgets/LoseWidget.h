@@ -22,6 +22,9 @@ public:
 	AWidgetController* WidgetController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UTextBlock* LoseText;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* RestartButton;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
@@ -32,5 +35,7 @@ public:
 
 	UFUNCTION()
 	void OnMainMenuClicked();
-	
+
+	UFUNCTION()
+	void SetLoseText(const FString& Text) const;
 };

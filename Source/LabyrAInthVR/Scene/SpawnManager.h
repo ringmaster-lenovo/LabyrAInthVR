@@ -8,6 +8,9 @@
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "SpawnManager.generated.h"
 
+
+class APortal;
+class AMainCharacter;
 class IMovableActor;
 class UFreezableActor;
 class IFreezableActor;
@@ -133,7 +136,19 @@ public:
 	void TriggerFrozenStar();
 
 	UFUNCTION(BlueprintCallable)
+	void TriggerCompass(UParticleSystem* CompassEffect);
+
+	UFUNCTION(BlueprintCallable)
 	void RemoveFromList(AActor* ActorToRemove);
+
+	UPROPERTY()
+	UParticleSystemComponent* CompassInstance;
+
+	UPROPERTY()
+	AMainCharacter* MainCharacter;
+
+	UPROPERTY()
+	APortal* PortalActor;
 	
 	FVector PlayerStartPosition;
 	FRotator PlayerStartRotation;
