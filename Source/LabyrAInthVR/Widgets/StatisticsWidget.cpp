@@ -21,6 +21,8 @@ void UStatisticsWidget::NativeConstruct()
     {
         UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("Main character or Player statistics not valid from widget"))
     }
+
+    StartTimer(MainCharacter->GetPlayerStatistics()->GetLevelTimer());
 }
 
 void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -31,8 +33,6 @@ void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
     {
         UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("Main character or Player statistics not valid from widget"))
     }
-
-    StartTimer(MainCharacter->GetPlayerStatistics()->GetLevelTimer());
     
     SetStatisticsValues(
         MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Speed),
@@ -87,7 +87,7 @@ void UStatisticsWidget::SetStatisticsValues(int SpeedValue, bool bHasShield, int
 
 void UStatisticsWidget::UpdateTimer()
 {
-    ++CurrentTimeInSeconds;
+    --CurrentTimeInSeconds;
 
     int32 currentMinutes = CurrentTimeInSeconds / 60;
     int32 currentSeconds = CurrentTimeInSeconds % 60;
