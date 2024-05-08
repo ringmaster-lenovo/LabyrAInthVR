@@ -35,6 +35,11 @@ public:
 	FORCEINLINE UAnimationAsset* GetAnimation() { return FireAnimation; }
 	FORCEINLINE void SetPickup(ABasePickup* BasePickup) { Pickup = BasePickup; }
 	FORCEINLINE ABasePickup* GetPickup() {return Pickup; }
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UParticleSystem* MuzzleEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimationAsset* FireAnimation;
 	
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
@@ -49,11 +54,7 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AProjectile> ProjectileClass;
 
-	UPROPERTY(EditAnywhere)
-	UParticleSystem* MuzzleEffect;
-
-	UPROPERTY(EditAnywhere)
-	UAnimationAsset* FireAnimation;
+	
 
 	UPROPERTY()
 	ABasePickup* Pickup;
