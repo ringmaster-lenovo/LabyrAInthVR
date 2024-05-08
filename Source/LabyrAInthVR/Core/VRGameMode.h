@@ -35,6 +35,8 @@ protected:
 
 private:
 	bool bIsVRHMDConnected;
+
+	bool bIsDemo;
 	
 	UPROPERTY()
 	ABasePlayerController* BasePlayerController;
@@ -86,6 +88,9 @@ private:
 
 	UFUNCTION()
 	void PlayerWantsToPlayGame();
+
+	UFUNCTION()
+	void PlayerWantsToPlayDemo();
 
 	UFUNCTION()
 	void MockNetwork();

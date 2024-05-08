@@ -481,6 +481,12 @@ void AWidgetController::ReplayContinueButtonClicked()
 	}
 }
 
+void AWidgetController::PlayDemoButtonClicked()
+{
+	UE_LOG(LabyrAInthVR_Widget_Log, Display, TEXT("Play Demo Button Clicked!"));
+	OnPlayDemoButtonClicked.Broadcast();
+}
+
 void AWidgetController::OnLevelButtonClicked(UButtonWidget* Button)
 {
 	LoadLevel(Button->Level);
@@ -527,12 +533,6 @@ void AWidgetController::NextLevelButtonClicked() const
 	GameState->SetCurrentLevel(GameState->GetCurrentLevel() + 1);
 	
 	OnPlayGameButtonClicked.Broadcast();
-}
-
-void AWidgetController::RankingsButtonClicked() const
-{
-	UE_LOG(LabyrAInthVR_Widget_Log, Display, TEXT("Rankings Button Clicked!"));
-	OnRankingsButtonClicked.Broadcast();
 }
 
 void AWidgetController::SettingsButtonClicked()

@@ -249,6 +249,42 @@ FString ASpawnManager::SpawnActorsInLabyrinth(const ULabyrinthDTO* LabyrinthDtoR
 	return "";
 }
 
+FString ASpawnManager::SpawnActorsInDemoLabyrinth()
+{
+	if (PowerUpsClasses.Num() == 0 || TrapsClasses.Num() == 0 || EnemiesClasses.Num() == 0 || WeaponsClasses.Num() == 0
+		|| PickupsClasses.Num() == 0 || PlayerSpawnPoint == nullptr || Portal == nullptr)
+	{
+		return "No actors to spawn";
+	}
+	AActor* PlayerSpawn = GetWorld()->SpawnActor<AActor>(PlayerSpawnPoint, FVector{-1570,-4550,15}, FRotator{0,0,0});
+	AActor* Weapon = GetWorld()->SpawnActor<AActor>(WeaponsClasses[0], FVector{-1720,-4440,140}, FRotator{0,0,0});
+	AActor* Pickup = GetWorld()->SpawnActor<AActor>(PickupsClasses[0], FVector{-1430,-4440,140}, FRotator{0,0,0});
+	AActor* Enemy = GetWorld()->SpawnActor<AActor>(EnemiesClasses[0], FVector{-1550,-4160,77.5}, FRotator{0,90,0});
+	ABaseEnemy* BaseEnemy = Cast<ABaseEnemy>(Enemy);
+	if (BaseEnemy != nullptr)
+	{
+		BaseEnemy->SetHealth(1);
+	}
+	AActor* PowerUp = GetWorld()->SpawnActor<AActor>(PowerUpsClasses[0], FVector{-1575,-3860,15}, FRotator{0,0,0});
+	AActor* Trap = GetWorld()->SpawnActor<AActor>(TrapsClasses[0], FVector{-1574,-3538,-15}, FRotator{0,0,0});
+	AActor* PortalSpawn = GetWorld()->SpawnActor<AActor>(Portal, FVector{-1590,-2900,155}, FRotator{0,90,0});
+	EndPortalPosition = PortalSpawn->GetActorLocation();
+	EndPortalRotation = PortalSpawn->GetActorRotation();
+
+	SpawnedActors.Add(PlayerSpawn);
+	SpawnedActors.Add(Weapon);
+	SpawnedActors.Add(Pickup);
+	SpawnedActors.Add(Enemy);
+	SpawnedActors.Add(PowerUp);
+	SpawnedActors.Add(Trap);
+	SpawnedActors.Add(PortalSpawn);
+	
+	ASceneController* SceneController = Cast<ASceneController>(GetOwner());
+	if (!IsValid(SceneController)) return "Error while casting Owner to SceneController";
+	SceneController->SetSpawnedActors(SpawnedActors);
+	return "";
+}
+
 /**
  * Choose the locations to spawn the power-ups
  * It also updates the labyrinth matrix with the power-ups locations following the convention of number 4 for power-ups

@@ -52,6 +52,7 @@ void UPromptingWidget::OnSendClicked()
 		}
 		FText PlayerName = PlayerNameTextBox->GetText();
 		FString PlayerNameString = PlayerName.ToString();
+		PlayerNameString = PlayerNameString.TrimStartAndEnd();
 		//Check if player name already exists
 		TArray<FString> PlayerNames;
 		ULabyrAInthVRGameInstance::LoadPlayerNames(PlayerNames);

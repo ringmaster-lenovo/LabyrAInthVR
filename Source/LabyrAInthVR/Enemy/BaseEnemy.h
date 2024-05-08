@@ -185,4 +185,5 @@ public:
 	void SetLabyrinthMatrix(ULabyrinthDTO* LabyrinthDTOReference);
 	FORCEINLINE void ActivateShield() { bHasShield = true; }
 	FORCEINLINE void DectivateShield() { bHasShield = false; }
+	FORCEINLINE void SetHealth(float Value) { Health = FMath::Max(1, FMath::Min(MaxHealth, Value)); }
 };
