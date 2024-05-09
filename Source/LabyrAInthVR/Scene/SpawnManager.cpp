@@ -696,7 +696,11 @@ void ASpawnManager::TriggerFrozenStar()
 
 void ASpawnManager::TriggerCompass(UParticleSystem* CompassEffect)
 {
-
+	if(IsValid(CompassInstance))
+	{
+		CompassInstance->Deactivate();
+	}
+	
 	MainCharacter = Cast<AMainCharacter>(UGameplayStatics::GetActorOfClass(this, AMainCharacter::StaticClass()));
 
 	if (!IsValid(MainCharacter)) return;
