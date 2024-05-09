@@ -98,6 +98,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void AssignToPlayer();
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveFromPlayer();
 	
 	UFUNCTION(BlueprintCallable)
 	bool HasBeenFound() const { return bHasBeenFound; }

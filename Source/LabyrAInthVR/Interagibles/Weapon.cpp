@@ -130,3 +130,9 @@ void AWeapon::AssignToPlayer()
 	Character->SetEquippedWeapon(this);
 }
 
+void AWeapon::RemoveFromPlayer()
+{
+	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	Character->SetEquippedWeapon(nullptr);
+}
+
