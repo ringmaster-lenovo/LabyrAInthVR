@@ -25,15 +25,6 @@ void UWinWidget::NativeConstruct()
 		}
 	}
 
-	if (RankingsButton)
-	{
-		UButton* RankingsButtonWidget = Cast<UButton>(RankingsButton->GetWidgetFromName(TEXT("ButtonHit")));
-		if (RankingsButtonWidget)
-		{
-			RankingsButtonWidget->OnClicked.AddDynamic(this, &UWinWidget::OnRankingsClicked);
-		}
-	}
-
 	if (MainMenuButton)
 	{
 		UButton* MainMenuButtonWidget = Cast<UButton>(MainMenuButton->GetWidgetFromName(TEXT("ButtonHit")));
@@ -64,11 +55,6 @@ void UWinWidget::SetTime(int32 time)
 void UWinWidget::OnNextLevelClicked()
 {
 	WidgetController->NextLevelButtonClicked();
-}
-
-void UWinWidget::OnRankingsClicked()
-{
-	WidgetController->RankingsButtonClicked();
 }
 
 void UWinWidget::OnMainMenuClicked()

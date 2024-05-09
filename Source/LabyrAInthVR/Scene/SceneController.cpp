@@ -37,10 +37,12 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 	if (!IsValid(LabyrinthParser_BP) || !IsValid(SpawnManager_BP)) return "LabyrinthParser or SpawnManager not set in SceneController";
 
 	// Instantiate the LabyrinthParser and build the labyrinth
+	if (IsValid(LabyrinthParser)) LabyrinthParser->Destroy();
 	LabyrinthParser = GetWorld()->SpawnActor<ALabyrinthParser>(LabyrinthParser_BP);
 	if (!IsValid(LabyrinthParser)) return "Invalid LabyrinthParserActor";
 
 	// Instantiate the SpawnManager and spawn the actors in the labyrinth
+	if (IsValid(SpawnManager)) SpawnManager->Destroy();
 	SpawnManager = GetWorld()->SpawnActor<ASpawnManager>(SpawnManager_BP);
 	if (!IsValid(SpawnManager)) return "Invalid SpawnManagerActor";
 
@@ -59,6 +61,27 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 	}
 
 	UpdateNavMeshBoundsVolume(LabyrinthDTO);
+
+	OnSceneReady.Broadcast();
+	return "";
+}
+
+FString ASceneController::SetupDemoLevel()
+{
+	if (!IsValid(LabyrinthParser_BP) || !IsValid(SpawnManager_BP)) return "LabyrinthParser or SpawnManager not set in SceneController";
+
+	// Instantiate the SpawnManager and spawn the actors in the labyrinth
+	if (IsValid(SpawnManager)) SpawnManager->Destroy();
+	SpawnManager = GetWorld()->SpawnActor<ASpawnManager>(SpawnManager_BP);
+	if (!IsValid(SpawnManager)) return "Invalid SpawnManagerActor";
+
+	SpawnManager->Owner = this;
+
+	FString ErrorMessage = SpawnManager->SpawnActorsInDemoLabyrinth();
+	if (ErrorMessage != "")
+	{
+		return ErrorMessage;
+	}
 
 	OnSceneReady.Broadcast();
 	return "";
@@ -154,6 +177,12 @@ void ASceneController::GetPlayerStartPositionAndRotation(FVector& PlayerStartPos
 {
 	PlayerStartPosition = SpawnManager->PlayerStartPosition;
 	PlayerStartRotation = SpawnManager->PlayerStartRotation;
+}
+
+void ASceneController::GetPlayerDemoStartPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const
+{
+	PlayerStartPosition = FVector{-1570,-4550,130};
+	PlayerStartRotation = FRotator{0.f, 0.f, 0.f};
 }
 
 void ASceneController::FreezeAllActors(bool bFreeze)

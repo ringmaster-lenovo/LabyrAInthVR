@@ -107,6 +107,6 @@ namespace Interactables
 
 namespace Weapons
 {
-	constexpr inline float SpawnHeight { 150.0f };
-	constexpr inline float DistanceFromWall { 20.0f };
+	constexpr inline float SpawnHeight { 140.0f };
+	constexpr inline float DistanceFromWall { 30.0f };
 }

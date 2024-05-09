@@ -64,7 +64,7 @@ void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
                                           UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                           const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Projectile has impacted with: %s"), *OtherActor->GetName())
+	UE_LOG(LabyrAInthVR_Projectiles_Log, Display, TEXT("Projectile has impacted with: %s"), *OtherActor->GetName())
 	
 	if (OtherActor->IsA<AProceduralSplineWall>())
 	{
@@ -88,7 +88,7 @@ void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
 
 	UGameplayStatics::ApplyDamage(OtherActor, Damage, GetOwner()->GetInstigatorController(), this,
 	                              UDamageType::StaticClass());
-	UE_LOG(LogTemp, Warning, TEXT("Playing sound"))
+	UE_LOG(LabyrAInthVR_Projectiles_Log, Display, TEXT("Playing sound"))
 	PlaySound(BodyHit);
 	Destroy();
 }
@@ -96,6 +96,6 @@ void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
 void AProjectile::PlaySound(USoundCue* SoundToPlay)
 {
 	if(SoundToPlay == nullptr) return;
-	UE_LOG(LogTemp, Warning, TEXT("Playing sound"))
+	UE_LOG(LabyrAInthVR_Projectiles_Log, Display, TEXT("Playing sound"))
 	UGameplayStatics::PlaySoundAtLocation(this, SoundToPlay, GetActorLocation());
 }

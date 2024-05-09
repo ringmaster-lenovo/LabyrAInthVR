@@ -31,12 +31,12 @@ void ULobbyWidget::NativeConstruct()
 		}
 	}
 
-	if (RankingsButton)
+	if (PlayDemoButton)
 	{
-		UButton* RankingsButtonWidget = Cast<UButton>(RankingsButton->GetWidgetFromName(TEXT("ButtonHit")));
-		if (RankingsButtonWidget)
+		UButton* PlayDemoButtonWidget = Cast<UButton>(PlayDemoButton->GetWidgetFromName(TEXT("ButtonHit")));
+		if (PlayDemoButtonWidget)
 		{
-			RankingsButtonWidget->OnClicked.AddDynamic(this, &ULobbyWidget::OnRankingsClicked);
+			PlayDemoButtonWidget->OnClicked.AddDynamic(this, &ULobbyWidget::OnPlayDemoButtonClicked);
 		}
 	}
 
@@ -73,14 +73,14 @@ void ULobbyWidget::OnStartNewGameButtonClicked()
 	WidgetController->StartNewGameButtonClicked();
 }
 
+void ULobbyWidget::OnPlayDemoButtonClicked()
+{
+	WidgetController->PlayDemoButtonClicked();
+}
+
 void ULobbyWidget::OnReplayContinueButtonClicked()
 {
 	WidgetController->ReplayContinueButtonClicked();
-}
-
-void ULobbyWidget::OnRankingsClicked()
-{
-	WidgetController->RankingsButtonClicked();
 }
 
 void ULobbyWidget::OnSettingsClicked()

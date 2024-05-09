@@ -12,6 +12,8 @@ class ABasePickup;
 class UStatsChangerComponent;
 class AMainCharacter;
 
+DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Weapon_Log, Display, All);
+
 UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
@@ -54,20 +56,25 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
 	uint8 BulletsPerBurst {4};
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* MuzzleEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	UAnimationAsset* FireAnimation;
+
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AProjectile> ProjectileClass;
 
-	UPROPERTY(EditAnywhere)
-	UParticleSystem* MuzzleEffect;
-
-	UPROPERTY(EditAnywhere)
-	UAnimationAsset* FireAnimation;
+	
 
 	UPROPERTY()
 	ABasePickup* Pickup;
 		
 	UPROPERTY()
 	bool bHasBeenFound = false;
+
+	UPROPERTY(EditAnywhere, Category = "Interaction")
+	USoundBase* FireSound;
 
 	UPROPERTY()
 	AMainCharacter* MainCharacter;

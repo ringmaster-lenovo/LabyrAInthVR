@@ -35,6 +35,8 @@ protected:
 
 private:
 	bool bIsVRHMDConnected;
+
+	bool bIsDemo;
 	
 	UPROPERTY()
 	ABasePlayerController* BasePlayerController;
@@ -88,6 +90,9 @@ private:
 	void PlayerWantsToPlayGame();
 
 	UFUNCTION()
+	void PlayerWantsToPlayDemo();
+
+	UFUNCTION()
 	void MockNetwork();
 	
 	UFUNCTION()
@@ -100,7 +105,7 @@ private:
 	void ResumeGame();
 	
 	UFUNCTION()
-	void EndGame(int Result = 2);
+	void EndGame(int Result = 3);
 
 	UFUNCTION()
 	void RestartGame();
@@ -117,7 +122,9 @@ private:
 
 	void CloseGame() const;
 
-	void TeleportPlayerBackToLobby(int Result = 2);
+	void TeleportPlayerBackToLobby(int Result = 3);
+
+	static int ChooseLevelTimer(int Level);
 
 public:
 

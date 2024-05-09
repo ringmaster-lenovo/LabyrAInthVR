@@ -7,6 +7,8 @@
 #include "Particles/ParticleSystem.h"
 #include <Kismet/GameplayStatics.h>
 
+DEFINE_LOG_CATEGORY(LabyrAInthVR_Weapon_Log);
+
 AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -24,7 +26,7 @@ void AWeapon::Tick(float DeltaTime)
 
 void AWeapon::Shoot(bool bIsPressingShoot)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%d"), bIsPressingShoot)
+	UE_LOG(LabyrAInthVR_Weapon_Log, Display, TEXT("%d"), bIsPressingShoot);
 
 	bIsPressingShootButton = bIsPressingShoot;
 
@@ -87,6 +89,8 @@ void AWeapon::ShootInternal()
 	
 	MainCharacter->GetPawnNoiseEmitterComponent()->MakeNoise(
 		this, 1.0f, GetActorLocation());
+
+	if (IsValid(FireSound)) UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 }
 
 void AWeapon::HandleBurstShooting()
@@ -107,7 +111,7 @@ void AWeapon::HandleBurstShooting()
 
 void AWeapon::HandleAutomaticShooting()
 {
-	if(bIsPressingShootButton)
+	if (bIsPressingShootButton)
 	{
 		ShootInternal();
 		GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &ThisClass::HandleAutomaticShooting, FireRate,

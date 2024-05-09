@@ -16,6 +16,7 @@
 #include "LoseWidget.h"
 #include "StatisticsWidget.h"
 #include "ButtonWidget.h"
+#include "DamageWidget.h"
 #include "WidgetController.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Widget_Log, Display, All);
@@ -49,6 +50,12 @@ public:
 	TSubclassOf<UPromptingWidget> PromptingWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<ULobbyWidget> VRLobbyWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UPromptingWidget> VRPromptingWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<UMenuWidget> MenuWidgetClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
@@ -67,11 +74,26 @@ public:
 	TSubclassOf<ULoseWidget> LoseWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UWinWidget> VRWinWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<ULoseWidget> VRLoseWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<ULoadLevelsWidget> LoadLevelsWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<ULoadLevelsWidget> VRLoadLevelsWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<UButtonWidget> ButtonWidgetClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UDamageWidget> DamageWidgetClass;
+
+	UPROPERTY()
+	UDamageWidget* DamageWidget = nullptr;
+	
 	UPROPERTY()
 	ULobbyWidget* LobbyWidget = nullptr;
 	
@@ -108,8 +130,8 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FPlayGameEvent);
 	FPlayGameEvent OnPlayGameButtonClicked;
 
-	DECLARE_MULTICAST_DELEGATE(FRankingsEvent);
-	FRankingsEvent OnRankingsButtonClicked;
+	DECLARE_MULTICAST_DELEGATE(FPlayDemoEvent);
+	FPlayDemoEvent OnPlayDemoButtonClicked;
 
 	DECLARE_MULTICAST_DELEGATE(FQuitGameEvent);
 	FQuitGameEvent OnQuitGameButtonClicked;
@@ -151,7 +173,7 @@ public:
 	void ShowWinScreen(int32 TimeOnLevel);
 
 	UFUNCTION(Category = "Widgets")
-	void ShowLoseScreen();
+	void ShowLoseScreen(bool bIsPlayerDead);
 
 	UFUNCTION(Category = "Widgets")
 	void MainMenuButtonClicked();
@@ -168,14 +190,11 @@ public:
 	UFUNCTION(Category = "Widgets")
 	void ReplayContinueButtonClicked();
 
-	// UFUNCTION(Category = "Widgets")
-	// void LoadLevelFromIndex();
+	UFUNCTION(Category = "Widgets")
+	void PlayDemoButtonClicked();
 
 	UFUNCTION(Category = "Widgets")
 	void NextLevelButtonClicked() const;
-
-	UFUNCTION(Category = "Widgets")
-	void RankingsButtonClicked() const;
 
 	UFUNCTION(Category = "Widgets")
 	void SettingsButtonClicked();

@@ -160,6 +160,8 @@ public:
 
 	FString SpawnActorsInLabyrinth(const ULabyrinthDTO* LabyrinthDtoReference);
 
+	FString SpawnActorsInDemoLabyrinth();
+
 	void FindPotentialSpawnLocations(const ULabyrinthDTO* LabyrinthDTO, int Row, int Column);
 
 	FString ChoosePowerUpsSpawnPoints(const int NumOfPowerUpsToSpawn);
