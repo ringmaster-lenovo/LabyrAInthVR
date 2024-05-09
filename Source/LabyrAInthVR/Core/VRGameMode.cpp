@@ -289,6 +289,7 @@ void AVRGameMode::StartGame()
 
 	WidgetController->ShowGameUI();
 	MusicController->StartAmbienceMusic(false);
+	MusicController->StartClockTick();
 	
 	WidgetController->OnPauseGameEvent.AddUObject(this, &AVRGameMode::PauseGame);
 	BasePlayerController->OnCollisionWithEndPortal.AddUObject(this, &AVRGameMode::EndGame, 0);
@@ -374,8 +375,11 @@ void AVRGameMode::EndGame(const int Result)
 			const int32 TimeOnLevel = BasePlayerController->GetPlayerTimeOnCurrentLevel();
 			UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Player has finished the level in %d seconds"), TimeOnLevel);
 			WidgetController->ShowWinScreen(TimeOnLevel);
-			
+			WidgetController->ClearStatisticsTimer();
+
+			MusicController->StopClockSound();
 			MusicController->StartFinalResultMusic(true);
+			
 
 			SaveGame();
 		}
@@ -402,7 +406,9 @@ void AVRGameMode::EndGame(const int Result)
 				UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has run out of time"));
 				WidgetController->ShowLoseScreen(false);
 			}
-			
+			WidgetController->ClearStatisticsTimer();
+
+			MusicController->StopClockSound();
 			MusicController->StartFinalResultMusic(false);
 		}
 	}
@@ -429,6 +435,9 @@ void AVRGameMode::RestartGame()
 	// unbind all previous events
 	WidgetController->OnRestartLevelEvent.RemoveAll(this);
 	WidgetController->OnReturnToMainMenuEvent.RemoveAll(this);
+	WidgetController->ClearStatisticsTimer();
+
+	MusicController->StopClockSound();
 
 	SceneController->OnActorsRespawned.AddUObject(this, &AVRGameMode::StartGame);
 	SceneController->RespawnMovableActors(LabyrinthDTO);
@@ -452,6 +461,9 @@ void AVRGameMode::RePrepareGame(const bool bComeBackToLobby)
 	WidgetController->OnReturnToMainMenuEvent.RemoveAll(this);
 	WidgetController->OnRestartLevelEvent.RemoveAll(this);
 	WidgetController->OnPlayGameButtonClicked.RemoveAll(this);
+	WidgetController->ClearStatisticsTimer();
+
+	MusicController->StopClockSound();
 
 	if (bComeBackToLobby)
 	{

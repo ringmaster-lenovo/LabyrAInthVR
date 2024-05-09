@@ -484,6 +484,7 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 		UUtils::ConvertToRowColumn(SpawnLocations[i], Row, Column);
 
 		const int Index = i % SpawnableActors.Num(); // go through the actors to spawn in a round-robin fashion
+		if (Index >= SpawnableActors.Num()) return "Index out of bounds";
 		if (SpawnableActors[Index] == nullptr) return "";
 		const UClass* ObjectClass = SpawnableActors[Index]->GetSuperClass();
 

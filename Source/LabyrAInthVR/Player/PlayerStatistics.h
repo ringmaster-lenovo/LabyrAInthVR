@@ -5,6 +5,7 @@
 #include "PlayerStatistics.generated.h"
 
 class AMainCharacter;
+class AMusicController;
 
 DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_PlayerStatistics_Log, Display, All);
 
@@ -88,6 +89,8 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category="Sounds")
 	float RunSoundInterval{0.3f};
+
+	AMusicController* MusicController;
 	
 	UFUNCTION()
 	void PlayFootstepSound();

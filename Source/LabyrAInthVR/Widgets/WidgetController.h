@@ -210,4 +210,7 @@ public:
 
 	UFUNCTION(Category = "Widgets")
 	void SendButtonClicked();
+
+	UFUNCTION(Category = "Widgets")
+	void ClearStatisticsTimer();
 };
