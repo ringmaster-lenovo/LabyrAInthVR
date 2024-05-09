@@ -17,6 +17,8 @@
 #include "StatisticsWidget.h"
 #include "ButtonWidget.h"
 #include "DamageWidget.h"
+#include "SlowWidget.h"
+#include "SpeedWidget.h"
 #include "WidgetController.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Widget_Log, Display, All);
@@ -91,6 +93,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<UDamageWidget> DamageWidgetClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<USpeedWidget> SpeedWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<USlowWidget> SlowWidgetClass;
+	
+	UPROPERTY()
+	USpeedWidget* SpeedWidget = nullptr;
+
+	UPROPERTY()
+	USlowWidget* SlowWidget = nullptr;
+	
 	UPROPERTY()
 	UDamageWidget* DamageWidget = nullptr;
 	
@@ -210,4 +224,19 @@ public:
 
 	UFUNCTION(Category = "Widgets")
 	void SendButtonClicked();
+
+	UFUNCTION(BlueprintCallable, Category = "Widgets")
+	void SetSpeedWidget(float Timer);
+
+	UFUNCTION(BlueprintCallable, Category = "Widgets")
+	void RemoveSpeedWidget();
+
+	UFUNCTION(BlueprintCallable, Category = "Widgets")
+	void SetSlowWidget();
+
+	UFUNCTION(BlueprintCallable, Category = "Widgets")
+	void RemoveSlowWidget();
+
+private:
+	FTimerHandle RemoveSlowWidgetTimerHandle;
 };
