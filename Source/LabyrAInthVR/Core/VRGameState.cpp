@@ -55,17 +55,17 @@ FString AVRGameState::LoginPlayer(FString NewPlayerName)
 {
 	if (NewPlayerName.IsEmpty())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Player name is empty!"));
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player name is empty!"));
 		return "Player name is empty!";
 	}
 	if (NewPlayerName.Len() > 20)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Player name is too long!"));
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player name is too long!"));
 		return "Player name is too long!";
 	}
 	if (NewPlayerName == DefaultPlayerName)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Player name is default!"));
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player name is default!"));
 		return "Player name is default!";
 	}
 	// define a regular expression pattern to match only numbers, spaces, letters and letters with accents
@@ -73,10 +73,11 @@ FString AVRGameState::LoginPlayer(FString NewPlayerName)
 	FRegexMatcher Matcher(Pattern, NewPlayerName);
 	if (!Matcher.FindNext())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Player name contains invalid characters!"));
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player name contains invalid characters!"));
 		return "Player name contains invalid characters!";
 	}
 	// transform the player name to uppercase to have font consistency
+	NewPlayerName = NewPlayerName.TrimStartAndEnd();
 	NewPlayerName = NewPlayerName.ToUpper();
 	UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player logged in, name set to %s"), *NewPlayerName);
 	PlayerName = NewPlayerName;

@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "LabyrAInthVR/Interagibles/StatsChangerComponent.h"
 #include "LabyrAInthVR/Interfaces/DamageableActor.h"
 #include "LabyrAInthVR/Interfaces/FreezableActor.h"
 #include "LabyrAInthVR/Interfaces/MovableActor.h"
@@ -75,6 +74,9 @@ public:
 	float GetSpeed();
 
 	virtual void Freeze(int32 Time) override;
+
+	UFUNCTION(BlueprintCallable)
+	void FreezeEnemy();
 protected:
 	virtual void BeginPlay() override;
 	void StartPatrolling();
@@ -102,12 +104,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="Settings|Health")
 	float Health{100.f};
-
-	UPROPERTY(EditAnywhere, Category="Stats")
-	UStatsChangerComponent* StatsChangerComponent;
-
-	UPROPERTY(EditAnywhere, Category="Stats")
-	TArray<FStatsType> Stats;
+	
+	UPROPERTY(EditAnywhere, Category=Audio)
+	USoundCue* EnemyHitSound;
 private:
 	UPROPERTY()
 	ULabyrinthDTO* LabyrinthDTO;
@@ -135,7 +134,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category=Animation)
 	UAnimMontage* DeathMontage;
-
+	
 	bool bRotated{false};
 	bool bHasShield{true};
 	FVector End{};
@@ -186,4 +185,5 @@ public:
 	void SetLabyrinthMatrix(ULabyrinthDTO* LabyrinthDTOReference);
 	FORCEINLINE void ActivateShield() { bHasShield = true; }
 	FORCEINLINE void DectivateShield() { bHasShield = false; }
+	FORCEINLINE void SetHealth(float Value) { Health = FMath::Max(1, FMath::Min(MaxHealth, Value)); }
 };

@@ -38,7 +38,7 @@ private:
 
 	bool bIsLoggedIn = false;
 	
-	uint8 CurrentLevel = 0;
+	uint8 CurrentLevel = 1;
 
 	FTimerHandle PlayerGameTimeHandle;
 	

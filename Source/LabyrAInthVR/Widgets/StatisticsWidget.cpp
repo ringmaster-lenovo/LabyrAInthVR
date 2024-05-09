@@ -21,6 +21,8 @@ void UStatisticsWidget::NativeConstruct()
     {
         UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("Main character or Player statistics not valid from widget"))
     }
+
+    StartTimer(MainCharacter->GetPlayerStatistics()->GetLevelTimer());
 }
 
 void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -33,33 +35,32 @@ void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
     }
     
     SetStatisticsValues(
-        MainCharacter->GetPlayerStatistics()->GetLevelTimer(),
         MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Speed),
         MainCharacter->GetPlayerStatistics()->HasShield(),
         MainCharacter->GetWeaponDamage(),
         MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Health) / MainCharacter->GetPlayerStatistics()->GetDefaultHealth());
 }
 
-void UStatisticsWidget::SetStatisticsValues(int CurrentTime, int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage)
+void UStatisticsWidget::SetStatisticsValues(int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage)
 {
-    if (CurrentTime)
-    {
-        int32 currentMinutes = CurrentTime / 60;
-        int32 currentSeconds = CurrentTime % 60;
-
-        FString MinutesText = FString::Printf(TEXT("%02d"), currentMinutes);
-        FString SecondsText = FString::Printf(TEXT("%02d"), currentSeconds);
-
-        if (minutes)
-        {
-            minutes->SetText(FText::FromString(MinutesText));
-        }
-
-        if (seconds)
-        {
-            seconds->SetText(FText::FromString(SecondsText));
-        }
-    }
+    // if (CurrentTime)
+    // {
+    //     int32 currentMinutes = CurrentTime / 60;
+    //     int32 currentSeconds = CurrentTime % 60;
+    //
+    //     FString MinutesText = FString::Printf(TEXT("%02d"), currentMinutes);
+    //     FString SecondsText = FString::Printf(TEXT("%02d"), currentSeconds);
+    //
+    //     if (minutes)
+    //     {
+    //         minutes->SetText(FText::FromString(MinutesText));
+    //     }
+    //
+    //     if (seconds)
+    //     {
+    //         seconds->SetText(FText::FromString(SecondsText));
+    //     }
+    // }
     
     if (speed)
     {
@@ -86,7 +87,7 @@ void UStatisticsWidget::SetStatisticsValues(int CurrentTime, int SpeedValue, boo
 
 void UStatisticsWidget::UpdateTimer()
 {
-    ++CurrentTimeInSeconds;
+    --CurrentTimeInSeconds;
 
     int32 currentMinutes = CurrentTimeInSeconds / 60;
     int32 currentSeconds = CurrentTimeInSeconds % 60;

@@ -3,7 +3,6 @@
 
 #include "Trap.h"
 #include <Kismet/GameplayStatics.h>
-#include "StatsChangerComponent.h"
 #include "LabyrAInthVR/Enemy/RangedEnemy.h"
 #include "LabyrAInthVR/Enemy/BaseEnemy.h"
 #include "LabyrAInthVR/Enemy/MeleeEnemy.h"
@@ -94,7 +93,7 @@ void ATrap::DamageEnemy(AActor* Actor, float Damage)
 	else
 	{
 		AMeleeEnemy* MeleeEnemy = Cast<AMeleeEnemy>(Actor);
-		if(MeleeEnemy!=nullptr)
+		if (MeleeEnemy!=nullptr)
 		{
 			UGameplayStatics::ApplyDamage(Actor, Damage, GetOwner()->GetInstigatorController(), this,
 								  UDamageType::StaticClass());
@@ -107,9 +106,9 @@ void ATrap::DamageEnemy(AActor* Actor, float Damage)
 
 void ATrap::OnEnterSensingArea(AActor* Actor)
 {
-	if(IsValid(Actor))
+	if (IsValid(Actor))
 	{
-		if(isMainCharacter(Actor))
+		if (isMainCharacter(Actor))
 		{
 			bCharacterInSensingArea=true;
 			UE_LOG(LabyrAInthVR_Trap_Log, Display, TEXT("%s -> MainCharacter enter sensing area"), *GetName())
@@ -119,9 +118,9 @@ void ATrap::OnEnterSensingArea(AActor* Actor)
 
 void ATrap::OnLeaveSensingArea(AActor* Actor)
 {
-	if(IsValid(Actor))
+	if (IsValid(Actor))
 	{
-		if(isMainCharacter(Actor))
+		if (isMainCharacter(Actor))
 		{
 			bCharacterInSensingArea=false;
 			UE_LOG(LabyrAInthVR_Trap_Log, Display, TEXT("%s -> MainCharacter leave sensing area"), *GetName())
@@ -131,9 +130,9 @@ void ATrap::OnLeaveSensingArea(AActor* Actor)
 
 void ATrap::OnEnterDamageArea(AActor* Actor)
 {
-	if(Actor->IsValidLowLevel())
+	if (Actor->IsValidLowLevel())
 	{
-		if(isMainCharacter(Actor) || isEnemy(Actor))
+		if (isMainCharacter(Actor) || isEnemy(Actor))
 		{
 			ActorInRange.AddUnique(Actor);
 			UE_LOG(LabyrAInthVR_Trap_Log, Display, TEXT("%s -> %s enter damage area"), *GetName(), *Actor->GetName())
@@ -143,9 +142,9 @@ void ATrap::OnEnterDamageArea(AActor* Actor)
 
 void ATrap::OnLeaveDamageArea(AActor* Actor)
 {
-	if(Actor->IsValidLowLevel())
+	if (Actor->IsValidLowLevel())
 	{
-		if(isMainCharacter(Actor) || isEnemy(Actor))
+		if (isMainCharacter(Actor) || isEnemy(Actor))
 		{
 			ActorInRange.Remove(Actor);
 			UE_LOG(LabyrAInthVR_Trap_Log, Display, TEXT("%s -> %s leave damage area"), *GetName(), *Actor->GetName())
@@ -160,7 +159,7 @@ bool ATrap::IsTrapWorking()
 
 void ATrap::ApplyDamage(AActor* Actor, float Damage)
 {
-	if(IsValid(Actor) && Damage && (isMainCharacter(Actor) || isEnemy(Actor)) )
+	if (IsValid(Actor) && Damage && (isMainCharacter(Actor) || isEnemy(Actor)) )
 	{
 		UGameplayStatics::ApplyDamage(Actor, Damage, GetInstigatorController() , this, UDamageType::StaticClass());
 		UE_LOG(LabyrAInthVR_Trap_Log, Display, TEXT("%s -> %s took %f damage"), *GetName(), *Actor->GetName(), Damage)
@@ -169,8 +168,8 @@ void ATrap::ApplyDamage(AActor* Actor, float Damage)
 
 void ATrap::ApplyDamageToAll(float Damage)
 {
-	for(AActor* Actor : ActorInRange)
+	for (AActor* Actor : ActorInRange)
 	{
-		ApplyDamage(Actor, Damage);
+		if (IsValid(Actor)) ApplyDamage(Actor, Damage);
 	}
 }

@@ -38,7 +38,7 @@ public:
 	class UBorder* shield;
 
 	UFUNCTION(BlueprintCallable)
-	void SetStatisticsValues(int CurrentTime, int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage);
+	void SetStatisticsValues(int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage);
 
 	int32 time = 0;
 

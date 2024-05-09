@@ -6,7 +6,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "LabyrAInthVR/Interagibles/StatsChangerComponent.h"
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
 #include "LabyrAInthVR/Scene/Config.h"
@@ -34,7 +33,6 @@ ABaseEnemy::ABaseEnemy()
 	GetCharacterMovement()->MaxAcceleration = 450.f;
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 
-	StatsChangerComponent = CreateDefaultSubobject<UStatsChangerComponent>(TEXT("StatsChangerComponent"));
 }
 
 void ABaseEnemy::BeginPlay()
@@ -91,6 +89,11 @@ void ABaseEnemy::Freeze(int32 Time)
 	LastKnownEnemyState = EnemyState;
 	EnemyState = EES_Frozen;
 	if(Time > 0) GetWorldTimerManager().SetTimer(FreezingTimerHandle, this, &ThisClass::FreezeTimerFinished, Time, false);
+}
+
+void ABaseEnemy::FreezeEnemy()
+{
+	Freeze(-1);
 }
 
 void ABaseEnemy::NavMeshFinishedBuilding(ANavigationData* NavigationData)
@@ -292,6 +295,12 @@ void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamage
 	UGameplayStatics::SpawnEmitterAtLocation(this, BloodEffect, EffectSpawn);
 
 	if (Health > 0) return;
+
+	if(EnemyState == EES_Frozen)
+	{
+		GetWorldTimerManager().ClearTimer(FreezingTimerHandle);
+		CustomTimeDilation = 1.f;
+	}
 	
 	GetWorldTimerManager().ClearTimer(PatrollingTimerHandle);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

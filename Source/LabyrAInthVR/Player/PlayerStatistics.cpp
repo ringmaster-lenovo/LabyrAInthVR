@@ -117,10 +117,10 @@ void UPlayerStatistics::ChangeTimedStat(EStatModifier Stat, float Amount, float 
 		       TEXT("%s -> Changing timed Speed from %f to %f for %f seconds"), *GetName(), CurrentSpeed,
 		       CurrentSpeed + Amount, Time)
 		SpeedPowerupModifier += Amount;
-		UE_LOG(LogTemp, Display, TEXT("ChangeTimedStat"))
+		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("ChangeTimedStat"))
 		UpdateSpeed();
 		Delegate.BindUObject(this, &ThisClass::ResetThisPowerUpSpeedModifier, Esm_Speed, Amount);
-		GetWorld()->GetTimerManager().SetTimer(DefaultValueTimerHandle, Delegate, Time, false, 1);
+		GetWorld()->GetTimerManager().SetTimer(DefaultValueTimerHandle, Delegate, Time, false);
 		break;
 	default: ;
 	}
@@ -194,9 +194,9 @@ FPlayerTime UPlayerStatistics::GetPlayerTime()
 void UPlayerStatistics::ResetSpeed()
 {
 	CurrentSpeed = WalkSpeed;
-	RunSpeedModifier=0.f;
-	SpeedPowerupModifier=0.f;
-	SpeedTrapModifier=0.f;
+	RunSpeedModifier = 0.f;
+	SpeedPowerupModifier = 0.f;
+	SpeedTrapModifier = 0.f;
 }
 
 void UPlayerStatistics::ResetStats()
@@ -215,7 +215,7 @@ void UPlayerStatistics::ResetStats()
 void UPlayerStatistics::SetSpeedModifier(float NewSpeedModifier)
 {
 	SpeedTrapModifier += NewSpeedModifier;
-	UE_LOG(LogTemp, Warning, TEXT("SetSpeedModifier"))
+	UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Warning, TEXT("SetSpeedModifier"))
 	UpdateSpeed();
 }
 

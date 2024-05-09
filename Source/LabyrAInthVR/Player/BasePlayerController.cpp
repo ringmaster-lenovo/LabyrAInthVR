@@ -15,14 +15,14 @@ DEFINE_LOG_CATEGORY(LabyrAInthVR_Player_Log);
 void ABasePlayerController::BeginPlay()
 {
 	// I left this for testing in WeaponTestingMap
-	/*if(const ULocalPlayer* LocalPlayer = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
-	{
-		if(UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem =
-			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
-		{
-			EnhancedInputLocalPlayerSubsystem->AddMappingContext(InputMappingContext, 0);
-		}
-	}*/
+	// if(const ULocalPlayer* LocalPlayer = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
+	// {
+	// 	if(UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem =
+	// 		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+	// 	{
+	// 		EnhancedInputLocalPlayerSubsystem->AddMappingContext(InputMappingContext, 0);
+	// 	}
+	// }
 }
 
 void ABasePlayerController::SetControlledCharacter(AMainCharacter* AMainCharacter)
@@ -133,7 +133,7 @@ FString ABasePlayerController::TeleportPlayer(const FVector& Position, const FRo
 			UPlayerStatistics* PlayerStatistics = MainCharacter->GetPlayerStatistics();
 			if (!IsValid(PlayerStatistics)) return "Cannot stop level timer, PlayerStatistics ref is not valid";
 			PlayerStatistics->StopLevelTimer();
-			MainCharacter->SetActorRotation(FRotator{0.f, 0.f, 0.f});  // TODO DOES NOT WORK
+			// MainCharacter->SetActorRotation(FRotator{0.f, 0.f, 0.f});  // TODO DOES NOT WORK
 			GetWorldTimerManager().SetTimer(TeleportTimerHandle, this, &ThisClass::BlockMovementInLobby, 1.0f, false, .5f);
 		}
 		if (AVRMainCharacter* VRCharacter = Cast<AVRMainCharacter>(MainCharacter); VRCharacter != nullptr)

@@ -36,6 +36,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* MuzzleEffectParticle;
 
+	UPROPERTY(EditAnywhere, Category=Audio)
+	USoundBase* RangedAttackSound;
+
 	UPROPERTY(EditAnywhere)
 	FName AmmoEjectSocketName;
 	

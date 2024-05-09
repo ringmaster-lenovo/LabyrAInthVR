@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
 #include "LabyrAInthVR/Projectiles/Projectile.h"
+#include "Sound/SoundCue.h"
 
 void ARangedEnemy::AttackInternal()
 {
@@ -72,4 +73,6 @@ void ARangedEnemy::ShootProjectile()
 	AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SocketLocation, EndVector.Rotation(), SpawnParameters);
 	if (!IsValid(SpawnedProjectile)) return;
 	SpawnedProjectile->SetDamage(RangedAttackDamage);
+
+	if (IsValid(RangedAttackSound)) UGameplayStatics::PlaySoundAtLocation(this, RangedAttackSound, GetActorLocation());
 }

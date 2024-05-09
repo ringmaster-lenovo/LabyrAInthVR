@@ -52,7 +52,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UPawnNoiseEmitterComponent* PawnNoiseEmitterComponent;
 	
-	UPROPERTY(EditAnywhere, Category=Gameplay)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	USpotLightComponent* Flashlight;
 	
 	UPROPERTY(EditAnywhere, Category=Input)
@@ -66,9 +66,8 @@ protected:
 	
 	void ToggleFlashlight(const FInputActionValue& Value);
 	void Sprint(const FInputActionValue& Value, bool bSprint);
-	void Shoot(const FInputActionValue& Value);
+	void Shoot(const FInputActionValue& Value, bool bIsPressingShoot);
 	void ReleasePickupObject();
-
 	bool bHasWeapon;
 	
 	/*UFUNCTION(BlueprintNativeEvent, BlueprintCallable)

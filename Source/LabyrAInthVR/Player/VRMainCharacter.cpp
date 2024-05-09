@@ -4,8 +4,11 @@
 #include "VRMainCharacter.h"
 
 
+#include "MovieSceneSequenceID.h"
+#include "Camera/CameraComponent.h"
 #include "Engine/World.h"
 #include "Components/PostProcessComponent.h"
+#include "Components/SpotLightComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Delegates/DelegateSignatureImpl.inl"
 #include "Kismet/GameplayStatics.h"
@@ -23,6 +26,7 @@ AVRMainCharacter::AVRMainCharacter()
 
 	PostProcessComponent = CreateDefaultSubobject<UPostProcessComponent>(TEXT("PostProcessComponent"));
 	PostProcessComponent->SetupAttachment(GetRootComponent());
+	
 }
 
 // Called when the game starts or when spawned
@@ -48,6 +52,7 @@ void AVRMainCharacter::Tick(float const DeltaTime)
 // Called to bind functionality to input
 void AVRMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
 // usages: -Metarace: used to go to the next PlayerSpectatorPosition

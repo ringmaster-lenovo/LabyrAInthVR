@@ -242,6 +242,7 @@ void ULabyrAInthVRGameInstance::LoadPlayerNames(TArray<FString>& PlayerNames)
 		FString Line = Lines[i];
 		TArray<FString> Tokens;
 		Line.ParseIntoArray(Tokens, TEXT(", "));  // Split the line by ", " as per the csv format
+		Tokens[0] = Tokens[0].TrimStartAndEnd();
 		PlayerNames.Add(Tokens[0]);
 	}
 }
