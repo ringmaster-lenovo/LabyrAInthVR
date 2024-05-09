@@ -19,6 +19,7 @@ AVRGameMode::AVRGameMode()
 	PrimaryActorTick.bTickEvenWhenPaused = true;
 	
 	bIsVRHMDConnected = false;
+	bIsDemo = false;
 	
 	PlayerControllerClass = ABasePlayerController::StaticClass();
 	BasePlayerController = nullptr;
@@ -151,12 +152,37 @@ void AVRGameMode::StartLobby()
 	SceneController->OnSceneCleanedUp.RemoveAll(this);
 
 	// bind all main menu events
+	WidgetController->OnPlayDemoButtonClicked.AddUObject(this, &AVRGameMode::PlayerWantsToPlayDemo);
 	WidgetController->OnPlayGameButtonClicked.AddUObject(this, &AVRGameMode::PlayerWantsToPlayGame);
 	WidgetController->OnQuitGameButtonClicked.AddUObject(this, &AVRGameMode::CloseGame);
 	// WidgetController->OnRankingsButtonClicked.AddUObject(this, &AVRGameMode::GetRankings);  // TODO: implement the callback
 	
 	WidgetController->ShowLobbyUI();
 	MusicController->StartAmbienceMusic(true);
+}
+
+void AVRGameMode::PlayerWantsToPlayDemo()
+{
+	if (VRGameState->GetCurrentStateOfTheGame() != EGameState::Egs_InMainMenu)
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Prepare Demo Level, but player was not in lobby"));
+		return;
+	}
+	// Set up the game to be in Waiting For Labyrinth state
+	VRGameState->SetStateOfTheGame(EGameState::Egs_WaitingForSceneBuild);
+	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
+
+	bIsDemo = true;
+	
+	// unbind all main menu events
+	WidgetController->OnPlayGameButtonClicked.RemoveAll(this);
+	WidgetController->OnPlayDemoButtonClicked.RemoveAll(this);
+	WidgetController->OnQuitGameButtonClicked.RemoveAll(this);
+	SceneController->OnSceneCleanedUp.RemoveAll(this);
+
+	SceneController->SetupDemoLevel();
+
+	StartGame();
 }
 
 void AVRGameMode::PlayerWantsToPlayGame()
@@ -171,23 +197,26 @@ void AVRGameMode::PlayerWantsToPlayGame()
 	VRGameState->SetStateOfTheGame(EGameState::Egs_WaitingForLabyrinth);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
 
+	bIsDemo = false;
+
 	// unbind all main menu events
+	WidgetController->OnPlayDemoButtonClicked.RemoveAll(this);
 	WidgetController->OnPlayGameButtonClicked.RemoveAll(this);
 	WidgetController->OnQuitGameButtonClicked.RemoveAll(this);
 	SceneController->OnSceneCleanedUp.RemoveAll(this);
 	
 	WidgetController->ShowLoadingScreen();
 	
-	// MockNetwork();  // uncomment this line and comment the followings to test the game without the backend
-	NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
-	NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
+	MockNetwork();  // uncomment this line and comment the followings to test the game without the backend
+	// NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
+	// NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
 
-	const int32 LevelToPlay = VRGameState->GetCurrentLevel();
-	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Requesting Labyrinth for level %d"), LevelToPlay);
-	ULabyrinthRequestDTO* LabyrinthRequestDTO = NewObject<ULabyrinthRequestDTO>();
-	LabyrinthDTO->Level = LevelToPlay;
-	LabyrinthRequestDTO->Level = LevelToPlay;
-	NetworkController->GetLabyrinthFromBE(LabyrinthRequestDTO, LabyrinthDTO);
+	// const int32 LevelToPlay = VRGameState->GetCurrentLevel();
+	// UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Requesting Labyrinth for level %d"), LevelToPlay);
+	// ULabyrinthRequestDTO* LabyrinthRequestDTO = NewObject<ULabyrinthRequestDTO>();
+	// LabyrinthDTO->Level = LevelToPlay;
+	// LabyrinthRequestDTO->Level = LevelToPlay;
+	// NetworkController->GetLabyrinthFromBE(LabyrinthRequestDTO, LabyrinthDTO);
 }
 
 void AVRGameMode::MockNetwork()
@@ -246,10 +275,11 @@ void AVRGameMode::StartGame()
 	
 	BasePlayerController->ResetPlayerStats();
 	BasePlayerController->SetLevelTimer(ChooseLevelTimer(VRGameState->GetCurrentLevel()));
-	
+
 	FVector PlayerStartPosition;
 	FRotator PlayerStartRotation;
-	SceneController->GetPlayerStartPositionAndRotation(PlayerStartPosition, PlayerStartRotation);
+	if (bIsDemo) SceneController->GetPlayerDemoStartPositionAndRotation(PlayerStartPosition, PlayerStartRotation);
+	else SceneController->GetPlayerStartPositionAndRotation(PlayerStartPosition, PlayerStartRotation);
 	const FString ErrorMessage = BasePlayerController->TeleportPlayer(PlayerStartPosition, PlayerStartRotation, true);
 	if (ErrorMessage != "")
 	{
@@ -330,35 +360,51 @@ void AVRGameMode::EndGame(const int Result)
 	
 	if (Result == 0) // player has won the game
 	{
-		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has won the game"));
-		// bind return to main menu event and play next level event
-		WidgetController->OnReturnToMainMenuEvent.AddUObject(this, &AVRGameMode::RePrepareGame, true);
-		WidgetController->OnPlayGameButtonClicked.AddUObject(this, &AVRGameMode::RePrepareGame, false);
-		const int32 TimeOnLevel = BasePlayerController->GetPlayerTimeOnCurrentLevel();
-		UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Player has finished the level in %d seconds"), TimeOnLevel);
-		WidgetController->ShowWinScreen(TimeOnLevel);
-		
-		MusicController->StartFinalResultMusic(true);
-
-		SaveGame();
-	}
-	else if (Result == 1 || Result == 2) // player has lost the game
-	{
-		// bind return to main menu event and restart level event
-		WidgetController->OnReturnToMainMenuEvent.AddUObject(this, &AVRGameMode::RePrepareGame, true);
-		WidgetController->OnRestartLevelEvent.AddUObject(this, &AVRGameMode::RestartGame);
-		if (Result == 1)
+		if (bIsDemo)
 		{
-			UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has died"));
-			WidgetController->ShowLoseScreen(true);
+			UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has finished the demo"));
+			RePrepareGame(true);
 		}
 		else
 		{
-			UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has run out of time"));
-			WidgetController->ShowLoseScreen(false);
+			UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has won the game"));
+			// bind return to main menu event and play next level event
+			WidgetController->OnReturnToMainMenuEvent.AddUObject(this, &AVRGameMode::RePrepareGame, true);
+			WidgetController->OnPlayGameButtonClicked.AddUObject(this, &AVRGameMode::RePrepareGame, false);
+			const int32 TimeOnLevel = BasePlayerController->GetPlayerTimeOnCurrentLevel();
+			UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Player has finished the level in %d seconds"), TimeOnLevel);
+			WidgetController->ShowWinScreen(TimeOnLevel);
+			
+			MusicController->StartFinalResultMusic(true);
+
+			SaveGame();
 		}
-		
-		MusicController->StartFinalResultMusic(false);
+	}
+	else if (Result == 1 || Result == 2) // player has lost the game
+	{
+		if (bIsDemo)
+		{
+			UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has died in the demo"));
+			RePrepareGame(true);
+		}
+		else
+		{
+			// bind return to main menu event and restart level event
+			WidgetController->OnReturnToMainMenuEvent.AddUObject(this, &AVRGameMode::RePrepareGame, true);
+			WidgetController->OnRestartLevelEvent.AddUObject(this, &AVRGameMode::RestartGame);
+			if (Result == 1)
+			{
+				UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has died"));
+				WidgetController->ShowLoseScreen(true);
+			}
+			else
+			{
+				UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has run out of time"));
+				WidgetController->ShowLoseScreen(false);
+			}
+			
+			MusicController->StartFinalResultMusic(false);
+		}
 	}
 	else // player just wants to go back to the lobby
 	{
@@ -442,9 +488,9 @@ void AVRGameMode::TeleportPlayerBackToLobby(int Result)
 		FVector EndPortalPosition;
 		FRotator EndPortalRotation;
 		SceneController->GeEndPortalPositionAndRotation(EndPortalPosition, EndPortalRotation);
-	    if (EndPortalRotation.Yaw == 90.0f)
+	    if (EndPortalRotation.Yaw >= 89.0f && EndPortalRotation.Yaw <= 91.0f)
 		{
-			if (LabyrinthDTO->Height * WallSettings::WallOffset / 2 <= EndPortalPosition.Y)  // the portal is on the upper half
+			if (LabyrinthDTO->Height * WallSettings::WallOffset / 2 <= EndPortalPosition.Y || bIsDemo)  // the portal is on the upper half
 			{
 				DeltaYPosFromStart = -DeltaYPosFromStart;
 			}

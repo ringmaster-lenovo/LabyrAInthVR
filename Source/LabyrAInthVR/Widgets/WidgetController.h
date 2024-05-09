@@ -130,8 +130,8 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FPlayGameEvent);
 	FPlayGameEvent OnPlayGameButtonClicked;
 
-	DECLARE_MULTICAST_DELEGATE(FRankingsEvent);
-	FRankingsEvent OnRankingsButtonClicked;
+	DECLARE_MULTICAST_DELEGATE(FPlayDemoEvent);
+	FPlayDemoEvent OnPlayDemoButtonClicked;
 
 	DECLARE_MULTICAST_DELEGATE(FQuitGameEvent);
 	FQuitGameEvent OnQuitGameButtonClicked;
@@ -190,14 +190,11 @@ public:
 	UFUNCTION(Category = "Widgets")
 	void ReplayContinueButtonClicked();
 
-	// UFUNCTION(Category = "Widgets")
-	// void LoadLevelFromIndex();
+	UFUNCTION(Category = "Widgets")
+	void PlayDemoButtonClicked();
 
 	UFUNCTION(Category = "Widgets")
 	void NextLevelButtonClicked() const;
-
-	UFUNCTION(Category = "Widgets")
-	void RankingsButtonClicked() const;
 
 	UFUNCTION(Category = "Widgets")
 	void SettingsButtonClicked();

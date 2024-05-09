@@ -77,6 +77,7 @@ FString AVRGameState::LoginPlayer(FString NewPlayerName)
 		return "Player name contains invalid characters!";
 	}
 	// transform the player name to uppercase to have font consistency
+	NewPlayerName = NewPlayerName.TrimStartAndEnd();
 	NewPlayerName = NewPlayerName.ToUpper();
 	UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player logged in, name set to %s"), *NewPlayerName);
 	PlayerName = NewPlayerName;

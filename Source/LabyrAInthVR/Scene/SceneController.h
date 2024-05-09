@@ -25,6 +25,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	FString SetupLevel(ULabyrinthDTO* LabyrinthDTO);
+	
+	FString SetupDemoLevel();
 
 	FString CleanUpOnlyLevel() const;
 	
@@ -43,6 +45,8 @@ public:
 
 	UFUNCTION()
 	void GetPlayerStartPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
+
+	void GetPlayerDemoStartPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
 
 	void FreezeAllActors(bool bFreeze);
 	
