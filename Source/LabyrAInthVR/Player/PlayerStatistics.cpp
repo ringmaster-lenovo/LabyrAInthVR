@@ -106,7 +106,7 @@ void UPlayerStatistics::ChangeTimedStat(EStatModifier Stat, float Amount, float 
 		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display,
 		       TEXT("%s -> Changing timed Speed from %f to %f for %f seconds"), *GetName(), CurrentSpeed,
 		       CurrentSpeed + Amount, Time)
-		SpeedPowerupModifier = Amount;
+		SpeedPowerupModifier += Amount;
 		UE_LOG(LogTemp, Warning, TEXT("ChangeTimedStat"))
 		UpdateSpeed(CurrentSpeed);
 		Delegate.BindUObject(this, &ThisClass::ResetToDefaultValue, Esm_Speed);
