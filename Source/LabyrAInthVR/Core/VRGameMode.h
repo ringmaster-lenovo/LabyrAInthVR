@@ -37,6 +37,8 @@ private:
 	bool bIsVRHMDConnected;
 
 	bool bIsDemo;
+
+	FTimerHandle RestartDelay;
 	
 	UPROPERTY()
 	ABasePlayerController* BasePlayerController;
@@ -109,6 +111,8 @@ private:
 
 	UFUNCTION()
 	void RestartGame();
+
+	void RestartGameAfterDelay();
 
 	UFUNCTION()
 	void RePrepareGame(bool bComeBackToLobby = true);

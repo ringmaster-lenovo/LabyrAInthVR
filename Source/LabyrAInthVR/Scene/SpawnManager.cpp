@@ -256,18 +256,20 @@ FString ASpawnManager::SpawnActorsInDemoLabyrinth()
 	{
 		return "No actors to spawn";
 	}
-	AActor* PlayerSpawn = GetWorld()->SpawnActor<AActor>(PlayerSpawnPoint, FVector{-1570,-4550,15}, FRotator{0,0,0});
-	AActor* Weapon = GetWorld()->SpawnActor<AActor>(WeaponsClasses[0], FVector{-1720,-4440,140}, FRotator{0,0,0});
-	AActor* Pickup = GetWorld()->SpawnActor<AActor>(PickupsClasses[0], FVector{-1430,-4440,140}, FRotator{0,0,0});
-	AActor* Enemy = GetWorld()->SpawnActor<AActor>(EnemiesClasses[0], FVector{-1550,-4160,77.5}, FRotator{0,90,0});
+	FActorSpawnParameters SpawnParams = FActorSpawnParameters();
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	AActor* PlayerSpawn = GetWorld()->SpawnActor<AActor>(PlayerSpawnPoint, FVector{-1570,-4550,15}, FRotator{0,0,0}, SpawnParams);
+	AActor* Weapon = GetWorld()->SpawnActor<AActor>(WeaponsClasses[0], FVector{-1720,-4440,140}, FRotator{0,0,0}, SpawnParams);
+	AActor* Pickup = GetWorld()->SpawnActor<AActor>(PickupsClasses[0], FVector{-1430,-4440,140}, FRotator{0,0,0}, SpawnParams);
+	AActor* Enemy = GetWorld()->SpawnActor<AActor>(EnemiesClasses[0], FVector{-1550,-4160,77.5}, FRotator{0,90,0}, SpawnParams);
 	ABaseEnemy* BaseEnemy = Cast<ABaseEnemy>(Enemy);
 	if (BaseEnemy != nullptr)
 	{
 		BaseEnemy->SetHealth(1);
 	}
-	AActor* PowerUp = GetWorld()->SpawnActor<AActor>(PowerUpsClasses[0], FVector{-1575,-3860,15}, FRotator{0,0,0});
-	AActor* Trap = GetWorld()->SpawnActor<AActor>(TrapsClasses[0], FVector{-1574,-3538,-15}, FRotator{0,0,0});
-	AActor* PortalSpawn = GetWorld()->SpawnActor<AActor>(Portal, FVector{-1590,-2900,155}, FRotator{0,90,0});
+	AActor* PowerUp = GetWorld()->SpawnActor<AActor>(PowerUpsClasses[0], FVector{-1575,-3860,15}, FRotator{0,0,0}, SpawnParams);
+	AActor* Trap = GetWorld()->SpawnActor<AActor>(TrapsClasses[0], FVector{-1574,-3538,-15}, FRotator{0,0,0}, SpawnParams);
+	AActor* PortalSpawn = GetWorld()->SpawnActor<AActor>(Portal, FVector{-1590,-2900,155}, FRotator{0,90,0}, SpawnParams);
 	EndPortalPosition = PortalSpawn->GetActorLocation();
 	EndPortalRotation = PortalSpawn->GetActorRotation();
 
@@ -453,10 +455,19 @@ FString ASpawnManager::DifficultyDecider()
 	const int Level = Labyrinth->Level;
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Difficulty Decider: Labyrinth Level= %d"), Level);
 
-	PowerUpsToSpawn = FMath::Floor(Level / 1);
+	PowerUpsToSpawn = FMath::Floor(3 * Level / 2);
 	TrapsToSpawn = PowerUpsToSpawn;
-	EnemiesToSpawn = FMath::Floor(Level / 2) + 1;
-	WeaponsToSpawn = EnemiesToSpawn;
+	EnemiesToSpawn = FMath::Floor(2 * Level / 3) + 1;
+	
+	AVRGameMode* GameMode = Cast<AVRGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode && GameMode->IsInVR())
+	{
+		WeaponsToSpawn = FMath::Floor(3 * EnemiesToSpawn / 2);
+	}
+	else
+	{
+		WeaponsToSpawn = EnemiesToSpawn;
+	}
 
 	UE_LOG(LabyrAInthVR_Scene_Log, Display,
 	       TEXT("Difficulty Decider: PowerUpsToSpawn= %d, TrapsToSpawn= %d, EnemiesToSpawn= %d, WeaponsToSpawn=%d"),
@@ -484,6 +495,7 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 		UUtils::ConvertToRowColumn(SpawnLocations[i], Row, Column);
 
 		const int Index = i % SpawnableActors.Num(); // go through the actors to spawn in a round-robin fashion
+		if (Index >= SpawnableActors.Num()) return "Index out of bounds";
 		if (SpawnableActors[Index] == nullptr) return "";
 		const UClass* ObjectClass = SpawnableActors[Index]->GetSuperClass();
 
@@ -508,8 +520,7 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 					{
 						if (Labyrinth->LabyrinthStructure[Row + j][Column + k] == 1)
 						{
-							if (Labyrinth->LabyrinthStructure[Row + j][Column] != 1 || Labyrinth->LabyrinthStructure[
-								Row][Column + k] != 1)
+							if (Labyrinth->LabyrinthStructure[Row + j][Column] != 1 || Labyrinth->LabyrinthStructure[Row][Column + k] != 1)
 							{
 								InX = WallSettings::WallOffset * (Column + k);
 								InY = WallSettings::WallOffset * (Row + j);
@@ -556,27 +567,39 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 				EnemySettings::SpawnHeight
 			};
 		}
-
-		AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(SpawnableActors[Index], SpawnPoint, SpawnRotation);
-		if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
-		else
+		UWorld* World = GetWorld();
+		if (World == nullptr) return "World is null";
+		FActorSpawnParameters SpawnParams = FActorSpawnParameters();
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		try
 		{
-			if (ActorSpawned->Implements<UFreezableActor>())
+			if (SpawnableActors[Index] == nullptr) return "SpawnableActors[Index] is null";
+			AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(SpawnableActors[Index], SpawnPoint, SpawnRotation, SpawnParams);
+			if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
+			else
 			{
-				FreezableActors.Add(ActorSpawned);
-			}
-			SpawnedActors.Add(ActorSpawned);
-			MovableActors.Add(ActorSpawned);
+				if (ActorSpawned->Implements<UFreezableActor>())
+				{
+					FreezableActors.Add(ActorSpawned);
+				}
+				SpawnedActors.Add(ActorSpawned);
+				MovableActors.Add(ActorSpawned);
 
-			if (ObjectClass == ARangedEnemy::StaticClass() || ObjectClass == AMeleeEnemy::StaticClass())
-			{
-				ABaseEnemy* EnemyInstance = Cast<ABaseEnemy>(ActorSpawned);
-				if (EnemyInstance == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("EnemyInstance is null"))
-				EnemyInstance->SetLabyrinthMatrix(Labyrinth);
-				EnemyInstance->SetMatrixPosition(Row, Column);
-			}
+				if (ObjectClass == ARangedEnemy::StaticClass() || ObjectClass == AMeleeEnemy::StaticClass())
+				{
+					ABaseEnemy* EnemyInstance = Cast<ABaseEnemy>(ActorSpawned);
+					if (EnemyInstance == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("EnemyInstance is null"))
+					EnemyInstance->SetLabyrinthMatrix(Labyrinth);
+					EnemyInstance->SetMatrixPosition(Row, Column);
+				}
 
-			UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor spawned: %s"), *ActorSpawned->GetName());
+				UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Actor spawned: %s"), *ActorSpawned->GetName());
+			}
+		}
+		catch (const std::exception& e)
+		{
+			UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Crashing Error Actor not spawned"));
+			UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Exception: %hs"), e.what());
 		}
 	}
 	return "";
@@ -645,7 +668,9 @@ FString ASpawnManager::SpawnPortal()
 	}
 	EndPortalPosition = SpawnPoint;
 	EndPortalRotation = {0, YawRotation, 0};
-	AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(Portal, SpawnPoint, FRotator(0, YawRotation, 0));
+	FActorSpawnParameters SpawnParams = FActorSpawnParameters();
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(Portal, SpawnPoint, FRotator(0, YawRotation, 0), SpawnParams);
 	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 	SpawnedActors.Add(ActorSpawned);
 	MovableActors.Add(ActorSpawned);
@@ -667,7 +692,9 @@ FString ASpawnManager::SpawnPlayerStart()
 	};
 	PlayerStartPosition = {SpawnPoint.X, SpawnPoint.Y, SpawnPoint.Z + 110};
 	PlayerStartRotation = {0, 0, 0};
-	AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(PlayerSpawnPoint, SpawnPoint, FRotator(0, 0, 0));
+	FActorSpawnParameters SpawnParams = FActorSpawnParameters();
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(PlayerSpawnPoint, SpawnPoint, FRotator(0, 0, 0), SpawnParams);
 	if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 	MovableActors.Add(ActorSpawned);
 	SpawnedActors.Add(ActorSpawned);

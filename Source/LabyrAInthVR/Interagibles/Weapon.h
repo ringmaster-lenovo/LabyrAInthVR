@@ -64,9 +64,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AProjectile> ProjectileClass;
-
 	
-
 	UPROPERTY()
 	ABasePickup* Pickup;
 		

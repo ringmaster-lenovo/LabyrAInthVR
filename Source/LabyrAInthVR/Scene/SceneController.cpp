@@ -169,7 +169,7 @@ FString ASceneController::RespawnMovableActors(ULabyrinthDTO* LabyrinthDto) cons
 	{
 		return ErrorMessage;
 	}
-	OnActorsRespawned.Broadcast();
+	// OnActorsRespawned.Broadcast();
 	return "";
 }
 
