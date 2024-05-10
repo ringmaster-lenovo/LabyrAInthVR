@@ -104,6 +104,7 @@ void ASpawnManager::FindPotentialSpawnLocations(const ULabyrinthDTO* LabyrinthDT
  */
 FString ASpawnManager::SpawnActorsInLabyrinth(const ULabyrinthDTO* LabyrinthDtoReference)
 {
+	
 	Labyrinth = NewObject<ULabyrinthDTO>();
 	Labyrinth->Height = LabyrinthDtoReference->Height;
 	Labyrinth->Width = LabyrinthDtoReference->Width;
@@ -161,7 +162,6 @@ FString ASpawnManager::SpawnActorsInLabyrinth(const ULabyrinthDTO* LabyrinthDtoR
 	{
 		PotentialWeaponSpawnLocationsCopy.Add(Element);
 	}
-
 	// spawn power-ups first
 	PowerUpsLocations.Empty();
 	PowerUpsLocations.Reserve(PowerUpsToSpawn);
@@ -177,7 +177,9 @@ FString ASpawnManager::SpawnActorsInLabyrinth(const ULabyrinthDTO* LabyrinthDtoR
 	}
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("PowerUpsSpawned:\n%s"),
 	       *UUtils::StructToString(UUtils::GetInfoActorSpawned(NumOfPowerUpsSpawned, &PowerUpsLocations)));
-
+	
+	
+	
 	// spawn traps second
 	TrapsLocations.Empty();
 	TrapsLocations.Reserve(TrapsToSpawn);
@@ -193,7 +195,9 @@ FString ASpawnManager::SpawnActorsInLabyrinth(const ULabyrinthDTO* LabyrinthDtoR
 	}
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("TrapsSpawned:\n%s"),
 	       *UUtils::StructToString(UUtils::GetInfoActorSpawned(NumOfTrapsSpawned, &TrapsLocations)));
-
+	       
+	       
+	
 	// spawn enemies third
 	EnemiesLocations.Empty();
 	EnemiesLocations.Reserve(EnemiesToSpawn);
@@ -209,7 +213,7 @@ FString ASpawnManager::SpawnActorsInLabyrinth(const ULabyrinthDTO* LabyrinthDtoR
 	}
 	UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("EnemiesSpawned:\n%s"),
 	       *UUtils::StructToString(UUtils::GetInfoActorSpawned(NumOfEnemiesSpawned, &EnemiesLocations)));
-
+	
 	// spawn weapons last
 	WeaponsLocations.Empty();
 	WeaponsLocations.Reserve(WeaponsToSpawn);
