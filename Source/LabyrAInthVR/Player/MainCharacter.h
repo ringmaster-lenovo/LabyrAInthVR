@@ -28,6 +28,7 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void ResetWeapon();
 	float GetWeaponDamage();
+	float GetWeaponDamageLeft();
 	bool IsAlive();
 	
 	UFUNCTION()
@@ -44,8 +45,11 @@ protected:
 	ABasePickup* OverlappingPickup;
 	
 	UPROPERTY()
-	AWeapon* EquippedWeapon;
+	AWeapon* EquippedWeaponLeft;
 
+	UPROPERTY()
+	AWeapon* EquippedWeapon;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	UPlayerStatistics* PlayerStats;
 
@@ -75,5 +79,11 @@ protected:
 public:
 	FORCEINLINE void SetOverlappedPickup(ABasePickup* Pickup) {OverlappingPickup = Pickup; }
 
+	FORCEINLINE AWeapon* GetEquippedWeapon() {return EquippedWeapon; }
+
 	FORCEINLINE void SetEquippedWeapon(AWeapon* Weapon) {EquippedWeapon = Weapon; }
+
+	FORCEINLINE AWeapon* GetEquippedWeaponLeft() {return EquippedWeaponLeft; }
+
+	FORCEINLINE void SetEquippedWeaponLeft(AWeapon* Weapon) {EquippedWeaponLeft = Weapon; }
 };

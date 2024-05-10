@@ -61,6 +61,12 @@ float AMainCharacter::GetWeaponDamage()
 	return EquippedWeapon->GetDamage();
 }
 
+float AMainCharacter::GetWeaponDamageLeft()
+{
+	if (!IsValid(EquippedWeaponLeft)) return 0.f;
+	return EquippedWeaponLeft->GetDamage();
+}
+
 bool AMainCharacter::IsAlive()
 {
 	if (!IsValid(PlayerStats)) return false;
