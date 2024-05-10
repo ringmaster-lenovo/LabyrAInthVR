@@ -6,6 +6,7 @@
 #include "WidgetContainer.h"
 #include "LobbyWidget.h"
 #include "LoadLevelsWidget.h"
+#include "SpeedWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/VerticalBox.h"
@@ -235,7 +236,10 @@ void AWidgetController::ShowGameUI()
 			PlayerController->SetInputMode(InputMode);
 			PlayerController->bShowMouseCursor = false;
 			StatisticsWidget = CreateWidget<UStatisticsWidget>(PlayerController, StatisticsWidgetClass);
-			StatisticsWidget->AddToViewport(1);
+			if (StatisticsWidget)
+			{
+				StatisticsWidget->AddToViewport(1);
+			}
 		}
 	}
 	DamageWidget = CreateWidget<UDamageWidget>(PlayerController, DamageWidgetClass);
@@ -609,6 +613,47 @@ void AWidgetController::RemoveAllWidgets(UObject* WorldContextObject)
 		{
 			Widget->RemoveFromParent();
 		}
+	}
+}
+
+
+
+void AWidgetController::SetSpeedWidget(float Timer)
+{
+	if(SpeedWidget==nullptr || (IsValid(SpeedWidget) && !SpeedWidget->IsInViewport()))
+	{
+		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+		SpeedWidget = CreateWidget<USpeedWidget>(PlayerController, SpeedWidgetClass);
+		SpeedWidget->AddToViewport();
+	}
+	FTimerDelegate Delegate;
+	Delegate.BindUObject(this, &ThisClass::RemoveSpeedWidget);
+	GetWorld()->GetTimerManager().SetTimer(RemoveSlowWidgetTimerHandle, Delegate, Timer, false);
+}
+
+void AWidgetController::RemoveSpeedWidget()
+{
+	if(IsValid(SpeedWidget) && SpeedWidget->IsInViewport())
+	{
+		SpeedWidget->RemoveFromParent();
+	}
+}
+
+void AWidgetController::SetSlowWidget()
+{
+	if(SlowWidget==nullptr || (IsValid(SlowWidget) && !SlowWidget->IsInViewport()))
+	{
+		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+		SlowWidget = CreateWidget<USlowWidget>(PlayerController, SlowWidgetClass);
+		SlowWidget->AddToViewport();
+	}
+}
+
+void AWidgetController::RemoveSlowWidget()
+{
+	if(IsValid(SlowWidget) && SlowWidget->IsInViewport())
+	{
+		SlowWidget->RemoveFromParent();
 	}
 }
 

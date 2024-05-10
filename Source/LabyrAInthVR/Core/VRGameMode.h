@@ -30,6 +30,12 @@ class LABYRAINTHVR_API AVRGameMode : public AGameModeBase
 public:
 	AVRGameMode();
 
+	UFUNCTION(BlueprintCallable)
+	AWidgetController* GetWidgetController()
+	{
+		return WidgetController;
+	}
+
 protected:
 	virtual void BeginPlay() override;
 

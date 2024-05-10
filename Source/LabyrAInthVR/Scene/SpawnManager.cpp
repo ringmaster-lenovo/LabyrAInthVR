@@ -573,7 +573,16 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		try
 		{
-			if (SpawnableActors[Index] == nullptr) return "SpawnableActors[Index] is null";
+			if (SpawnableActors[Index] == nullptr)
+			{
+				UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("SpawnableActors[Index] is null, check the array"));
+				return "";
+			}
+			if (Index >= SpawnableActors.Num() || Index < 0)
+			{
+				UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Index out of bounds, check the array size"));
+				return "";
+			}
 			AActor* ActorSpawned = GetWorld()->SpawnActor<AActor>(SpawnableActors[Index], SpawnPoint, SpawnRotation, SpawnParams);
 			if (ActorSpawned == nullptr) UE_LOG(LabyrAInthVR_Scene_Log, Error, TEXT("Actor not spawned, check collisions"))
 			else
