@@ -36,6 +36,13 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	UPlayerStatistics* GetPlayerStatistics();
+	
+	UFUNCTION(BlueprintCallable)
+	bool IsFrozen() const { return bIsFrozen; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetIsFrozen(bool NewFrozenState) { bIsFrozen = NewFrozenState; }
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<AWeapon> WeaponClass;
@@ -69,6 +76,7 @@ protected:
 	void Shoot(const FInputActionValue& Value, bool bIsPressingShoot);
 	void ReleasePickupObject();
 	bool bHasWeapon;
+	bool bIsFrozen;
 	
 	/*UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	virtual void PickupWeapon();*/
