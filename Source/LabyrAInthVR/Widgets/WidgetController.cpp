@@ -230,6 +230,7 @@ void AWidgetController::ShowGameUI()
 	if (!bIsInVR)
 	{
 		RemoveAllWidgets(GetWorld());
+		
 		if (StatisticsWidgetClass)
 		{
 			FInputModeGameOnly InputMode;
@@ -241,7 +242,7 @@ void AWidgetController::ShowGameUI()
 				StatisticsWidget->AddToViewport(1);
 			}
 		}
-	}
+	}  
 	DamageWidget = CreateWidget<UDamageWidget>(PlayerController, DamageWidgetClass);
 	DamageWidget->AddToViewport(0);
 }
@@ -616,6 +617,13 @@ void AWidgetController::RemoveAllWidgets(UObject* WorldContextObject)
 	}
 }
 
+void AWidgetController::ClearStatisticsTimer()
+{
+	if (StatisticsWidget)
+	{
+		StatisticsWidget->StopTimer();
+	}
+}
 
 
 void AWidgetController::SetSpeedWidget(float Timer)

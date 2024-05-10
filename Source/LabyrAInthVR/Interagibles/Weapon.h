@@ -42,7 +42,7 @@ private:
 	void ResetShooting();
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Statistics", meta = (AllowPrivateAccess = "true"))
-	double Damage = 20;
+	double Damage = 10;
 	
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	EWeaponType WeaponType;
@@ -71,9 +71,6 @@ private:
 	UPROPERTY()
 	bool bHasBeenFound = false;
 
-	UPROPERTY(EditAnywhere, Category = "Interaction")
-	USoundBase* FireSound;
-
 	UPROPERTY()
 	AMainCharacter* MainCharacter;
 
@@ -82,8 +79,14 @@ private:
 	int BulletsFired{0};
 	bool bIsPressingShootButton;
 	bool bCanShoot{true};
+	
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	USoundBase* FireSound;
+	
 public:
 	FORCEINLINE float GetDamage() {return Damage; }
+	FORCEINLINE void SetDamage(float NewDamage) {Damage = NewDamage; }
 	FORCEINLINE EWeaponType GetWeaponType() {return WeaponType; }
 	FORCEINLINE uint8 GetBulletsPerBurst() {return BulletsPerBurst; }
 	FORCEINLINE float GetFirerate() {return FireRate; }
@@ -95,7 +98,16 @@ public:
 	FORCEINLINE void SetMainCharacter(AMainCharacter* CharacterMain) { MainCharacter = CharacterMain; }
 
 	UFUNCTION(BlueprintCallable)
-	void AssignToPlayer();
+	void AssignToPlayerRight();
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveFromPlayerRight();
+
+	UFUNCTION(BlueprintCallable)
+	void AssignToPlayerLeft();
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveFromPlayerLeft();
 	
 	UFUNCTION(BlueprintCallable)
 	bool HasBeenFound() const { return bHasBeenFound; }

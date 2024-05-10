@@ -225,6 +225,9 @@ public:
 	UFUNCTION(Category = "Widgets")
 	void SendButtonClicked();
 
+	UFUNCTION(Category = "Widgets")
+	void ClearStatisticsTimer();
+	
 	UFUNCTION(BlueprintCallable, Category = "Widgets")
 	void SetSpeedWidget(float Timer);
 

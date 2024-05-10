@@ -124,9 +124,29 @@ void AWeapon::ResetShooting()
 	bCanShoot = true;
 	BulletsFired = 0;
 }
-void AWeapon::AssignToPlayer()
+void AWeapon::AssignToPlayerRight()
 {
 	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	Character->SetEquippedWeapon(this);
+	
+}
+
+void AWeapon::RemoveFromPlayerRight()
+{
+	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	Character->SetEquippedWeapon(nullptr);
+}
+
+void AWeapon::AssignToPlayerLeft()
+{
+	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	Character->SetEquippedWeaponLeft(this);
+	
+}
+
+void AWeapon::RemoveFromPlayerLeft()
+{
+	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	Character->SetEquippedWeaponLeft(nullptr);
 }
 

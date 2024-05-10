@@ -5,6 +5,7 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Music/MusicController.h"
 #include "Sound/SoundCue.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_PlayerStatistics_Log);
@@ -132,6 +133,9 @@ void UPlayerStatistics::StartLevelTimer()
 
 	if (!IsValid(GetWorld())) return;
 
+	MusicController = Cast<AMusicController>(UGameplayStatics::GetActorOfClass(GetWorld(), AMusicController::StaticClass()));
+	if (IsValid(MusicController)) MusicController->ResetVolumeMultiplier();
+
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ThisClass::UpdateTimer, TimerInterval, true, 1.f);
 }
 
@@ -139,6 +143,10 @@ void UPlayerStatistics::UpdateTimer()
 {
 	LevelTime++;
 	LevelTimer--;
+	if (MusicController && LevelTimer < 60)
+	{
+		MusicController->PlayClockSound(LevelTimer);
+	}
 	if (LevelTimer <= 0)
 	{
 		if (!IsValid(MainCharacter))

@@ -33,11 +33,27 @@ void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
     {
         UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("Main character or Player statistics not valid from widget"))
     }
+
+    float TotalDamage = 0;
+
+    if(MainCharacter->GetEquippedWeaponLeft() && MainCharacter->GetEquippedWeapon())
+    {
+        //We have 2 weapons, sum left and right damages
+        TotalDamage = MainCharacter->GetWeaponDamageLeft() + MainCharacter->GetWeaponDamage();
+    } else if(MainCharacter->GetEquippedWeaponLeft())
+    {
+        //Only left weapon
+        TotalDamage = MainCharacter->GetWeaponDamageLeft();
+    } else if(MainCharacter->GetEquippedWeapon())
+    {
+        //Only right weapon
+        TotalDamage = MainCharacter->GetWeaponDamage();
+    }
     
     SetStatisticsValues(
         MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Speed),
         MainCharacter->GetPlayerStatistics()->HasShield(),
-        MainCharacter->GetWeaponDamage(),
+        TotalDamage,
         MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Health) / MainCharacter->GetPlayerStatistics()->GetDefaultHealth());
 }
 
@@ -113,7 +129,10 @@ void UStatisticsWidget::StartTimer(int32 InitialTimeInSeconds)
     if (!GetWorld()) return; // Ensure we have a valid world context before starting the timer
 
 	UpdateTimer();
-    GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UStatisticsWidget::UpdateTimer, TimerInterval, true, 1.0f);
+    if (!GetWorld()->GetTimerManager().IsTimerActive(TimerHandle))
+    {
+        GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UStatisticsWidget::UpdateTimer, TimerInterval, true, 1.0f);
+    }
 }
 
 //Stop timer function to call when the pause is called

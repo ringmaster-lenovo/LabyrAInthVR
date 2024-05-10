@@ -401,7 +401,7 @@ FString ASpawnManager::ChooseRandomSpawnLocation(const int NumOfActorsToSpawn, T
 	uint8 Subdivision = 0;
 	int NumOfActorsSpawned = 0;
 	int SpawnLocation = -1;
-	int NumTries = 0;
+	// int NumTries = 0;
 	while (NumOfActorsSpawned < NumOfActorsToSpawn)
 	{
 		const int PotentialActorLocationSize = PotentialLocations.Num();
@@ -409,30 +409,32 @@ FString ASpawnManager::ChooseRandomSpawnLocation(const int NumOfActorsToSpawn, T
 		const int Max = FMath::Max(Min, (PotentialActorLocationSize / LabyrinthSubdivisions * (Subdivision + 1)) - 1);
 		
 		const int Index = FMath::RandRange(Min, Max);
-		if (Index >= PotentialLocations.Num()) return "Index out of bounds";
-		
-		int Row = -1;
-		int Column = -1;
-		UUtils::ConvertToRowColumn(SpawnLocation, Row, Column);
+		// if (Index >= PotentialLocations.Num()) return "Index out of bounds";
 		
 		// check if Index is inside the radius of 2 of the player start position
-		if (PlayerStartIndexPosition != -1)
-		{
-			int PlayerStartRow = -1;
-			int PlayerStartColumn = -1;
-			UUtils::ConvertToRowColumn(PlayerStartIndexPosition, PlayerStartRow, PlayerStartColumn);
-			if (FMath::Abs(Row - PlayerStartRow) <= 1 && FMath::Abs(Column - PlayerStartColumn) <= 1)
-			{
-				NumTries++;
-				if (NumTries < 10) continue;
-			}
-			NumTries = 0;
-		}
-		// UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Index: %d"), Index);
+		// if (PlayerStartIndexPosition != -1)
+		// {
+			// int PlayerStartRow = -1;
+			// int PlayerStartColumn = -1;
+			// UUtils::ConvertToRowColumn(PlayerStartIndexPosition, PlayerStartRow, PlayerStartColumn);
+			// if (FMath::Abs(Row - PlayerStartRow) <= 1 && FMath::Abs(Column - PlayerStartColumn) <= 1)
+			// {
+				// NumTries++;
+				// if (NumTries < 10) continue;
+			// }
+			// NumTries = 0;
+		// }
+		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("Index: %d"), Index);
+		if (Index >= PotentialLocations.Num() || Index < 0) return "Index out of bounds";
 		SpawnLocation = PotentialLocations[Index];
+		UE_LOG(LabyrAInthVR_Scene_Log, Display, TEXT("SpawnLocation: %d"), SpawnLocation);
 		
 		PotentialLocations.RemoveAt(Index);
 		ActorsSpawnLocations.Add(SpawnLocation);
+
+		int Row = -1;
+		int Column = -1;
+		UUtils::ConvertToRowColumn(SpawnLocation, Row, Column);
 		
 		NumOfActorsSpawned++;
 		Subdivision = (Subdivision + 1) % LabyrinthSubdivisions;
@@ -732,7 +734,7 @@ void ASpawnManager::TriggerFrozenStar()
 
 void ASpawnManager::TriggerCompass(UParticleSystem* CompassEffect)
 {
-	if(IsValid(CompassInstance))
+	if (IsValid(CompassInstance))
 	{
 		CompassInstance->Deactivate();
 	}

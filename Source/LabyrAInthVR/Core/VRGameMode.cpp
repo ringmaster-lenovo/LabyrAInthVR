@@ -289,6 +289,7 @@ void AVRGameMode::StartGame()
 
 	WidgetController->ShowGameUI();
 	MusicController->StartAmbienceMusic(false);
+	// MusicController->StartClockTick();
 	
 	WidgetController->OnPauseGameEvent.AddUObject(this, &AVRGameMode::PauseGame);
 	BasePlayerController->OnCollisionWithEndPortal.AddUObject(this, &AVRGameMode::EndGame, 0);
@@ -385,8 +386,7 @@ void AVRGameMode::EndGame(const int Result)
 			const int32 TimeOnLevel = BasePlayerController->GetPlayerTimeOnCurrentLevel();
 			UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Player has finished the level in %d seconds"), TimeOnLevel);
 			WidgetController->ShowWinScreen(TimeOnLevel);
-			
-			MusicController->StartFinalResultMusic(true);
+			WidgetController->ClearStatisticsTimer();
 
 			SaveGame();
 		}
@@ -413,7 +413,6 @@ void AVRGameMode::EndGame(const int Result)
 				UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has run out of time"));
 				WidgetController->ShowLoseScreen(false);
 			}
-			
 			MusicController->StartFinalResultMusic(false);
 		}
 	}
@@ -422,7 +421,11 @@ void AVRGameMode::EndGame(const int Result)
 		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player wants to go back to the lobby"));
 		RePrepareGame(true);
 	}
-	
+
+	WidgetController->RemoveSlowWidget();
+	WidgetController->RemoveSpeedWidget();
+	WidgetController->ClearStatisticsTimer();
+	MusicController->StopClockSound();
 	BasePlayerController->ResetPlayerStats();
 }
 
@@ -445,6 +448,11 @@ void AVRGameMode::RestartGame()
 	WidgetController->OnResumeGameEvent.RemoveAll(this);
 	WidgetController->OnRestartLevelEvent.RemoveAll(this);
 	WidgetController->OnReturnToMainMenuEvent.RemoveAll(this);
+
+	WidgetController->RemoveSlowWidget();
+	WidgetController->RemoveSpeedWidget();
+	WidgetController->ClearStatisticsTimer();
+	MusicController->StopClockSound();
 
 	GetWorldTimerManager().ClearAllTimersForObject(WidgetController);  // clear all timers for the game mode
 	GetWorldTimerManager().ClearAllTimersForObject(BasePlayerController);  // clear all timers for the player controller

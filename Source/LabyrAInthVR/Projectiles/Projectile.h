@@ -20,10 +20,12 @@ public:
 	AProjectile();
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
-
-	void SetDamage(double DamagePassed) {Damage = DamagePassed;}
 	
+	UFUNCTION(BlueprintCallable)
+	void SetDamage(double DamagePassed) {Damage = DamagePassed;}
+
 private:
+	UPROPERTY()
 	double Damage = 20;
 	
 	UFUNCTION()
