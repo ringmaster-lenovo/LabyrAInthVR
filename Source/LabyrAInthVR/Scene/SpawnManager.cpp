@@ -722,6 +722,13 @@ void ASpawnManager::RemoveFromList(AActor* ActorToRemove)
 
 void ASpawnManager::TriggerFrozenStar()
 {
+	MainCharacter = Cast<AMainCharacter>(UGameplayStatics::GetActorOfClass(this, AMainCharacter::StaticClass()));
+
+	if (IsValid(MainCharacter))
+	{
+		MainCharacter->SetIsFrozen(true);
+	}
+	
 	if (FreezableActors.Num() <= 0) return;
 
 	for (const auto& FreezableActor : FreezableActors)
