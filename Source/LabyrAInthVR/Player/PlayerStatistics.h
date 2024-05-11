@@ -62,6 +62,7 @@ private:
 	bool bHasShield{false};
 	
 	FTimerHandle TimerHandle;
+	FTimerHandle PauseTimerHandle;
 	FTimerHandle DefaultValueTimerHandle;
 	
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
@@ -112,6 +113,10 @@ private:
 	float SpeedTrapModifier {0.f};
 
 	float SpeedPowerupModifier {0.f};
+
+	float RemainingTime = 0.0f;
+	
+	bool bIsTimerPaused = false;
 	
 public:
 	UFUNCTION(BlueprintCallable)
@@ -131,6 +136,8 @@ public:
 	void SetLevelTimer(const float Time) { LevelTimer = Time; }
 	
 	void StartLevelTimer();
+	void PauseLevelTimerForDuration(float PauseDuration);
+	void ResumeLevelTimer();
 	void StopLevelTimer();
 	float GetLevelTime();
 	float GetLevelTimer();

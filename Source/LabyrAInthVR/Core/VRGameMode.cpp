@@ -348,7 +348,7 @@ void AVRGameMode::EndGame(const int Result)
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
 	
 	UGameplayStatics::SetGamePaused(this, false);
-	
+	BasePlayerController->MainCharacter->SetIsFrozen(false);
 	// unbind all game events
 	BasePlayerController->OnPLayerDeath.RemoveAll(this);
 	BasePlayerController->OnCollisionWithEndPortal.RemoveAll(this);
@@ -426,7 +426,7 @@ void AVRGameMode::EndGame(const int Result)
 	WidgetController->RemoveSpeedWidget();
 	WidgetController->ClearStatisticsTimer();
 	MusicController->StopClockSound();
-	MusicController->CurrentVolumeMultiplier = 0.0f;
+	
 	BasePlayerController->ResetPlayerStats();
 }
 
@@ -454,7 +454,6 @@ void AVRGameMode::RestartGame()
 	WidgetController->RemoveSpeedWidget();
 	WidgetController->ClearStatisticsTimer();
 	MusicController->StopClockSound();
-	MusicController->CurrentVolumeMultiplier = 0.0f;
 
 	GetWorldTimerManager().ClearAllTimersForObject(WidgetController);  // clear all timers for the game mode
 	GetWorldTimerManager().ClearAllTimersForObject(BasePlayerController);  // clear all timers for the player controller

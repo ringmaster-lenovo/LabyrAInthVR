@@ -724,9 +724,15 @@ void ASpawnManager::TriggerFrozenStar()
 {
 	MainCharacter = Cast<AMainCharacter>(UGameplayStatics::GetActorOfClass(this, AMainCharacter::StaticClass()));
 
+	float PauseDuration = 15.f;
+	
 	if (IsValid(MainCharacter))
 	{
 		MainCharacter->SetIsFrozen(true);
+		if(IsValid(MainCharacter->GetPlayerStatistics()))
+		{
+			MainCharacter->GetPlayerStatistics()->PauseLevelTimerForDuration(PauseDuration);
+		}
 	}
 	
 	if (FreezableActors.Num() <= 0) return;
@@ -735,7 +741,7 @@ void ASpawnManager::TriggerFrozenStar()
 	{
 		if (FreezableActor == nullptr) continue;
 		if (!FreezableActor->Implements<UFreezableActor>()) continue;
-		Cast<IFreezableActor>(FreezableActor)->Freeze(15.f);
+		Cast<IFreezableActor>(FreezableActor)->Freeze(PauseDuration);
 	}
 }
 

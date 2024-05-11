@@ -23,7 +23,7 @@ void UStatisticsWidget::NativeConstruct()
         UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("Main character or Player statistics not valid from widget"))
     }
 
-    StartTimer(MainCharacter->GetPlayerStatistics()->GetLevelTimer());
+    StartTimer(MainCharacter->GetPlayerStatistics()->GetLevelTimer() + 1);
 }
 
 void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -106,8 +106,15 @@ void UStatisticsWidget::SetStatisticsValues(int SpeedValue, bool bHasShield, int
 
     if (freeze)
     {
-        isFrozen =  bIsFrozen;
-        freeze->SetVisibility(bIsFrozen ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+        if(bIsFrozen)
+        {
+            freeze->SetVisibility(ESlateVisibility::Visible);
+            PauseLevelTimer();
+        } else
+        {
+            freeze->SetVisibility(ESlateVisibility::Hidden);
+            ResumeLevelTimer();
+        }
     }
 }
 
@@ -129,6 +136,15 @@ void UStatisticsWidget::UpdateTimer()
     if (seconds)
     {
         seconds->SetText(FText::FromString(SecondsText));
+    }
+
+    if (CurrentTimeInSeconds <= 10)
+    {
+        FLinearColor RedColor = FLinearColor(1.0f, 0.0f, 0.0f, 1.0f);
+        
+        minutes->SetColorAndOpacity(RedColor);
+        seconds->SetColorAndOpacity(RedColor);
+        Separator->SetColorAndOpacity(RedColor);
     }
 }
 
@@ -152,4 +168,29 @@ void UStatisticsWidget::StopTimer()
 
     GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
     // CurrentTimeInSeconds = 0; // Optionally reset the timer
+}
+
+void UStatisticsWidget::PauseLevelTimer()
+{
+    if (!GetWorld()) return;
+
+    if (GetWorld()->GetTimerManager().IsTimerActive(TimerHandle))
+    {
+        // Get the remaining time on the timer
+        RemainingTime = GetWorld()->GetTimerManager().GetTimerRemaining(TimerHandle);
+        GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+        bIsTimerPaused = true;
+    }
+}
+
+
+void UStatisticsWidget::ResumeLevelTimer()
+{
+    if (!GetWorld()) return;
+
+    if (bIsTimerPaused && RemainingTime > 0)
+    {
+        GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ThisClass::UpdateTimer, 1.0f, true, RemainingTime);
+        bIsTimerPaused = false;
+    }
 }
