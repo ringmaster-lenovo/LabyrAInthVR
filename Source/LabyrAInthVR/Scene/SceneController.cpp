@@ -90,16 +90,17 @@ FString ASceneController::SetupDemoLevel()
 FString ASceneController::CleanUpOnlyLevel() const
 {
 	// Get a reference to the game world
+	TArray<AActor*> ActorsSpawned {SpawnedActors};
 	const UWorld* World = GetWorld();
 	if (!World)
 	{
 		return "No valid world found";
 	}
 
-	for (int i = SpawnedActors.Num(); i > 0; i--)
+	for (int i = ActorsSpawned.Num(); i > 0; i--)
 	{
-		if (!IsValid(SpawnedActors[i - 1])) continue;
-		SpawnedActors[i - 1]->Destroy();
+		if (!IsValid(ActorsSpawned[i - 1])) continue;
+		ActorsSpawned[i - 1]->Destroy();
 	}
 
 	OnSceneCleanedUp.Broadcast();
@@ -115,7 +116,7 @@ FString ASceneController::CleanUpLevelAndDoStatistics(int& NumOfEnemiesKilled, i
 	{
 		return "No valid world found";
 	}
-
+	TArray<AActor*> ActorsSpawned {SpawnedActors};
 	int NumOfEnemiesAlive = 0;
 	int NumOfTrapsActive = 0;
 	int NumOfPowerUpsNotCollected = 0;
@@ -125,26 +126,27 @@ FString ASceneController::CleanUpLevelAndDoStatistics(int& NumOfEnemiesKilled, i
 	int NumOfPowerUpsSpawned = 0;
 	int NumOfWeaponsSpawned = 0;
 	SpawnManager->GetNumOfActorSpawned(NumOfEnemiesSpawned, NumOfTrapsSpawned, NumOfPowerUpsSpawned,NumOfWeaponsSpawned);
-	for (int i = SpawnedActors.Num(); i > 0; i--)
+	for (int i = ActorsSpawned.Num(); i > 0; i--)
 	{
-		if (!IsValid(SpawnedActors[i - 1])) continue;
+		if (!IsValid(ActorsSpawned[i - 1])) continue;
 
-		if (SpawnedActors[i - 1]->IsA<ABaseEnemy>()) NumOfEnemiesAlive++;
-		else if (SpawnedActors[i - 1]->IsA<ATrap>()) NumOfTrapsActive++;
-		else if (SpawnedActors[i - 1]->IsA<APowerUp>()) NumOfPowerUpsNotCollected++;
-		else if (SpawnedActors[i - 1]->IsA<ABasePickup>())
+		if (ActorsSpawned[i - 1]->IsA<ABaseEnemy>()) NumOfEnemiesAlive++;
+		else if (ActorsSpawned[i - 1]->IsA<ATrap>()) NumOfTrapsActive++;
+		else if (ActorsSpawned[i - 1]->IsA<APowerUp>()) NumOfPowerUpsNotCollected++;
+		else if (ActorsSpawned[i - 1]->IsA<ABasePickup>())
 		{
-			ABasePickup* Pickup = Cast<ABasePickup>(SpawnedActors[i - 1]);
+			ABasePickup* Pickup = Cast<ABasePickup>(ActorsSpawned[i - 1]);
 			if (Pickup != nullptr && Pickup->HasBeenFound()) NumOfWeaponsFound++;
 		}
-		else if (SpawnedActors[i - 1]->IsA<AWeapon>())
+		else if (ActorsSpawned[i - 1]->IsA<AWeapon>())
 		{
-			AWeapon* Weapon = Cast<AWeapon>(SpawnedActors[i - 1]);
+			AWeapon* Weapon = Cast<AWeapon>(ActorsSpawned[i - 1]);
 			if (Weapon != nullptr && Weapon->HasBeenFound()) NumOfWeaponsFound++;
 			NumOfWeaponsFound++;
 		}
-		SpawnedActors[i - 1]->Destroy();
+		ActorsSpawned[i - 1]->Destroy();
 	}
+	
 	NumOfEnemiesKilled = NumOfEnemiesSpawned - NumOfEnemiesAlive;
 	NumOfTrapsExploded = NumOfTrapsSpawned - NumOfTrapsActive;
 	NumOfPowerUpsCollected = NumOfPowerUpsSpawned - NumOfPowerUpsNotCollected;
