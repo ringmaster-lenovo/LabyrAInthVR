@@ -54,6 +54,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StopClockSound();
 
+	UFUNCTION(BlueprintCallable)
+	void ResetVolumeMultiplier();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Music)
 	bool bIsMusicPlaying = false;
 
@@ -63,8 +66,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Music)
 	float MusicVolume = 1.0f;
 	
-	float CurrentVolumeMultiplier = 0.001f;
-	
+	float DefaultCurrentVolumeMultiplier = 0.0f;
+
+	float CurrentVolumeMultiplier = 0.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Audio")
 	UAudioComponent* AudioComponent;

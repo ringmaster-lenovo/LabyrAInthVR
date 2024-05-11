@@ -271,7 +271,7 @@ void AVRGameMode::StartGame()
 
 	// unbind previous events
 	SceneController->OnSceneReady.RemoveAll(this);
-	SceneController->OnActorsRespawned.RemoveAll(this);
+	// SceneController->OnActorsRespawned.RemoveAll(this);
 	
 	BasePlayerController->ResetPlayerStats();
 	BasePlayerController->SetLevelTimer(ChooseLevelTimer(VRGameState->GetCurrentLevel()));
@@ -289,7 +289,7 @@ void AVRGameMode::StartGame()
 
 	WidgetController->ShowGameUI();
 	MusicController->StartAmbienceMusic(false);
-	MusicController->StartClockTick();
+	// MusicController->StartClockTick();
 	
 	WidgetController->OnPauseGameEvent.AddUObject(this, &AVRGameMode::PauseGame);
 	BasePlayerController->OnCollisionWithEndPortal.AddUObject(this, &AVRGameMode::EndGame, 0);
@@ -352,8 +352,19 @@ void AVRGameMode::EndGame(const int Result)
 	// unbind all game events
 	BasePlayerController->OnPLayerDeath.RemoveAll(this);
 	BasePlayerController->OnCollisionWithEndPortal.RemoveAll(this);
+	BasePlayerController->OnPLayerFinishedTimer.RemoveAll(this);
 	WidgetController->OnPauseGameEvent.RemoveAll(this);
 	WidgetController->OnResumeGameEvent.RemoveAll(this);
+	WidgetController->OnRestartLevelEvent.RemoveAll(this);
+	WidgetController->OnReturnToMainMenuEvent.RemoveAll(this);
+
+	GetWorldTimerManager().ClearAllTimersForObject(WidgetController);  // clear all timers for the game mode
+	GetWorldTimerManager().ClearAllTimersForObject(BasePlayerController);  // clear all timers for the player controller
+	GetWorldTimerManager().ClearAllTimersForObject(SceneController);  // clear all timers for the scene controller
+	GetWorldTimerManager().ClearAllTimersForObject(MusicController);  // clear all timers for the music controller
+	GetWorldTimerManager().ClearAllTimersForObject(NetworkController);  // clear all timers for the network controller
+	GetWorldTimerManager().ClearAllTimersForObject(VRGameState);  // clear all timers for the game state
+	GetWorldTimerManager().ClearAllTimersForObject(this);  // clear all timers for the game mode
 
 	// teleport player back to lobby
 	TeleportPlayerBackToLobby(Result);
@@ -376,10 +387,6 @@ void AVRGameMode::EndGame(const int Result)
 			UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Player has finished the level in %d seconds"), TimeOnLevel);
 			WidgetController->ShowWinScreen(TimeOnLevel);
 			WidgetController->ClearStatisticsTimer();
-
-			MusicController->StopClockSound();
-			MusicController->StartFinalResultMusic(true);
-			
 
 			SaveGame();
 		}
@@ -406,9 +413,6 @@ void AVRGameMode::EndGame(const int Result)
 				UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player has run out of time"));
 				WidgetController->ShowLoseScreen(false);
 			}
-			WidgetController->ClearStatisticsTimer();
-
-			MusicController->StopClockSound();
 			MusicController->StartFinalResultMusic(false);
 		}
 	}
@@ -417,7 +421,12 @@ void AVRGameMode::EndGame(const int Result)
 		UE_LOG(LabyrAInthVR_Core_Log, Warning, TEXT("Player wants to go back to the lobby"));
 		RePrepareGame(true);
 	}
-	
+
+	WidgetController->RemoveSlowWidget();
+	WidgetController->RemoveSpeedWidget();
+	WidgetController->ClearStatisticsTimer();
+	MusicController->StopClockSound();
+	MusicController->CurrentVolumeMultiplier = 0.0f;
 	BasePlayerController->ResetPlayerStats();
 }
 
@@ -431,18 +440,49 @@ void AVRGameMode::RestartGame()
 	}
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Restarting);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
-
-	// unbind all previous events
+	
+	// unbind all game events
+	BasePlayerController->OnPLayerDeath.RemoveAll(this);
+	BasePlayerController->OnCollisionWithEndPortal.RemoveAll(this);
+	BasePlayerController->OnPLayerFinishedTimer.RemoveAll(this);
+	WidgetController->OnPauseGameEvent.RemoveAll(this);
+	WidgetController->OnResumeGameEvent.RemoveAll(this);
 	WidgetController->OnRestartLevelEvent.RemoveAll(this);
 	WidgetController->OnReturnToMainMenuEvent.RemoveAll(this);
+
+	WidgetController->RemoveSlowWidget();
+	WidgetController->RemoveSpeedWidget();
 	WidgetController->ClearStatisticsTimer();
-
 	MusicController->StopClockSound();
+	MusicController->CurrentVolumeMultiplier = 0.0f;
 
-	SceneController->OnActorsRespawned.AddUObject(this, &AVRGameMode::StartGame);
-	SceneController->RespawnMovableActors(LabyrinthDTO);
-	
+	GetWorldTimerManager().ClearAllTimersForObject(WidgetController);  // clear all timers for the game mode
+	GetWorldTimerManager().ClearAllTimersForObject(BasePlayerController);  // clear all timers for the player controller
+	GetWorldTimerManager().ClearAllTimersForObject(SceneController);  // clear all timers for the scene controller
+	GetWorldTimerManager().ClearAllTimersForObject(MusicController);  // clear all timers for the music controller
+	GetWorldTimerManager().ClearAllTimersForObject(NetworkController);  // clear all timers for the network controller
+	GetWorldTimerManager().ClearAllTimersForObject(VRGameState);  // clear all timers for the game state
+	GetWorldTimerManager().ClearAllTimersForObject(this);  // clear all timers for the game mode
+
+	// wait .5 seconds before restarting the game
 	UGameplayStatics::SetGamePaused(this, false);
+	GetWorldTimerManager().SetTimer(RestartDelay, this, &AVRGameMode::RestartGameAfterDelay, .5f, false);
+	
+	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), 1, 0);  // reset the pitch modulation
+}
+
+void AVRGameMode::RestartGameAfterDelay()
+{
+	// clean up the scene and respawn all actors
+	// SceneController->OnActorsRespawned.AddUObject(this, &AVRGameMode::StartGame);
+	FString ErrorMessage = SceneController->RespawnMovableActors(LabyrinthDTO);
+	if (ErrorMessage != "")
+	{
+		UE_LOG(LabyrAInthVR_Core_Log, Error, TEXT("Fatal Scene error: %s"), *ErrorMessage);
+		CloseGame();
+	}
+	StartGame();
+	
 	BasePlayerController->CloseVRHandMenu();
 }
 
@@ -461,9 +501,6 @@ void AVRGameMode::RePrepareGame(const bool bComeBackToLobby)
 	WidgetController->OnReturnToMainMenuEvent.RemoveAll(this);
 	WidgetController->OnRestartLevelEvent.RemoveAll(this);
 	WidgetController->OnPlayGameButtonClicked.RemoveAll(this);
-	WidgetController->ClearStatisticsTimer();
-
-	MusicController->StopClockSound();
 
 	if (bComeBackToLobby)
 	{
@@ -543,6 +580,7 @@ void AVRGameMode::CloseGame() const
 		}
 		VRGameState->SetStateOfTheGame(EGameState::Egs_ClosingGame);
 		VRGameState->StopPlayerTimer();
+		GetWorldTimerManager().ClearAllTimersForObject(VRGameState);  // clear all timers for the game state
 		UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
 	}
 
@@ -551,10 +589,40 @@ void AVRGameMode::CloseGame() const
 	{
 		WidgetController->OnWidgetSError.RemoveAll(this);
 		WidgetController->OnQuitGameButtonClicked.RemoveAll(this);
+		GetWorldTimerManager().ClearAllTimersForObject(WidgetController);  // clear all timers for the widget controller
 	}
 	
 	// Stop the music
-	if (MusicController) MusicController->StopMusic();
+	if (MusicController)
+	{
+		MusicController->StopMusic();
+		GetWorldTimerManager().ClearAllTimersForObject(MusicController);  // clear all timers for the music controller
+	}
+
+	if (SceneController)
+	{
+		SceneController->OnSceneCleanedUp.RemoveAll(this);
+		SceneController->OnSceneReady.RemoveAll(this);
+		SceneController->OnActorsRespawned.RemoveAll(this);
+		GetWorldTimerManager().ClearAllTimersForObject(SceneController);  // clear all timers for the scene controller
+	}
+	
+	if (BasePlayerController)
+	{
+		BasePlayerController->OnPLayerDeath.RemoveAll(this);
+		BasePlayerController->OnPLayerFinishedTimer.RemoveAll(this);
+		BasePlayerController->OnCollisionWithEndPortal.RemoveAll(this);
+		GetWorldTimerManager().ClearAllTimersForObject(BasePlayerController);  // clear all timers for the player controller
+	}
+
+	if (NetworkController)
+	{
+		NetworkController->OnNetworkError.RemoveAll(this);
+		NetworkController->OnLabyrinthReceived.RemoveAll(this);
+		GetWorldTimerManager().ClearAllTimersForObject(NetworkController);  // clear all timers for the network controller
+	}
+
+	GetWorldTimerManager().ClearAllTimersForObject(this);  // clear all timers for the game mode
 
 	// get World and PlayerController, if they are invalid, crash the game
 	const UWorld* World = GetWorld();

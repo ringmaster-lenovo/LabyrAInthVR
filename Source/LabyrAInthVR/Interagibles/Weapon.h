@@ -64,17 +64,12 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AProjectile> ProjectileClass;
-
 	
-
 	UPROPERTY()
 	ABasePickup* Pickup;
 		
 	UPROPERTY()
 	bool bHasBeenFound = false;
-
-	UPROPERTY(EditAnywhere, Category = "Interaction")
-	USoundBase* FireSound;
 
 	UPROPERTY()
 	AMainCharacter* MainCharacter;
@@ -84,6 +79,11 @@ private:
 	int BulletsFired{0};
 	bool bIsPressingShootButton;
 	bool bCanShoot{true};
+	
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	USoundBase* FireSound;
+	
 public:
 	FORCEINLINE float GetDamage() {return Damage; }
 	FORCEINLINE void SetDamage(float NewDamage) {Damage = NewDamage; }

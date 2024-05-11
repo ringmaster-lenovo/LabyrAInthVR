@@ -37,8 +37,8 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FSceneReadyEvent);
 	FSceneReadyEvent OnSceneReady;
 
-	DECLARE_MULTICAST_DELEGATE(FSceneReadyEvent);
-	FSceneReadyEvent OnSceneCleanedUp;
+	DECLARE_MULTICAST_DELEGATE(FSceneCleanedUpEvent);
+	FSceneCleanedUpEvent OnSceneCleanedUp;
 
 	DECLARE_MULTICAST_DELEGATE(FRespawnActorsEvent);
 	FRespawnActorsEvent OnActorsRespawned;

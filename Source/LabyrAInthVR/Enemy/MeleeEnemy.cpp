@@ -84,8 +84,6 @@ void AMeleeEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamag
 	{
 		SetWeaponCollision(false, true);
 	}
-	
-	GetWorldTimerManager().ClearTimer(MeleeAttackTimerHandle);
 }
 
 void AMeleeEnemy::PlayMontage(UAnimMontage* MontageToPlay)

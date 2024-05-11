@@ -30,28 +30,39 @@ void AMusicController::Tick(float DeltaTime)
 
 void AMusicController::PlayClockSound(int32 seconds)
 {
-	if(ClockSound && AudioComponent)
+	if (ClockSound && AudioComponent)
 	{
 		AudioComponent->SetVolumeMultiplier(CurrentVolumeMultiplier);
-		AudioComponent->SetSound(ClockSound);
-		AudioComponent->Play();
-		if(seconds > 30)
+		if (!AudioComponent->IsPlaying())
 		{
-			CurrentVolumeMultiplier += 0.002f;
-		} else if(seconds > 10)
+			AudioComponent->SetSound(ClockSound);
+			AudioComponent->Play();
+		}
+		if (seconds > 30)
 		{
 			CurrentVolumeMultiplier += 0.01f;
-		} else {
-			CurrentVolumeMultiplier = 1.0f;
 		}
+		else if (seconds > 10)
+		{
+			CurrentVolumeMultiplier += 0.02f;
+		}
+		else {
+			CurrentVolumeMultiplier += 0.05f;
+		}
+		// CurrentVolumeMultiplier += 0.025f;
 	    UE_LOG(LabyrAInthVR_Music_Log, Display, TEXT("Volume increased: %f"), CurrentVolumeMultiplier);
 	}
 }
 
 void AMusicController::StopClockSound()
 {
-	if(AudioComponent)
+	if (AudioComponent)
 	{
 		AudioComponent->Stop();
 	}
+}
+
+void AMusicController::ResetVolumeMultiplier()
+{
+	CurrentVolumeMultiplier = DefaultCurrentVolumeMultiplier;
 }

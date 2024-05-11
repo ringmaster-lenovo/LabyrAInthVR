@@ -6,6 +6,7 @@
 #include "PlayerStatsSubSystem.h"
 #include "WidgetController.h"
 #include "Components/Border.h"
+#include "Components/Overlay.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "Kismet/GameplayStatics.h"
@@ -54,10 +55,12 @@ void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
         MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Speed),
         MainCharacter->GetPlayerStatistics()->HasShield(),
         TotalDamage,
-        MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Health) / MainCharacter->GetPlayerStatistics()->GetDefaultHealth());
+        MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Health) / MainCharacter->GetPlayerStatistics()->GetDefaultHealth(),
+        MainCharacter->IsFrozen()
+    );
 }
 
-void UStatisticsWidget::SetStatisticsValues(int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage)
+void UStatisticsWidget::SetStatisticsValues(int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage, bool bIsFrozen)
 {
     // if (CurrentTime)
     // {
@@ -98,6 +101,13 @@ void UStatisticsWidget::SetStatisticsValues(int SpeedValue, bool bHasShield, int
     if (shield)
     {
         shield->SetVisibility(bHasShield ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+        
+    }
+
+    if (freeze)
+    {
+        isFrozen =  bIsFrozen;
+        freeze->SetVisibility(bIsFrozen ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
     }
 }
 

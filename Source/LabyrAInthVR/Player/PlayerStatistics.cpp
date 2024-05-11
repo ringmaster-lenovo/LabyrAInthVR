@@ -134,6 +134,7 @@ void UPlayerStatistics::StartLevelTimer()
 	if (!IsValid(GetWorld())) return;
 
 	MusicController = Cast<AMusicController>(UGameplayStatics::GetActorOfClass(GetWorld(), AMusicController::StaticClass()));
+	if (IsValid(MusicController)) MusicController->ResetVolumeMultiplier();
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ThisClass::UpdateTimer, TimerInterval, true, 1.f);
 }
@@ -142,7 +143,7 @@ void UPlayerStatistics::UpdateTimer()
 {
 	LevelTime++;
 	LevelTimer--;
-	if(MusicController && LevelTimer < 60)
+	if (MusicController && LevelTimer < 60)
 	{
 		MusicController->PlayClockSound(LevelTimer);
 	}

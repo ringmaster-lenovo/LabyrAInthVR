@@ -142,7 +142,7 @@ void ATrap::OnEnterDamageArea(AActor* Actor)
 
 void ATrap::OnLeaveDamageArea(AActor* Actor)
 {
-	if (Actor->IsValidLowLevel())
+	if (IsValid(Actor))
 	{
 		if (isMainCharacter(Actor) || isEnemy(Actor))
 		{
@@ -168,8 +168,11 @@ void ATrap::ApplyDamage(AActor* Actor, float Damage)
 
 void ATrap::ApplyDamageToAll(float Damage)
 {
-	for (AActor* Actor : ActorInRange)
+	const TArray ActorsInRange {ActorInRange};
+	
+	for (const auto& Actor : ActorsInRange)
 	{
+		UE_LOG(LabyrAInthVR_Trap_Log, Display, TEXT("%s -> Actor ready to take damage: %s"), *GetName(), *Actor->GetName())
 		if (IsValid(Actor)) ApplyDamage(Actor, Damage);
 	}
 }
