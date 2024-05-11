@@ -578,11 +578,6 @@ void AWidgetController::OnPauseGamePressed()
 				
 					MenuWidget = CreateWidget<UMenuWidget>(PlayerController, MenuWidgetClass);
 					MenuWidget->WidgetController = this;
-					AVRGameMode* GameMode = Cast<AVRGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-					if (GameMode && GameMode->IsInDemo())
-					{
-						MenuWidget->RestartButton->SetVisibility(ESlateVisibility::Collapsed);
-					}
 					FInputModeGameAndUI InputMode;
 					InputMode.SetWidgetToFocus(MenuWidget->TakeWidget());
 					InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);

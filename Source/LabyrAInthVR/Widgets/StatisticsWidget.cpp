@@ -106,6 +106,7 @@ void UStatisticsWidget::SetStatisticsValues(int SpeedValue, bool bHasShield, int
 
     if (freeze)
     {
+        isFrozen = bIsFrozen;
         if(bIsFrozen)
         {
             freeze->SetVisibility(ESlateVisibility::Visible);

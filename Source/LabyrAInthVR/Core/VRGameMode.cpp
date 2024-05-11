@@ -440,7 +440,9 @@ void AVRGameMode::RestartGame()
 	}
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Restarting);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
-	
+	if(IsValid(BasePlayerController) && IsValid(BasePlayerController->MainCharacter)) {
+		BasePlayerController->MainCharacter->SetIsFrozen(false);
+	}
 	// unbind all game events
 	BasePlayerController->OnPLayerDeath.RemoveAll(this);
 	BasePlayerController->OnCollisionWithEndPortal.RemoveAll(this);
