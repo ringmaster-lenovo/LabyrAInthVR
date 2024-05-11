@@ -5,12 +5,14 @@
 
 #include "WidgetContainer.h"
 #include "LobbyWidget.h"
+#include "DemoTooltipWidget.h"
 #include "LoadLevelsWidget.h"
 #include "SpeedWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/VerticalBox.h"
 #include "Components/TextBlock.h"
+#include "CoreMinimal.h"
 #include "LabyrAInthVR/Core/LabyrAInthVRGameInstance.h"
 #include "LabyrAInthVR/Core/VRGameMode.h"
 
@@ -34,19 +36,40 @@ void AWidgetController::BeginPlay()
 	AVRGameMode* GameMode = Cast<AVRGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	bIsInVR = GameMode->IsInVR();
 	
-	AWidgetContainer* FoundWidgetContainer = Cast<AWidgetContainer>(
-		UGameplayStatics::GetActorOfClass(GetWorld(), AWidgetContainer::StaticClass()));
-	if (FoundWidgetContainer)
+	// AWidgetContainer* FoundWidgetContainer = Cast<AWidgetContainer>(
+	// 	UGameplayStatics::GetActorOfClass(GetWorld(), AWidgetContainer::StaticClass()));
+	// if (FoundWidgetContainer)
+	// {
+	// 	WidgetContainer = FoundWidgetContainer;
+	// 	WidgetContainer->bIsInVR = bIsInVR;
+	// 	WidgetContainer->WidgetController = this;
+	// }
+	// else
+	// {
+	// 	UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("WidgetContainer not found!"));
+	// 	OnWidgetSError.Broadcast();
+	// }
+	TArray<AActor*> FoundWidgets;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWidgetContainer::StaticClass(), FoundWidgets);
+
+	for (AActor* Actor : FoundWidgets)
 	{
-		WidgetContainer = FoundWidgetContainer;
-		WidgetContainer->bIsInVR = bIsInVR;
-		WidgetContainer->WidgetController = this;
+		AWidgetContainer* FoundWidgetContainer = Cast<AWidgetContainer>(Actor);
+		if (FoundWidgetContainer)
+		{
+			if (FoundWidgetContainer->GetActorLabel().Contains("LobbyWidgetContainer"))
+			{
+				WidgetContainer = FoundWidgetContainer;
+				WidgetContainer->bIsInVR = bIsInVR;
+				WidgetContainer->WidgetController = this;
+			}
+			else if (FoundWidgetContainer->GetActorLabel().Contains("DemoWidgetContainer"))
+			{
+				WidgetContainerTooltip = FoundWidgetContainer;
+			}
+		}
 	}
-	else
-	{
-		UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("WidgetContainer not found!"));
-		OnWidgetSError.Broadcast();
-	}
+
 }
 
 // Called every frame
@@ -77,6 +100,52 @@ void AWidgetController::ShowLobbyUI()
 	} else
 	{
 		ShowPromptingWidget();
+	}
+}
+
+void AWidgetController::ShowDemoTooltip()
+{
+	if(DemoTooltipWidgetClass)
+	{
+		DemoTooltipWidget = Cast<UDemoTooltipWidget>(WidgetContainerTooltip->Widget->GetUserWidgetObject());
+		if(!DemoTooltipWidget)
+		{
+			FString ErrorString = "No DemoTooltipWidget!";
+			UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
+			OnWidgetSError.Broadcast();
+		}
+		if(!bIsInVR)
+		{
+			FText Text1 = FText::FromString(TEXT("- Press 'F' to switch the torch"));
+			FText Text2 = FText::FromString(TEXT("- Press 'E' to pick the weapon on your left"));
+			FText Text3 = FText::FromString(TEXT("- Shoot and kill the enemy in front of you"));
+			FText Text4 = FText::FromString(TEXT("- Press 'SHIFT' to run through the portal"));
+			DemoTooltipWidget->Text1->SetText(Text1);
+			DemoTooltipWidget->Text2->SetText(Text2);
+			DemoTooltipWidget->Text3->SetText(Text3);
+			DemoTooltipWidget->Text4->SetText(Text4);
+			DemoTooltipWidget->Text5->SetVisibility(ESlateVisibility::Collapsed);
+			DemoTooltipWidget->Text6->SetVisibility(ESlateVisibility::Collapsed);
+			DemoTooltipWidget->Text7->SetVisibility(ESlateVisibility::Collapsed);
+		} else
+		{
+			FText Text1 = FText::FromString(TEXT("- Press 'X' to open the statistics on your "));
+			FText Text2 = FText::FromString(TEXT("  left hand"));
+			FText Text3 = FText::FromString(TEXT("- Press 'A' to open the menu on your right hand"));
+			FText Text4 = FText::FromString(TEXT("- Press 'B' to switch the torch"));
+			FText Text5 = FText::FromString(TEXT("- Grab the weapon on your right"));
+			FText Text6 = FText::FromString(TEXT("- Shoot and kill the enemy in front of you"));
+			FText Text7 = FText::FromString(TEXT("- Press the right thumbstick to run "));
+			FText Text8 = FText::FromString(TEXT("  through the portal"));
+			DemoTooltipWidget->Text1->SetText(Text1);
+			DemoTooltipWidget->Text2->SetText(Text2);
+			DemoTooltipWidget->Text3->SetText(Text3);
+			DemoTooltipWidget->Text4->SetText(Text4);
+			DemoTooltipWidget->Text5->SetText(Text5);
+			DemoTooltipWidget->Text6->SetText(Text6);
+			DemoTooltipWidget->Text7->SetText(Text7);
+			DemoTooltipWidget->Text8->SetText(Text8);
+		}
 	}
 }
 

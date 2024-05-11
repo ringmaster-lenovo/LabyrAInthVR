@@ -12,6 +12,7 @@
 #include "MenuWidget.h"
 #include "SettingsWidget.h"
 #include "LoadingWidget.h"
+#include "DemoTooltipWidget.h"
 #include "WinWidget.h"
 #include "LoseWidget.h"
 #include "StatisticsWidget.h"
@@ -46,7 +47,13 @@ public:
 	TSubclassOf<AWidgetContainer> WidgetContainerClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<AWidgetContainer> WidgetTooltipContainerClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<ULobbyWidget> LobbyWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UDemoTooltipWidget> DemoTooltipWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<UPromptingWidget> PromptingWidgetClass;
@@ -103,6 +110,9 @@ public:
 	USpeedWidget* SpeedWidget = nullptr;
 
 	UPROPERTY()
+	UDemoTooltipWidget* DemoTooltipWidget = nullptr;
+
+	UPROPERTY()
 	USlowWidget* SlowWidget = nullptr;
 	
 	UPROPERTY()
@@ -140,6 +150,9 @@ public:
 
 	UPROPERTY()
 	AWidgetContainer* WidgetContainer = nullptr;
+
+	UPROPERTY()
+	AWidgetContainer* WidgetContainerTooltip = nullptr;
 
 	DECLARE_MULTICAST_DELEGATE(FPlayGameEvent);
 	FPlayGameEvent OnPlayGameButtonClicked;
@@ -182,6 +195,9 @@ public:
 
 	UFUNCTION(Category = "Widgets")
 	void ShowGameUI();
+
+	UFUNCTION(Category = "Widgets")
+	void ShowDemoTooltip();
 
 	UFUNCTION(Category = "Widgets")
 	void ShowWinScreen(int32 TimeOnLevel);

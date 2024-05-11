@@ -173,6 +173,8 @@ void AVRGameMode::PlayerWantsToPlayDemo()
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
 
 	bIsDemo = true;
+
+	WidgetController->ShowDemoTooltip();
 	
 	// unbind all main menu events
 	WidgetController->OnPlayGameButtonClicked.RemoveAll(this);
