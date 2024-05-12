@@ -42,6 +42,15 @@ void UMenuWidget::NativeConstruct()
 	WidgetController = Cast<AWidgetController>(UGameplayStatics::GetActorOfClass(GetWorld(), AWidgetController::StaticClass()));
 }
 
+void UMenuWidget::SetFocusToButton()
+{
+	if (MainMenuButton)
+	{
+		MainMenuButton->bIsFocusable = true;
+		MainMenuButton->SetKeyboardFocus();
+	}
+}
+
 void UMenuWidget::OnSettingsClicked()
 {
 	if (WidgetController)

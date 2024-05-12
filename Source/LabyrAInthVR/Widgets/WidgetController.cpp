@@ -138,6 +138,8 @@ void AWidgetController::ShowMainMenu()
 
 				PlayerController->SetInputMode(InputMode);
 				PlayerController->bShowMouseCursor = true;
+
+				LobbyWidget->SetFocusToButton();
 				// set the background color of the widget
 				// LobbyWidget->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.5f));
 				LobbyWidget->AddToViewport(0);
@@ -164,6 +166,7 @@ void AWidgetController::ShowPromptingWidget()
 					OnWidgetSError.Broadcast();
 				}
 				PromptingWidget->WidgetController = this;
+				PromptingWidget->SetFocusToFirstInteractiveElement();
 			} else {
 				FString ErrorString = "No VRPromptingWidgetClass set!";
 				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
@@ -184,6 +187,8 @@ void AWidgetController::ShowPromptingWidget()
 
 				PlayerController->SetInputMode(InputMode);
 				PlayerController->bShowMouseCursor = true;
+
+				PromptingWidget->SetFocusToFirstInteractiveElement();
 				// set the background color of the widget
 				// LobbyWidget->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.5f));
 				PromptingWidget->AddToViewport(0);
@@ -288,6 +293,7 @@ void AWidgetController::ShowWinScreen(const int32 TimeOnLevel)
 				PlayerController->bShowMouseCursor = true;
 				WinWidget->SetTime(TimeOnLevel);
 				WinWidget->WidgetController = this;
+				WinWidget->SetFocusToButton();
 				WinWidget->AddToViewport(0);
 			} else {
 				FString ErrorString = "No WinWidgetClass set!";
@@ -339,6 +345,7 @@ void AWidgetController::ShowLoseScreen(const bool bIsPlayerDead)
 
 				PlayerController->SetInputMode(InputMode);
 				PlayerController->bShowMouseCursor = true;
+				LoseWidget->SetFocusToButton();
 				LoseWidget->AddToViewport(0);
 			} else {
 				FString ErrorString = "No LoseWidgetClass set!";
@@ -467,6 +474,14 @@ void AWidgetController::ReplayContinueButtonClicked()
 					WidgetContainer->Widget->SetWidget(LoadLevelsWidget);
 				} else
 				{
+					FInputModeUIOnly InputMode;
+					InputMode.SetWidgetToFocus(LoadLevelsWidget->TakeWidget());
+					InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+					PlayerController->SetInputMode(InputMode);
+					PlayerController->bShowMouseCursor = true;
+					
+					LoadLevelsWidget->SetFocusToButton();
 					LoadLevelsWidget->AddToViewport(0);
 
 				}
@@ -584,6 +599,7 @@ void AWidgetController::OnPauseGamePressed()
 					
 					PlayerController->SetInputMode(InputMode);
 					PlayerController->bShowMouseCursor = true;
+					MenuWidget->SetFocusToButton();
 					MenuWidget->AddToViewport(0);
 					OnPauseGameEvent.Broadcast();
 				}

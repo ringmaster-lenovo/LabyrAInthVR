@@ -32,6 +32,14 @@ void UPromptingWidget::NativeConstruct()
 	}
 }
 
+void UPromptingWidget::SetFocusToFirstInteractiveElement()
+{
+	if (PlayerNameTextBox)
+		{
+			PlayerNameTextBox->SetKeyboardFocus();
+		}
+}
+
 void UPromptingWidget::OnSendClicked()
 {
 	if (PlayerNameTextBox)

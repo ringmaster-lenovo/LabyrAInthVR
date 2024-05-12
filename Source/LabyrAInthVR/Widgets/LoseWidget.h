@@ -31,6 +31,9 @@ public:
 	class UUserWidget* MainMenuButton;
 
 	UFUNCTION()
+	void SetFocusToButton();
+
+	UFUNCTION()
 	void OnRestartClicked();
 
 	UFUNCTION()

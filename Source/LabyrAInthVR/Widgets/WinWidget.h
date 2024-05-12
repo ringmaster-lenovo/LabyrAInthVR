@@ -34,6 +34,9 @@ public:
 	void OnNextLevelClicked();
 
 	UFUNCTION()
+	void SetFocusToButton();
+	
+	UFUNCTION()
 	void OnMainMenuClicked();
 
 	UFUNCTION()
