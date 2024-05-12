@@ -243,7 +243,7 @@ void UPlayerStatistics::ResetThisPowerUpSpeedModifier(EStatModifier Stat, float 
 	{
 	case Esm_Speed:
 		UE_LOG(LabyrAInthVR_PlayerStatistics_Log, Display, TEXT("%s -> Resetting Speed modifier from %f to %f"), *GetName(), SpeedPowerupModifier, 0.f)
-		SpeedPowerupModifier -= Amount;
+		SpeedPowerupModifier = 0;
 		UpdateSpeed();
 		break;
 	default: ;
