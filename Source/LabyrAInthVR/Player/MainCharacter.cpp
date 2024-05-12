@@ -120,7 +120,7 @@ void AMainCharacter::Shoot(const FInputActionValue& Value, bool bIsPressingShoot
 	if (!IsValid(EquippedWeapon)) return;
 
 	EquippedWeapon->SetMainCharacter(this);
-	EquippedWeapon->Shoot(bIsPressingShoot);
+	EquippedWeapon->Shoot();
 }
 
 void AMainCharacter::ToggleFlashlight(const FInputActionValue& Value)

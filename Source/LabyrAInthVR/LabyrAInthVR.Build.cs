@@ -11,7 +11,7 @@ public class LabyrAInthVR : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", 
 			"HeadMountedDisplay", "EnhancedInput", "AIModule", "Niagara", "UMG", "NavigationSystem", "PlayerStatistics",});
 
-		PrivateDependencyModuleNames.AddRange(new string[]{ "HTTP", "Json", "JsonUtilities", "XRBase", });
+		PrivateDependencyModuleNames.AddRange(new string[]{ "HTTP", "Json", "JsonUtilities", "XRBase", "CommonInput", });
 		
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

@@ -21,6 +21,7 @@ void UPlayerStatistics::BeginPlay()
 	if (!IsValid(MainCharacter) || !IsValid(MainCharacter->GetCharacterMovement())) return;
 	MainCharacter->GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	CurrentSpeed = WalkSpeed;
+	Health = DefaultHealth;
 }
 
 void UPlayerStatistics::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

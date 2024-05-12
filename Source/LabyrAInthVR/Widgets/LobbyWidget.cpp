@@ -3,7 +3,7 @@
 
 #include "LobbyWidget.h"
 
-#include "Kismet/KismetSystemLibrary.h"
+#include "Components/EditableText.h"
 #include "Components/Button.h"
 #include "WidgetController.h"
 
@@ -67,6 +67,16 @@ void ULobbyWidget::NativeConstruct()
 		}
 	}
 }
+
+void ULobbyWidget::SetFocusToButton()
+{
+	if (NewGameButton)
+	{
+		NewGameButton->bIsFocusable = true;
+		NewGameButton->SetKeyboardFocus();
+	}
+}
+
 
 void ULobbyWidget::OnStartNewGameButtonClicked()
 {

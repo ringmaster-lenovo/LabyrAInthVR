@@ -35,6 +35,15 @@ void UWinWidget::NativeConstruct()
 	}
 }
 
+void UWinWidget::SetFocusToButton()
+{
+	if (NextLevelButton)
+	{
+		NextLevelButton->bIsFocusable = true;
+		NextLevelButton->SetKeyboardFocus();
+	}
+}
+
 void UWinWidget::SetTime(int32 time)
 {
 	int32 currentMinutes = time / 60;

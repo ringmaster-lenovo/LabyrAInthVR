@@ -256,6 +256,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Widgets")
 	void RemoveSlowWidget();
 
+	UFUNCTION(Category = "Widgets")
+	bool IsUsingGamepad();
+
 private:
 	FTimerHandle RemoveSlowWidgetTimerHandle;
 };
