@@ -17,6 +17,8 @@
 #include "StatisticsWidget.h"
 #include "ButtonWidget.h"
 #include "DamageWidget.h"
+#include "SlowWidget.h"
+#include "SpeedWidget.h"
 #include "WidgetController.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Widget_Log, Display, All);
@@ -50,6 +52,12 @@ public:
 	TSubclassOf<UPromptingWidget> PromptingWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<ULobbyWidget> VRLobbyWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UPromptingWidget> VRPromptingWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<UMenuWidget> MenuWidgetClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
@@ -68,7 +76,16 @@ public:
 	TSubclassOf<ULoseWidget> LoseWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UWinWidget> VRWinWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<ULoseWidget> VRLoseWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<ULoadLevelsWidget> LoadLevelsWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<ULoadLevelsWidget> VRLoadLevelsWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<UButtonWidget> ButtonWidgetClass;
@@ -76,6 +93,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<UDamageWidget> DamageWidgetClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<USpeedWidget> SpeedWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<USlowWidget> SlowWidgetClass;
+	
+	UPROPERTY()
+	USpeedWidget* SpeedWidget = nullptr;
+
+	UPROPERTY()
+	USlowWidget* SlowWidget = nullptr;
+	
 	UPROPERTY()
 	UDamageWidget* DamageWidget = nullptr;
 	
@@ -115,8 +144,8 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FPlayGameEvent);
 	FPlayGameEvent OnPlayGameButtonClicked;
 
-	DECLARE_MULTICAST_DELEGATE(FRankingsEvent);
-	FRankingsEvent OnRankingsButtonClicked;
+	DECLARE_MULTICAST_DELEGATE(FPlayDemoEvent);
+	FPlayDemoEvent OnPlayDemoButtonClicked;
 
 	DECLARE_MULTICAST_DELEGATE(FQuitGameEvent);
 	FQuitGameEvent OnQuitGameButtonClicked;
@@ -175,14 +204,11 @@ public:
 	UFUNCTION(Category = "Widgets")
 	void ReplayContinueButtonClicked();
 
-	// UFUNCTION(Category = "Widgets")
-	// void LoadLevelFromIndex();
+	UFUNCTION(Category = "Widgets")
+	void PlayDemoButtonClicked();
 
 	UFUNCTION(Category = "Widgets")
 	void NextLevelButtonClicked() const;
-
-	UFUNCTION(Category = "Widgets")
-	void RankingsButtonClicked() const;
 
 	UFUNCTION(Category = "Widgets")
 	void SettingsButtonClicked();
@@ -198,4 +224,22 @@ public:
 
 	UFUNCTION(Category = "Widgets")
 	void SendButtonClicked();
+
+	UFUNCTION(Category = "Widgets")
+	void ClearStatisticsTimer();
+	
+	UFUNCTION(BlueprintCallable, Category = "Widgets")
+	void SetSpeedWidget(float Timer);
+
+	UFUNCTION(BlueprintCallable, Category = "Widgets")
+	void RemoveSpeedWidget();
+
+	UFUNCTION(BlueprintCallable, Category = "Widgets")
+	void SetSlowWidget();
+
+	UFUNCTION(BlueprintCallable, Category = "Widgets")
+	void RemoveSlowWidget();
+
+private:
+	FTimerHandle RemoveSlowWidgetTimerHandle;
 };

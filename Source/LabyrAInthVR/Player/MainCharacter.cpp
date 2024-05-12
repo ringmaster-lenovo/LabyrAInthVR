@@ -61,6 +61,12 @@ float AMainCharacter::GetWeaponDamage()
 	return EquippedWeapon->GetDamage();
 }
 
+float AMainCharacter::GetWeaponDamageLeft()
+{
+	if (!IsValid(EquippedWeaponLeft)) return 0.f;
+	return EquippedWeaponLeft->GetDamage();
+}
+
 bool AMainCharacter::IsAlive()
 {
 	if (!IsValid(PlayerStats)) return false;
@@ -114,7 +120,7 @@ void AMainCharacter::Shoot(const FInputActionValue& Value, bool bIsPressingShoot
 	if (!IsValid(EquippedWeapon)) return;
 
 	EquippedWeapon->SetMainCharacter(this);
-	EquippedWeapon->Shoot(bIsPressingShoot);
+	EquippedWeapon->Shoot();
 }
 
 void AMainCharacter::ToggleFlashlight(const FInputActionValue& Value)

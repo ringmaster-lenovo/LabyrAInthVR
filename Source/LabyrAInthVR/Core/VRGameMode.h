@@ -30,11 +30,21 @@ class LABYRAINTHVR_API AVRGameMode : public AGameModeBase
 public:
 	AVRGameMode();
 
+	UFUNCTION(BlueprintCallable)
+	AWidgetController* GetWidgetController()
+	{
+		return WidgetController;
+	}
+
 protected:
 	virtual void BeginPlay() override;
 
 private:
 	bool bIsVRHMDConnected;
+
+	bool bIsDemo;
+
+	FTimerHandle RestartDelay;
 	
 	UPROPERTY()
 	ABasePlayerController* BasePlayerController;
@@ -88,6 +98,9 @@ private:
 	void PlayerWantsToPlayGame();
 
 	UFUNCTION()
+	void PlayerWantsToPlayDemo();
+
+	UFUNCTION()
 	void MockNetwork();
 	
 	UFUNCTION()
@@ -104,6 +117,8 @@ private:
 
 	UFUNCTION()
 	void RestartGame();
+
+	void RestartGameAfterDelay();
 
 	UFUNCTION()
 	void RePrepareGame(bool bComeBackToLobby = true);

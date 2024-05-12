@@ -37,8 +37,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UBorder* shield;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UOverlay* freeze;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Statistics")
+	bool isFrozen;
+
+	UFUNCTION(BlueprintCallable, Category = "Statistics")
+	bool GetIsFrozen() const { return isFrozen; }
+
 	UFUNCTION(BlueprintCallable)
-	void SetStatisticsValues(int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage);
+	void SetStatisticsValues(int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentagebool, bool bIsFrozen);
 
 	int32 time = 0;
 

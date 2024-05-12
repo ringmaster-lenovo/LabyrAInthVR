@@ -36,9 +36,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* LoadGameButton;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UUserWidget* RankingsButton;
+	class UUserWidget* PlayDemoButton;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* SettingsButton;
@@ -50,10 +50,10 @@ public:
 	void OnStartNewGameButtonClicked();
 
 	UFUNCTION()
-	void OnReplayContinueButtonClicked();
+	void OnPlayDemoButtonClicked();
 
 	UFUNCTION()
-	void OnRankingsClicked();
+	void OnReplayContinueButtonClicked();
 
 	UFUNCTION()
 	void OnSettingsClicked();

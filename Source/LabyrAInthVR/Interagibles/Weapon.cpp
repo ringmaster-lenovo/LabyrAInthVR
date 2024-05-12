@@ -24,32 +24,15 @@ void AWeapon::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AWeapon::Shoot(bool bIsPressingShoot)
+void AWeapon::Shoot()
 {
-	UE_LOG(LabyrAInthVR_Weapon_Log, Display, TEXT("%d"), bIsPressingShoot);
-
-	bIsPressingShootButton = bIsPressingShoot;
-
-	if (!bCanShoot || !bIsPressingShootButton) return;
-
-	switch (WeaponType)
-	{
-	case EWeaponType::Ewt_Classic:
-		ShootInternal();
-		bCanShoot = true;
-		break;
-	case EWeaponType::Ewt_SemiAuto:
-		ShootInternal();
-		BulletsFired++;
-		GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &ThisClass::HandleBurstShooting, FireRate,
+	if (!bCanShoot && bShouldDelayInput) return;
+	
+	ShootInternal();
+	bCanShoot = false;
+	
+	if(bShouldDelayInput) GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &ThisClass::ResetShooting, FireRate,
 		                                false);
-		bCanShoot = false;
-		break;
-	case EWeaponType::Ewt_FullAuto:
-		HandleAutomaticShooting();
-		break;
-	default: ;
-	}
 }
 
 void AWeapon::Destroyed()
@@ -93,40 +76,33 @@ void AWeapon::ShootInternal()
 	if (IsValid(FireSound)) UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 }
 
-void AWeapon::HandleBurstShooting()
-{
-	ShootInternal();
-	BulletsFired++;
-
-	if(BulletsFired == BulletsPerBurst)
-	{
-		GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &ThisClass::ResetShooting, FireRate + PostBurstDelay,
-							false);
-		return;
-	}
-	
-	GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &ThisClass::HandleBurstShooting, FireRate,
-								false);
-}
-
-void AWeapon::HandleAutomaticShooting()
-{
-	if (bIsPressingShootButton)
-	{
-		ShootInternal();
-		GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &ThisClass::HandleAutomaticShooting, FireRate,
-									false);
-	}
-}
-
 void AWeapon::ResetShooting()
 {
 	bCanShoot = true;
-	BulletsFired = 0;
 }
-void AWeapon::AssignToPlayer()
+void AWeapon::AssignToPlayerRight()
 {
 	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	Character->SetEquippedWeapon(this);
+	
+}
+
+void AWeapon::RemoveFromPlayerRight()
+{
+	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	Character->SetEquippedWeapon(nullptr);
+}
+
+void AWeapon::AssignToPlayerLeft()
+{
+	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	Character->SetEquippedWeaponLeft(this);
+	
+}
+
+void AWeapon::RemoveFromPlayerLeft()
+{
+	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	Character->SetEquippedWeaponLeft(nullptr);
 }
 

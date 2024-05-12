@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundBase.h"
 #include "MusicController.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_Music_Log, Display, All);
@@ -35,6 +37,9 @@ public:
 	void StartCombatMusic();
 
 	UFUNCTION(BlueprintImplementableEvent, Category=Music)
+	void StartClockTick();
+
+	UFUNCTION(BlueprintImplementableEvent, Category=Music)
 	void StopCombatMusic();
 
 	UFUNCTION(BlueprintImplementableEvent, Category=Music)
@@ -42,6 +47,15 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category=Music)
 	void SetMusicVolume(float Volume);
+
+	UFUNCTION(BlueprintCallable)
+	void PlayClockSound(int32 seconds);
+
+	UFUNCTION(BlueprintCallable)
+	void StopClockSound();
+
+	UFUNCTION(BlueprintCallable)
+	void ResetVolumeMultiplier();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Music)
 	bool bIsMusicPlaying = false;
@@ -51,4 +65,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Music)
 	float MusicVolume = 1.0f;
+	
+	float DefaultCurrentVolumeMultiplier = 0.0f;
+
+	float CurrentVolumeMultiplier = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Audio")
+	UAudioComponent* AudioComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+	USoundBase* ClockSound;
 };

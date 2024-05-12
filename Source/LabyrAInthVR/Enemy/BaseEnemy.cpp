@@ -301,8 +301,8 @@ void ABaseEnemy::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamage
 		GetWorldTimerManager().ClearTimer(FreezingTimerHandle);
 		CustomTimeDilation = 1.f;
 	}
-	
-	GetWorldTimerManager().ClearTimer(PatrollingTimerHandle);
+
+	GetWorldTimerManager().ClearAllTimersForObject(this);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AIController->StopMovement();

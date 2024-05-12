@@ -6,6 +6,7 @@
 #include "PlayerStatsSubSystem.h"
 #include "WidgetController.h"
 #include "Components/Border.h"
+#include "Components/Overlay.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "Kismet/GameplayStatics.h"
@@ -21,6 +22,8 @@ void UStatisticsWidget::NativeConstruct()
     {
         UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("Main character or Player statistics not valid from widget"))
     }
+
+    StartTimer(MainCharacter->GetPlayerStatistics()->GetLevelTimer());
 }
 
 void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -32,16 +35,32 @@ void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
         UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("Main character or Player statistics not valid from widget"))
     }
 
-    StartTimer(MainCharacter->GetPlayerStatistics()->GetLevelTimer());
+    float TotalDamage = 0;
+
+    if(MainCharacter->GetEquippedWeaponLeft() && MainCharacter->GetEquippedWeapon())
+    {
+        //We have 2 weapons, sum left and right damages
+        TotalDamage = MainCharacter->GetWeaponDamageLeft() + MainCharacter->GetWeaponDamage();
+    } else if(MainCharacter->GetEquippedWeaponLeft())
+    {
+        //Only left weapon
+        TotalDamage = MainCharacter->GetWeaponDamageLeft();
+    } else if(MainCharacter->GetEquippedWeapon())
+    {
+        //Only right weapon
+        TotalDamage = MainCharacter->GetWeaponDamage();
+    }
     
     SetStatisticsValues(
         MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Speed),
         MainCharacter->GetPlayerStatistics()->HasShield(),
-        MainCharacter->GetWeaponDamage(),
-        MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Health) / MainCharacter->GetPlayerStatistics()->GetDefaultHealth());
+        TotalDamage,
+        MainCharacter->GetPlayerStatistics()->GetStat<float>(Esm_Health) / MainCharacter->GetPlayerStatistics()->GetDefaultHealth(),
+        MainCharacter->IsFrozen()
+    );
 }
 
-void UStatisticsWidget::SetStatisticsValues(int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage)
+void UStatisticsWidget::SetStatisticsValues(int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage, bool bIsFrozen)
 {
     // if (CurrentTime)
     // {
@@ -82,12 +101,19 @@ void UStatisticsWidget::SetStatisticsValues(int SpeedValue, bool bHasShield, int
     if (shield)
     {
         shield->SetVisibility(bHasShield ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+        
+    }
+
+    if (freeze)
+    {
+        isFrozen =  bIsFrozen;
+        freeze->SetVisibility(bIsFrozen ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
     }
 }
 
 void UStatisticsWidget::UpdateTimer()
 {
-    ++CurrentTimeInSeconds;
+    --CurrentTimeInSeconds;
 
     int32 currentMinutes = CurrentTimeInSeconds / 60;
     int32 currentSeconds = CurrentTimeInSeconds % 60;
@@ -113,7 +139,10 @@ void UStatisticsWidget::StartTimer(int32 InitialTimeInSeconds)
     if (!GetWorld()) return; // Ensure we have a valid world context before starting the timer
 
 	UpdateTimer();
-    GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UStatisticsWidget::UpdateTimer, TimerInterval, true, 1.0f);
+    if (!GetWorld()->GetTimerManager().IsTimerActive(TimerHandle))
+    {
+        GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UStatisticsWidget::UpdateTimer, TimerInterval, true, 1.0f);
+    }
 }
 
 //Stop timer function to call when the pause is called
