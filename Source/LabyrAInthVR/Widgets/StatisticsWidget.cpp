@@ -22,8 +22,13 @@ void UStatisticsWidget::NativeConstruct()
     {
         UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("Main character or Player statistics not valid from widget"))
     }
-
-    StartTimer(MainCharacter->GetPlayerStatistics()->GetLevelTimer() + 1);
+    if (MainCharacter->IsA(AVRMainCharacter::StaticClass()))
+    {
+        StartTimer(MainCharacter->GetPlayerStatistics()->GetLevelTimer());
+    } else
+    {
+        StartTimer(MainCharacter->GetPlayerStatistics()->GetLevelTimer() + 1);
+    }
 }
 
 void UStatisticsWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
