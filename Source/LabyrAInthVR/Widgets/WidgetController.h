@@ -101,6 +101,9 @@ public:
 	TSubclassOf<UDamageWidget> DamageWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UDamageWidget> DamageWidgetClassVR;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<USpeedWidget> SpeedWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
@@ -224,7 +227,7 @@ public:
 	void PlayDemoButtonClicked();
 
 	UFUNCTION(Category = "Widgets")
-	void NextLevelButtonClicked() const;
+	void NextLevelButtonClicked(UButtonWidget* Button);
 
 	UFUNCTION(Category = "Widgets")
 	void SettingsButtonClicked();
