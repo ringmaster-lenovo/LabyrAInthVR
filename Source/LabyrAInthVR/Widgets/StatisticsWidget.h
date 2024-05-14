@@ -26,6 +26,9 @@ public:
 	class UTextBlock* seconds;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UTextBlock* Separator;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* speed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
@@ -34,8 +37,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UProgressBar* health;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UBorder* shield;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UOverlay* freeze;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Statistics")
+	bool isFrozen;
+
+	UFUNCTION(BlueprintCallable, Category = "Statistics")
+	bool GetIsFrozen() const { return isFrozen; }
+
 	UFUNCTION(BlueprintCallable)
-	void SetStatisticsValues(int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentage);
+	void SetStatisticsValues(int SpeedValue, bool bHasShield, int DamageValue, float HealthPercentagebool, bool bIsFrozen);
 
 	int32 time = 0;
 
@@ -48,10 +63,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StopTimer();
 
+	UFUNCTION(BlueprintCallable)
+	void PauseLevelTimer();
+
+	UFUNCTION(BlueprintCallable)
+	void ResumeLevelTimer();
+
 	UPROPERTY()
 	AMainCharacter* MainCharacter;
 private:
+	
     FTimerHandle TimerHandle;
     int32 CurrentTimeInSeconds = 0;
+	float RemainingTime = 0.0f;
+	bool bIsTimerPaused = false;
 	
 };

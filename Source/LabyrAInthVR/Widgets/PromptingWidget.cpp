@@ -32,6 +32,14 @@ void UPromptingWidget::NativeConstruct()
 	}
 }
 
+void UPromptingWidget::SetFocusToFirstInteractiveElement()
+{
+	if (PlayerNameTextBox)
+		{
+			PlayerNameTextBox->SetKeyboardFocus();
+		}
+}
+
 void UPromptingWidget::OnSendClicked()
 {
 	if (PlayerNameTextBox)
@@ -52,6 +60,7 @@ void UPromptingWidget::OnSendClicked()
 		}
 		FText PlayerName = PlayerNameTextBox->GetText();
 		FString PlayerNameString = PlayerName.ToString();
+		PlayerNameString = PlayerNameString.TrimStartAndEnd();
 		//Check if player name already exists
 		TArray<FString> PlayerNames;
 		ULabyrAInthVRGameInstance::LoadPlayerNames(PlayerNames);
@@ -65,6 +74,7 @@ void UPromptingWidget::OnSendClicked()
 				// Check if ErrorText is valid and then make it visible
 				if (ErrorText)
 				{
+					ErrorText->SetText(FText::FromString(ErrorString));
 					ErrorText->SetVisibility(ESlateVisibility::Visible);
 				}
 			}
@@ -79,7 +89,7 @@ void UPromptingWidget::OnSendClicked()
 			
 
 				// Log the name to the output log
-				UE_LOG(LogTemp, Warning, TEXT("Player Name: %s"), *PlayerNameString);
+				UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Player Name: %s"), *PlayerNameString);
 			} 
 		} else
 		{
@@ -100,6 +110,6 @@ void UPromptingWidget::OnSendClicked()
 	else
 	{
 		// Optionally log an error or handle the case where PlayerNameTextBox is not valid
-		UE_LOG(LogTemp, Warning, TEXT("PlayerNameTextBox is not valid."));
+		UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("PlayerNameTextBox is not valid."));
 	}
 }

@@ -61,6 +61,12 @@ float AMainCharacter::GetWeaponDamage()
 	return EquippedWeapon->GetDamage();
 }
 
+float AMainCharacter::GetWeaponDamageLeft()
+{
+	if (!IsValid(EquippedWeaponLeft)) return 0.f;
+	return EquippedWeaponLeft->GetDamage();
+}
+
 bool AMainCharacter::IsAlive()
 {
 	if (!IsValid(PlayerStats)) return false;
@@ -80,7 +86,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Canceled, this, &ThisClass::Sprint, false);
 		EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Completed, this, &ThisClass::Sprint, false);
 		
-		EnhancedInputComponent->BindAction(ShootInputAction, ETriggerEvent::Triggered, this, &ThisClass::Shoot);
+		EnhancedInputComponent->BindAction(ShootInputAction, ETriggerEvent::Started, this, &ThisClass::Shoot, true);
 	}
 }
 
@@ -107,26 +113,12 @@ void AMainCharacter::Sprint(const FInputActionValue& Value, bool bSprint)
 	PlayerStats->Sprint(bSprint);
 }
 
-void AMainCharacter::Shoot(const FInputActionValue& Value)
+void AMainCharacter::Shoot(const FInputActionValue& Value, bool bIsPressingShoot)
 {
-	if (!IsValid(EquippedWeapon) || !IsValid(EquippedWeapon->GetMuzzleEffect())) return;
-	
-	USkeletalMeshComponent* WeaponMesh = EquippedWeapon->FindComponentByClass<USkeletalMeshComponent>();
-	
-	if (!IsValid(WeaponMesh)) return;
+	if (!IsValid(EquippedWeapon)) return;
 
-	FVector Start = WeaponMesh->GetSocketTransform(FName("Muzzle_Front")).GetLocation();
-	
-	FVector End = Start + (EquippedWeapon->GetActorForwardVector() * 50000.f);
-	
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.Instigator = this;
-	SpawnParameters.Owner = this;
-	if (IsValid(EquippedWeapon->GetAnimation())) WeaponMesh->PlayAnimation(EquippedWeapon->GetAnimation(), false);
-	UGameplayStatics::SpawnEmitterAttached(EquippedWeapon->GetMuzzleEffect(), WeaponMesh, FName("Muzzle_Front"));
-	AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(EquippedWeapon->GetProjectileTemplate(), Start, End.Rotation(), SpawnParameters);
-	if (!IsValid(SpawnedProjectile)) return;
-	SpawnedProjectile->SetDamage(EquippedWeapon->GetDamage());
+	EquippedWeapon->SetMainCharacter(this);
+	EquippedWeapon->Shoot();
 }
 
 void AMainCharacter::ToggleFlashlight(const FInputActionValue& Value)

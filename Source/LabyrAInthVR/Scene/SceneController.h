@@ -25,6 +25,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	FString SetupLevel(ULabyrinthDTO* LabyrinthDTO);
+	
+	FString SetupDemoLevel();
 
 	FString CleanUpOnlyLevel() const;
 	
@@ -35,14 +37,16 @@ public:
 	DECLARE_MULTICAST_DELEGATE(FSceneReadyEvent);
 	FSceneReadyEvent OnSceneReady;
 
-	DECLARE_MULTICAST_DELEGATE(FSceneReadyEvent);
-	FSceneReadyEvent OnSceneCleanedUp;
+	DECLARE_MULTICAST_DELEGATE(FSceneCleanedUpEvent);
+	FSceneCleanedUpEvent OnSceneCleanedUp;
 
 	DECLARE_MULTICAST_DELEGATE(FRespawnActorsEvent);
 	FRespawnActorsEvent OnActorsRespawned;
 
 	UFUNCTION()
 	void GetPlayerStartPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
+
+	void GetPlayerDemoStartPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
 
 	void FreezeAllActors(bool bFreeze);
 	

@@ -37,10 +37,12 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 	if (!IsValid(LabyrinthParser_BP) || !IsValid(SpawnManager_BP)) return "LabyrinthParser or SpawnManager not set in SceneController";
 
 	// Instantiate the LabyrinthParser and build the labyrinth
+	if (IsValid(LabyrinthParser)) LabyrinthParser->Destroy();
 	LabyrinthParser = GetWorld()->SpawnActor<ALabyrinthParser>(LabyrinthParser_BP);
 	if (!IsValid(LabyrinthParser)) return "Invalid LabyrinthParserActor";
 
 	// Instantiate the SpawnManager and spawn the actors in the labyrinth
+	if (IsValid(SpawnManager)) SpawnManager->Destroy();
 	SpawnManager = GetWorld()->SpawnActor<ASpawnManager>(SpawnManager_BP);
 	if (!IsValid(SpawnManager)) return "Invalid SpawnManagerActor";
 
@@ -64,19 +66,42 @@ FString ASceneController::SetupLevel(ULabyrinthDTO* LabyrinthDTO)
 	return "";
 }
 
+FString ASceneController::SetupDemoLevel()
+{
+	if (!IsValid(LabyrinthParser_BP) || !IsValid(SpawnManager_BP)) return "LabyrinthParser or SpawnManager not set in SceneController";
+
+	// Instantiate the SpawnManager and spawn the actors in the labyrinth
+	if (IsValid(SpawnManager)) SpawnManager->Destroy();
+	SpawnManager = GetWorld()->SpawnActor<ASpawnManager>(SpawnManager_BP);
+	if (!IsValid(SpawnManager)) return "Invalid SpawnManagerActor";
+
+	SpawnManager->Owner = this;
+
+	FString ErrorMessage = SpawnManager->SpawnActorsInDemoLabyrinth();
+	if (ErrorMessage != "")
+	{
+		return ErrorMessage;
+	}
+
+	OnSceneReady.Broadcast();
+	return "";
+}
+
 FString ASceneController::CleanUpOnlyLevel() const
 {
 	// Get a reference to the game world
+	TArray<AActor*> ActorsSpawned {SpawnedActors};
+	if(IsValid(SpawnManager)) SpawnManager->ClearCompassEffect();
 	const UWorld* World = GetWorld();
 	if (!World)
 	{
 		return "No valid world found";
 	}
 
-	for (int i = SpawnedActors.Num(); i > 0; i--)
+	for (int i = ActorsSpawned.Num(); i > 0; i--)
 	{
-		if (!IsValid(SpawnedActors[i - 1])) continue;
-		SpawnedActors[i - 1]->Destroy();
+		if (!IsValid(ActorsSpawned[i - 1])) continue;
+		ActorsSpawned[i - 1]->Destroy();
 	}
 
 	OnSceneCleanedUp.Broadcast();
@@ -92,7 +117,8 @@ FString ASceneController::CleanUpLevelAndDoStatistics(int& NumOfEnemiesKilled, i
 	{
 		return "No valid world found";
 	}
-
+	TArray<AActor*> ActorsSpawned {SpawnedActors};
+	if(IsValid(SpawnManager)) SpawnManager->ClearCompassEffect();
 	int NumOfEnemiesAlive = 0;
 	int NumOfTrapsActive = 0;
 	int NumOfPowerUpsNotCollected = 0;
@@ -102,26 +128,27 @@ FString ASceneController::CleanUpLevelAndDoStatistics(int& NumOfEnemiesKilled, i
 	int NumOfPowerUpsSpawned = 0;
 	int NumOfWeaponsSpawned = 0;
 	SpawnManager->GetNumOfActorSpawned(NumOfEnemiesSpawned, NumOfTrapsSpawned, NumOfPowerUpsSpawned,NumOfWeaponsSpawned);
-	for (int i = SpawnedActors.Num(); i > 0; i--)
+	for (int i = ActorsSpawned.Num(); i > 0; i--)
 	{
-		if (!IsValid(SpawnedActors[i - 1])) continue;
+		if (!IsValid(ActorsSpawned[i - 1])) continue;
 
-		if (SpawnedActors[i - 1]->IsA<ABaseEnemy>()) NumOfEnemiesAlive++;
-		else if (SpawnedActors[i - 1]->IsA<ATrap>()) NumOfTrapsActive++;
-		else if (SpawnedActors[i - 1]->IsA<APowerUp>()) NumOfPowerUpsNotCollected++;
-		else if (SpawnedActors[i - 1]->IsA<ABasePickup>())
+		if (ActorsSpawned[i - 1]->IsA<ABaseEnemy>()) NumOfEnemiesAlive++;
+		else if (ActorsSpawned[i - 1]->IsA<ATrap>()) NumOfTrapsActive++;
+		else if (ActorsSpawned[i - 1]->IsA<APowerUp>()) NumOfPowerUpsNotCollected++;
+		else if (ActorsSpawned[i - 1]->IsA<ABasePickup>())
 		{
-			ABasePickup* Pickup = Cast<ABasePickup>(SpawnedActors[i - 1]);
+			ABasePickup* Pickup = Cast<ABasePickup>(ActorsSpawned[i - 1]);
 			if (Pickup != nullptr && Pickup->HasBeenFound()) NumOfWeaponsFound++;
 		}
-		else if (SpawnedActors[i - 1]->IsA<AWeapon>())
+		else if (ActorsSpawned[i - 1]->IsA<AWeapon>())
 		{
-			AWeapon* Weapon = Cast<AWeapon>(SpawnedActors[i - 1]);
+			AWeapon* Weapon = Cast<AWeapon>(ActorsSpawned[i - 1]);
 			if (Weapon != nullptr && Weapon->HasBeenFound()) NumOfWeaponsFound++;
 			NumOfWeaponsFound++;
 		}
-		SpawnedActors[i - 1]->Destroy();
+		ActorsSpawned[i - 1]->Destroy();
 	}
+	
 	NumOfEnemiesKilled = NumOfEnemiesSpawned - NumOfEnemiesAlive;
 	NumOfTrapsExploded = NumOfTrapsSpawned - NumOfTrapsActive;
 	NumOfPowerUpsCollected = NumOfPowerUpsSpawned - NumOfPowerUpsNotCollected;
@@ -146,7 +173,7 @@ FString ASceneController::RespawnMovableActors(ULabyrinthDTO* LabyrinthDto) cons
 	{
 		return ErrorMessage;
 	}
-	OnActorsRespawned.Broadcast();
+	// OnActorsRespawned.Broadcast();
 	return "";
 }
 
@@ -154,6 +181,12 @@ void ASceneController::GetPlayerStartPositionAndRotation(FVector& PlayerStartPos
 {
 	PlayerStartPosition = SpawnManager->PlayerStartPosition;
 	PlayerStartRotation = SpawnManager->PlayerStartRotation;
+}
+
+void ASceneController::GetPlayerDemoStartPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const
+{
+	PlayerStartPosition = FVector{-1570,-4550,130};
+	PlayerStartRotation = FRotator{0.f, 0.f, 0.f};
 }
 
 void ASceneController::FreezeAllActors(bool bFreeze)

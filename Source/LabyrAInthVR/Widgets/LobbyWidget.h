@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Button.h"
 #include "LobbyWidget.generated.h"
 
 class AWidgetController;
@@ -36,24 +37,25 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* LoadGameButton;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UUserWidget* RankingsButton;
+	class UUserWidget* PlayDemoButton;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* SettingsButton;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* QuitButton;
+	
 
 	UFUNCTION()
 	void OnStartNewGameButtonClicked();
 
 	UFUNCTION()
-	void OnReplayContinueButtonClicked();
+	void OnPlayDemoButtonClicked();
 
 	UFUNCTION()
-	void OnRankingsClicked();
+	void OnReplayContinueButtonClicked();
 
 	UFUNCTION()
 	void OnSettingsClicked();
@@ -63,5 +65,8 @@ public:
 
 	UFUNCTION()
 	void OnLogoutClicked();
+
+	UFUNCTION()
+	void SetFocusToButton();
 	
 };

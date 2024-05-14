@@ -32,5 +32,8 @@ public:
 
 	UFUNCTION()
 	void OnBackClicked();
+
+	UFUNCTION()
+	void SetFocusToButton();
 	
 };

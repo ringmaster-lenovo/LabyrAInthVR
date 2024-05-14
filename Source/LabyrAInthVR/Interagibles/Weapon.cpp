@@ -1,36 +1,132 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Weapon.h"
 #include "LabyrAInthVR/Player/Main3DCharacter.h"
 
+#include "Components/PawnNoiseEmitterComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Player/MainCharacter.h"
+#include "Particles/ParticleSystem.h"
 #include <Kismet/GameplayStatics.h>
 
-// Sets default values
+DEFINE_LOG_CATEGORY(LabyrAInthVR_Weapon_Log);
+
 AWeapon::AWeapon()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
-// Called when the game starts or when spawned
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
-// Called every frame
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-void AWeapon::AssignToPlayer()
+void AWeapon::Shoot()
+{
+	if (!bCanShoot && bShouldDelayInput) return;
+	
+	ShootInternal();
+	bCanShoot = false;
+	
+	if(bShouldDelayInput) GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &ThisClass::ResetShooting, FireRate,
+		                                false);
+}
+
+void AWeapon::Destroyed()
+{
+	Super::Destroyed();
+	if( GetWorldTimerManager().IsTimerActive(ShootingTimerHandle)) GetWorldTimerManager().ClearTimer(ShootingTimerHandle);
+}
+
+void AWeapon::ShootInternal()
+{
+	if (!IsValid(MuzzleEffect) || !IsValid(MainCharacter)) return;
+
+	USkeletalMeshComponent* WeaponMesh = FindComponentByClass<USkeletalMeshComponent>();
+
+	if (!IsValid(WeaponMesh)) return;
+
+	FVector Start = WeaponMesh->GetSocketTransform(FName("Muzzle_Front")).GetLocation();
+
+	FVector End = Start + (GetActorForwardVector() * 50000.f);
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Instigator = MainCharacter;
+	SpawnParameters.Owner = this;
+	
+	if (IsValid(FireAnimation)) WeaponMesh->PlayAnimation(FireAnimation, false);
+	
+	UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, WeaponMesh, FName("Muzzle_Front"));
+	
+	AProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AProjectile>(
+		ProjectileClass, Start, End.Rotation(), SpawnParameters);
+	
+	if (!IsValid(SpawnedProjectile)) return;
+	
+	SpawnedProjectile->SetDamage(Damage);
+
+	if (!IsValid(MainCharacter->GetPawnNoiseEmitterComponent())) return;
+	
+	MainCharacter->GetPawnNoiseEmitterComponent()->MakeNoise(
+		this, 1.0f, GetActorLocation());
+
+	if (IsValid(FireSound)) UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+}
+
+void AWeapon::ResetShooting()
+{
+	bCanShoot = true;
+}
+
+void AWeapon::GenerateNoise()
 {
 	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	Character->SetEquippedWeapon(this);
+	if(Character)
+	{
+		Character->GetPawnNoiseEmitterComponent()->MakeNoise(
+		this, 1.0f, GetActorLocation());
+	}
+}
+
+
+void AWeapon::AssignToPlayerRight()
+{
+	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if(Character)
+	{
+		Character->SetEquippedWeapon(this);
+	}
+	
+}
+
+void AWeapon::RemoveFromPlayerRight()
+{
+	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if(Character)
+	{
+		Character->SetEquippedWeapon(nullptr);
+	}
+}
+
+void AWeapon::AssignToPlayerLeft()
+{
+	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if(Character)
+	{
+		Character->SetEquippedWeaponLeft(this);
+	}
+	
+}
+
+void AWeapon::RemoveFromPlayerLeft()
+{
+	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if(Character)
+	{
+		Character->SetEquippedWeaponLeft(nullptr);
+	}
 }
 

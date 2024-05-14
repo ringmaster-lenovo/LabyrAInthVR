@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
 
+class USoundCue;
 class AProceduralSplineWall;
 class UBoxComponent;
 class UNiagaraSystem;
@@ -20,16 +21,20 @@ public:
 	AProjectile();
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
-
-	void SetDamage(double DamagePassed) {Damage = DamagePassed;}
 	
+	UFUNCTION(BlueprintCallable)
+	void SetDamage(double DamagePassed) {Damage = DamagePassed;}
+
 private:
+	UPROPERTY()
 	double Damage = 20;
 	
 	UFUNCTION()
 	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 								 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
 								 const FHitResult& SweepResult);
+
+	void PlaySound(USoundCue* SoundToPlay);
 	
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* CollisionBox;
@@ -51,4 +56,10 @@ private:
 
 	UPROPERTY()
 	UParticleSystemComponent* ProjectileTracerComponent;
+	
+	UPROPERTY(EditAnywhere, Category=Audio)
+	USoundCue* BodyHit;
+	
+	UPROPERTY(EditAnywhere, Category=Audio)
+	USoundCue* SurfaceHit;
 };

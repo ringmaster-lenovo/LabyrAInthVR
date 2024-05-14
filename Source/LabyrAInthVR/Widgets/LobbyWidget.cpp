@@ -3,7 +3,7 @@
 
 #include "LobbyWidget.h"
 
-#include "Kismet/KismetSystemLibrary.h"
+#include "Components/EditableText.h"
 #include "Components/Button.h"
 #include "WidgetController.h"
 
@@ -31,12 +31,12 @@ void ULobbyWidget::NativeConstruct()
 		}
 	}
 
-	if (RankingsButton)
+	if (PlayDemoButton)
 	{
-		UButton* RankingsButtonWidget = Cast<UButton>(RankingsButton->GetWidgetFromName(TEXT("ButtonHit")));
-		if (RankingsButtonWidget)
+		UButton* PlayDemoButtonWidget = Cast<UButton>(PlayDemoButton->GetWidgetFromName(TEXT("ButtonHit")));
+		if (PlayDemoButtonWidget)
 		{
-			RankingsButtonWidget->OnClicked.AddDynamic(this, &ULobbyWidget::OnRankingsClicked);
+			PlayDemoButtonWidget->OnClicked.AddDynamic(this, &ULobbyWidget::OnPlayDemoButtonClicked);
 		}
 	}
 
@@ -68,19 +68,29 @@ void ULobbyWidget::NativeConstruct()
 	}
 }
 
+void ULobbyWidget::SetFocusToButton()
+{
+	if (NewGameButton)
+	{
+		NewGameButton->bIsFocusable = true;
+		NewGameButton->SetKeyboardFocus();
+	}
+}
+
+
 void ULobbyWidget::OnStartNewGameButtonClicked()
 {
 	WidgetController->StartNewGameButtonClicked();
 }
 
+void ULobbyWidget::OnPlayDemoButtonClicked()
+{
+	WidgetController->PlayDemoButtonClicked();
+}
+
 void ULobbyWidget::OnReplayContinueButtonClicked()
 {
 	WidgetController->ReplayContinueButtonClicked();
-}
-
-void ULobbyWidget::OnRankingsClicked()
-{
-	WidgetController->RankingsButtonClicked();
 }
 
 void ULobbyWidget::OnSettingsClicked()

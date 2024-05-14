@@ -54,6 +54,10 @@
 				"Win64",
 				"Android"
 			]
+		},
+		{
+			"Name": "CommonUI",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [

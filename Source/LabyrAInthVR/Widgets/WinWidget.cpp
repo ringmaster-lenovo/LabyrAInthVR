@@ -7,6 +7,7 @@
 #include "WidgetController.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "LabyrAInthVR/Core/VRGameState.h"
 
 
 void UWinWidget::NativeConstruct()
@@ -15,24 +16,16 @@ void UWinWidget::NativeConstruct()
 
 	//JUST FOR TESTING
 	// SetTime(302);
+	
 
-	if (NextLevelButton)
-	{
-		UButton* NextLevelButtonWidget = Cast<UButton>(NextLevelButton->GetWidgetFromName(TEXT("ButtonHit")));
-		if (NextLevelButtonWidget)
-		{
-			NextLevelButtonWidget->OnClicked.AddDynamic(this, &UWinWidget::OnNextLevelClicked);
-		}
-	}
-
-	if (RankingsButton)
-	{
-		UButton* RankingsButtonWidget = Cast<UButton>(RankingsButton->GetWidgetFromName(TEXT("ButtonHit")));
-		if (RankingsButtonWidget)
-		{
-			RankingsButtonWidget->OnClicked.AddDynamic(this, &UWinWidget::OnRankingsClicked);
-		}
-	}
+	// if (NextLevelButton)
+	// {
+	// 	UButton* NextLevelButtonWidget = Cast<UButton>(NextLevelButton->GetWidgetFromName(TEXT("ButtonHit")));
+	// 	if (NextLevelButtonWidget)
+	// 	{
+	// 		NextLevelButtonWidget->OnClicked.AddDynamic(this, &UWinWidget::OnNextLevelClicked);
+	// 	}
+	// }
 
 	if (MainMenuButton)
 	{
@@ -41,6 +34,15 @@ void UWinWidget::NativeConstruct()
 		{
 			MainMenuButtonWidget->OnClicked.AddDynamic(this, &UWinWidget::OnMainMenuClicked);
 		}
+	}
+}
+
+void UWinWidget::SetFocusToButton()
+{
+	if (MainMenuButton)
+	{
+		MainMenuButton->bIsFocusable = true;
+		MainMenuButton->SetKeyboardFocus();
 	}
 }
 
@@ -61,15 +63,10 @@ void UWinWidget::SetTime(int32 time)
 	TimeText->SetText(TimeFormat);
 }
 
-void UWinWidget::OnNextLevelClicked()
-{
-	WidgetController->NextLevelButtonClicked();
-}
-
-void UWinWidget::OnRankingsClicked()
-{
-	WidgetController->RankingsButtonClicked();
-}
+// void UWinWidget::OnNextLevelClicked()
+// {
+// 	WidgetController->NextLevelButtonClicked();
+// }
 
 void UWinWidget::OnMainMenuClicked()
 {

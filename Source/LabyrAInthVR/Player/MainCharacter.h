@@ -28,6 +28,7 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void ResetWeapon();
 	float GetWeaponDamage();
+	float GetWeaponDamageLeft();
 	bool IsAlive();
 	
 	UFUNCTION()
@@ -36,26 +37,33 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	UPlayerStatistics* GetPlayerStatistics();
+	
+	UFUNCTION(BlueprintCallable)
+	bool IsFrozen() const { return bIsFrozen; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetIsFrozen(bool NewFrozenState) { bIsFrozen = NewFrozenState; }
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<AWeapon> WeaponClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	FString PlayerName;
 	
 	UPROPERTY()
 	ABasePickup* OverlappingPickup;
 	
 	UPROPERTY()
-	AWeapon* EquippedWeapon;
+	AWeapon* EquippedWeaponLeft;
 
+	UPROPERTY()
+	AWeapon* EquippedWeapon;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	UPlayerStatistics* PlayerStats;
 
 	UPROPERTY(EditAnywhere)
 	UPawnNoiseEmitterComponent* PawnNoiseEmitterComponent;
 	
-	UPROPERTY(EditAnywhere, Category=Gameplay)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	USpotLightComponent* Flashlight;
 	
 	UPROPERTY(EditAnywhere, Category=Input)
@@ -69,15 +77,21 @@ protected:
 	
 	void ToggleFlashlight(const FInputActionValue& Value);
 	void Sprint(const FInputActionValue& Value, bool bSprint);
-	void Shoot(const FInputActionValue& Value);
+	void Shoot(const FInputActionValue& Value, bool bIsPressingShoot);
 	void ReleasePickupObject();
-
 	bool bHasWeapon;
+	bool bIsFrozen;
 	
 	/*UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	virtual void PickupWeapon();*/
 public:
 	FORCEINLINE void SetOverlappedPickup(ABasePickup* Pickup) {OverlappingPickup = Pickup; }
 
+	FORCEINLINE AWeapon* GetEquippedWeapon() {return EquippedWeapon; }
+
 	FORCEINLINE void SetEquippedWeapon(AWeapon* Weapon) {EquippedWeapon = Weapon; }
+
+	FORCEINLINE AWeapon* GetEquippedWeaponLeft() {return EquippedWeaponLeft; }
+
+	FORCEINLINE void SetEquippedWeaponLeft(AWeapon* Weapon) {EquippedWeaponLeft = Weapon; }
 };

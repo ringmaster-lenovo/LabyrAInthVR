@@ -5,11 +5,17 @@
 
 #include "WidgetContainer.h"
 #include "LobbyWidget.h"
+#include "DemoTooltipWidget.h"
 #include "LoadLevelsWidget.h"
+#include "SpeedWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/VerticalBox.h"
+#include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "CoreMinimal.h"
+#include "GameFramework/PlayerController.h"
+#include "CommonInputSubsystem.h"
 #include "LabyrAInthVR/Core/LabyrAInthVRGameInstance.h"
 #include "LabyrAInthVR/Core/VRGameMode.h"
 
@@ -33,19 +39,40 @@ void AWidgetController::BeginPlay()
 	AVRGameMode* GameMode = Cast<AVRGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	bIsInVR = GameMode->IsInVR();
 	
-	AWidgetContainer* FoundWidgetContainer = Cast<AWidgetContainer>(
-		UGameplayStatics::GetActorOfClass(GetWorld(), AWidgetContainer::StaticClass()));
-	if (FoundWidgetContainer)
+	// AWidgetContainer* FoundWidgetContainer = Cast<AWidgetContainer>(
+	// 	UGameplayStatics::GetActorOfClass(GetWorld(), AWidgetContainer::StaticClass()));
+	// if (FoundWidgetContainer)
+	// {
+	// 	WidgetContainer = FoundWidgetContainer;
+	// 	WidgetContainer->bIsInVR = bIsInVR;
+	// 	WidgetContainer->WidgetController = this;
+	// }
+	// else
+	// {
+	// 	UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("WidgetContainer not found!"));
+	// 	OnWidgetSError.Broadcast();
+	// }
+	TArray<AActor*> FoundWidgets;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWidgetContainer::StaticClass(), FoundWidgets);
+
+	for (AActor* Actor : FoundWidgets)
 	{
-		WidgetContainer = FoundWidgetContainer;
-		WidgetContainer->bIsInVR = bIsInVR;
-		WidgetContainer->WidgetController = this;
+		AWidgetContainer* FoundWidgetContainer = Cast<AWidgetContainer>(Actor);
+		if (FoundWidgetContainer)
+		{
+			if (FoundWidgetContainer->ActorHasTag("LobbyWidgetContainer"))
+			{
+				WidgetContainer = FoundWidgetContainer;
+				WidgetContainer->bIsInVR = bIsInVR;
+				WidgetContainer->WidgetController = this;
+			}
+			else if (FoundWidgetContainer->ActorHasTag("DemoWidgetContainer"))
+			{
+				WidgetContainerTooltip = FoundWidgetContainer;
+			}
+		}
 	}
-	else
-	{
-		UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("WidgetContainer not found!"));
-		OnWidgetSError.Broadcast();
-	}
+
 }
 
 // Called every frame
@@ -79,10 +106,99 @@ void AWidgetController::ShowLobbyUI()
 	}
 }
 
+void AWidgetController::ShowDemoTooltip()
+{
+	if(DemoTooltipWidgetClass)
+	{
+		DemoTooltipWidget = Cast<UDemoTooltipWidget>(WidgetContainerTooltip->Widget->GetUserWidgetObject());
+		if(!DemoTooltipWidget)
+		{
+			FString ErrorString = "No DemoTooltipWidget!";
+			UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
+			OnWidgetSError.Broadcast();
+		}
+		if(!bIsInVR)
+		{
+			if(!IsUsingGamepad())
+			{
+				FText Text1 = FText::FromString(TEXT("- Press 'F' to switch the torch"));
+				FText Text2 = FText::FromString(TEXT("- Press 'E' to pick the weapon on your left"));
+				FText Text3 = FText::FromString(TEXT("- Shoot and kill the enemy in front of you"));
+				FText Text4 = FText::FromString(TEXT("- Press 'SHIFT' to run through the portal"));
+				DemoTooltipWidget->Text1->SetText(Text1);
+				DemoTooltipWidget->Text2->SetText(Text2);
+				DemoTooltipWidget->Text3->SetText(Text3);
+				DemoTooltipWidget->Text4->SetText(Text4);
+				DemoTooltipWidget->Text5->SetVisibility(ESlateVisibility::Collapsed);
+				DemoTooltipWidget->Text6->SetVisibility(ESlateVisibility::Collapsed);
+				DemoTooltipWidget->Text7->SetVisibility(ESlateVisibility::Collapsed);
+				DemoTooltipWidget->TriangleImage->SetVisibility(ESlateVisibility::Collapsed);
+				DemoTooltipWidget->SquareImage->SetVisibility(ESlateVisibility::Collapsed);
+			} else
+			{
+				FText Text1 = FText::FromString(TEXT(" to switch the torch"));
+				FText Text2 = FText::FromString(TEXT(" to pick the weapon on your left"));
+				FText Text3 = FText::FromString(TEXT("- Shoot and kill the enemy in front of you"));
+				FText Text4 = FText::FromString(TEXT("- Press the left thumbstick to run "));
+				FText Text5 = FText::FromString(TEXT("  through the portal"));
+				DemoTooltipWidget->Text1->SetText(Text1);
+				DemoTooltipWidget->Text2->SetText(Text2);
+				DemoTooltipWidget->Text3->SetText(Text3);
+				DemoTooltipWidget->Text4->SetText(Text4);
+				DemoTooltipWidget->Text5->SetText(Text5);
+				DemoTooltipWidget->Text6->SetVisibility(ESlateVisibility::Collapsed);
+				DemoTooltipWidget->Text7->SetVisibility(ESlateVisibility::Collapsed);
+			}
+			
+		} else
+		{
+			FText Text1 = FText::FromString(TEXT("- Press 'X' to open the statistics on your "));
+			FText Text2 = FText::FromString(TEXT("  left hand"));
+			FText Text3 = FText::FromString(TEXT("- Press 'A' to open the menu on your right hand"));
+			FText Text4 = FText::FromString(TEXT("- Press 'B' to switch the torch"));
+			FText Text5 = FText::FromString(TEXT("- Grab the weapon on your right"));
+			FText Text6 = FText::FromString(TEXT("- Shoot and kill the enemy in front of you"));
+			FText Text7 = FText::FromString(TEXT("- Press the right thumbstick to run "));
+			FText Text8 = FText::FromString(TEXT("  through the portal"));
+			DemoTooltipWidget->Text1->SetText(Text1);
+			DemoTooltipWidget->Text2->SetText(Text2);
+			DemoTooltipWidget->Text3->SetText(Text3);
+			DemoTooltipWidget->Text4->SetText(Text4);
+			DemoTooltipWidget->Text5->SetText(Text5);
+			DemoTooltipWidget->Text6->SetText(Text6);
+			DemoTooltipWidget->Text7->SetText(Text7);
+			DemoTooltipWidget->Text8->SetText(Text8);
+			DemoTooltipWidget->TriangleImage->SetVisibility(ESlateVisibility::Collapsed);
+			DemoTooltipWidget->SquareImage->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+}
+
+bool AWidgetController::IsUsingGamepad()
+{
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (PlayerController)
+	{
+		ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
+		if(LocalPlayer)
+		{
+			UCommonInputSubsystem* CommonInputSubsystem = LocalPlayer->GetSubsystem<UCommonInputSubsystem>();
+			if(CommonInputSubsystem)
+			{
+				ECommonInputType InputType =  CommonInputSubsystem->GetCurrentInputType();
+				if(InputType == ECommonInputType::Gamepad)
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+
 void AWidgetController::ShowMainMenu()
 {
-	if (LobbyWidgetClass)
-	{
 		UWorld* World = GetWorld();
 		if (!World)
 		{
@@ -99,87 +215,107 @@ void AWidgetController::ShowMainMenu()
 		}
 		if (bIsInVR)
 		{
-			WidgetContainer->Widget->SetWidgetClass(LobbyWidgetClass);
-			LobbyWidget = Cast<ULobbyWidget>(WidgetContainer->Widget->GetUserWidgetObject());
-			if(!LobbyWidget)
+			if (VRLobbyWidgetClass)
 			{
-				FString ErrorString = "No LobbyWidget!";
+				WidgetContainer->Widget->SetWidgetClass(VRLobbyWidgetClass);
+				LobbyWidget = Cast<ULobbyWidget>(WidgetContainer->Widget->GetUserWidgetObject());
+				if(!LobbyWidget)
+				{
+					FString ErrorString = "No LobbyWidget!";
+					UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
+					OnWidgetSError.Broadcast();
+				}
+				FString PlayerLogged = GameState->GetPlayerName();
+				FText PlayerText = FText::FromString(PlayerLogged);
+				FText WelcomeText = FText::Format(FText::FromString(TEXT("Welcome {0}!")), PlayerText);
+				LobbyWidget->WelcomeText->SetText(WelcomeText);
+				LobbyWidget->WidgetController = this;
+			} else {
+				FString ErrorString = "No VRLobbyWidgetClass set!";
 				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
 				OnWidgetSError.Broadcast();
 			}
-			FString PlayerLogged = GameState->GetPlayerName();
-			FText PlayerText = FText::FromString(PlayerLogged);
-			FText WelcomeText = FText::Format(FText::FromString(TEXT("Welcome {0}!")), PlayerText);
-			LobbyWidget->WelcomeText->SetText(WelcomeText);
-			LobbyWidget->WidgetController = this;
 		} else
 		{
-			RemoveAllWidgets(GetWorld());
+			if (LobbyWidgetClass)
+			{
+				RemoveAllWidgets(GetWorld());
 			
-			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+				APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 			
-			LobbyWidget = CreateWidget<ULobbyWidget>(PlayerController, LobbyWidgetClass);
-			LobbyWidget->WidgetController = this;
-			FString PlayerLogged = GameState->GetPlayerName();
-			FText PlayerText = FText::FromString(PlayerLogged);
-			FText WelcomeText = FText::Format(FText::FromString(TEXT("Welcome {0}!")), PlayerText);
-			LobbyWidget->WelcomeText->SetText(WelcomeText);
-			FInputModeUIOnly InputMode;
-			InputMode.SetWidgetToFocus(LobbyWidget->TakeWidget());
-			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+				LobbyWidget = CreateWidget<ULobbyWidget>(PlayerController, LobbyWidgetClass);
+				LobbyWidget->WidgetController = this;
+				FString PlayerLogged = GameState->GetPlayerName();
+				FText PlayerText = FText::FromString(PlayerLogged);
+				FText WelcomeText = FText::Format(FText::FromString(TEXT("Welcome {0}!")), PlayerText);
+				LobbyWidget->WelcomeText->SetText(WelcomeText);
+				FInputModeUIOnly InputMode;
+				InputMode.SetWidgetToFocus(LobbyWidget->TakeWidget());
+				InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 
-			PlayerController->SetInputMode(InputMode);
-			PlayerController->bShowMouseCursor = true;
-			// set the background color of the widget
-			// LobbyWidget->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.5f));
-			LobbyWidget->AddToViewport(0);
+				PlayerController->SetInputMode(InputMode);
+				PlayerController->bShowMouseCursor = true;
+
+				LobbyWidget->SetFocusToButton();
+				// set the background color of the widget
+				// LobbyWidget->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.5f));
+				LobbyWidget->AddToViewport(0);
+			} else {
+				FString ErrorString = "No LobbyWidgetClass set!";
+				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
+				OnWidgetSError.Broadcast();
+			}
 		}
-	} else
-	{
-		FString ErrorString = "No LobbyWidgetClass set!";
-		UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
-		OnWidgetSError.Broadcast();
-	}
 }
 
 void AWidgetController::ShowPromptingWidget()
 {
-	if (PromptingWidgetClass)
-	{
 		if (bIsInVR)
 		{
-			WidgetContainer->Widget->SetWidgetClass(PromptingWidgetClass);
-			PromptingWidget = Cast<UPromptingWidget>(WidgetContainer->Widget->GetUserWidgetObject());
-			if(!PromptingWidget)
+			if (VRPromptingWidgetClass)
 			{
-				FString ErrorString = "No LobbyWidget!";
+				WidgetContainer->Widget->SetWidgetClass(VRPromptingWidgetClass);
+				PromptingWidget = Cast<UPromptingWidget>(WidgetContainer->Widget->GetUserWidgetObject());
+				if(!PromptingWidget)
+				{
+					FString ErrorString = "No LobbyWidget!";
+					UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
+					OnWidgetSError.Broadcast();
+				}
+				PromptingWidget->WidgetController = this;
+				PromptingWidget->SetFocusToFirstInteractiveElement();
+			} else {
+				FString ErrorString = "No VRPromptingWidgetClass set!";
 				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
 				OnWidgetSError.Broadcast();
 			}
-			PromptingWidget->WidgetController = this;
 		} else
 		{
-			RemoveAllWidgets(GetWorld());
+			if(PromptingWidgetClass)
+			{
+				RemoveAllWidgets(GetWorld());
 			
-			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-			PromptingWidget = CreateWidget<UPromptingWidget>(PlayerController, PromptingWidgetClass);
-			PromptingWidget->WidgetController = this;
-			FInputModeUIOnly InputMode;
-			InputMode.SetWidgetToFocus(PromptingWidget->TakeWidget());
-			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+				APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+				PromptingWidget = CreateWidget<UPromptingWidget>(PlayerController, PromptingWidgetClass);
+				PromptingWidget->WidgetController = this;
+				FInputModeUIOnly InputMode;
+				InputMode.SetWidgetToFocus(PromptingWidget->TakeWidget());
+				InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 
-			PlayerController->SetInputMode(InputMode);
-			PlayerController->bShowMouseCursor = true;
-			// set the background color of the widget
-			// LobbyWidget->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.5f));
-			PromptingWidget->AddToViewport(0);
+				PlayerController->SetInputMode(InputMode);
+				PlayerController->bShowMouseCursor = true;
+
+				PromptingWidget->SetFocusToFirstInteractiveElement();
+				// set the background color of the widget
+				// LobbyWidget->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.5f));
+				PromptingWidget->AddToViewport(0);
+			} else
+			{
+				FString ErrorString = "No PromptingWidgetClass set!";
+				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
+				OnWidgetSError.Broadcast();
+			}
 		}
-	} else
-	{
-		FString ErrorString = "No LobbyWidgetClass set!";
-		UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
-		OnWidgetSError.Broadcast();
-	}
 }
 
 void AWidgetController::ShowLoadingScreen()
@@ -206,106 +342,204 @@ void AWidgetController::ShowLoadingScreen()
 
 void AWidgetController::ShowGameUI()
 {
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (PlayerController == nullptr)
+	{
+		UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("No PlayerController!"));
+		OnWidgetSError.Broadcast();
+		return;
+	}
 	if (!bIsInVR)
 	{
 		RemoveAllWidgets(GetWorld());
+		
 		if (StatisticsWidgetClass)
 		{
-			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 			FInputModeGameOnly InputMode;
 			PlayerController->SetInputMode(InputMode);
 			PlayerController->bShowMouseCursor = false;
 			StatisticsWidget = CreateWidget<UStatisticsWidget>(PlayerController, StatisticsWidgetClass);
-			
-			StatisticsWidget->AddToViewport(0);
+			if (StatisticsWidget)
+			{
+				StatisticsWidget->AddToViewport(1);
+			}
 		}
+		DamageWidget = CreateWidget<UDamageWidget>(PlayerController, DamageWidgetClass);
+		DamageWidget->AddToViewport(0);
+	}  else
+	{
+		DamageWidget = CreateWidget<UDamageWidget>(PlayerController, DamageWidgetClassVR);
+		DamageWidget->AddToViewport(0);
 	}
+	
 }
 
-void AWidgetController::ShowWinScreen(int32 TimeOnLevel)
+void AWidgetController::ShowWinScreen(const int32 TimeOnLevel)
 {
-	if (WinWidgetClass)
-	{
 		if (bIsInVR)
 		{
-			WidgetContainer->Widget->SetWidgetClass(WinWidgetClass);
-			WinWidget = Cast<UWinWidget>(WidgetContainer->Widget->GetUserWidgetObject());
-			if(!WinWidget)
+			if(VRWinWidgetClass)
 			{
-				FString ErrorString = "No WinWidget!";
+				if (DamageWidget)
+				{
+					DamageWidget->RemoveFromParent();
+				}
+				WidgetContainer->Widget->SetWidgetClass(VRWinWidgetClass);
+				WinWidget = Cast<UWinWidget>(WidgetContainer->Widget->GetUserWidgetObject());
+				if (!WinWidget)
+				{
+					FString ErrorString = "No WinWidget!";
+					UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
+					OnWidgetSError.Broadcast();
+				}
+				WinWidget->SetTime(TimeOnLevel);
+				WinWidget->WidgetController = this;
+				UWorld* World = GetWorld();
+				if (World)
+				{
+					AVRGameState* GameState = World->GetGameState<AVRGameState>();
+					APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+					if (PlayerController)
+					{
+						UButtonWidget* NewLevelButton = CreateWidget<UButtonWidget>(PlayerController, ButtonWidgetClass);
+						NewLevelButton->OnClickedDelegate.AddUniqueDynamic(this, &AWidgetController::NextLevelButtonClicked);
+
+						// Setup the button properties
+						FText Text = FText::FromString(TEXT("Continue to level"));
+						FText Number = FText::AsNumber(GameState->GetCurrentLevel() + 1);
+						FText Delimiter = FText::FromString(TEXT(" "));
+						FText CombinedText = FText::Join(Delimiter, Text, Number);
+						// FText NextLevelText = FText::FromString(TEXT("Next Level"));
+						NewLevelButton->ButtonText = CombinedText;
+						WinWidget->VerticalBox->AddChildToVerticalBox(NewLevelButton);
+					}
+						
+				}
+			} else {
+				FString ErrorString = "No VRWinWidgetClass set!";
 				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
 				OnWidgetSError.Broadcast();
 			}
-			WinWidget->SetTime(TimeOnLevel);
-			WinWidget->WidgetController = this;
 		} else
 		{
-			RemoveAllWidgets(GetWorld());
-			
-			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-			WinWidget = CreateWidget<UWinWidget>(PlayerController, WinWidgetClass);
-			FInputModeUIOnly InputMode;
-			InputMode.SetWidgetToFocus(WinWidget->TakeWidget());
-			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-
-			PlayerController->SetInputMode(InputMode);
-			PlayerController->bShowMouseCursor = true;
-			WinWidget->SetTime(TimeOnLevel);
-			WinWidget->WidgetController = this;
-			WinWidget->AddToViewport(0);
-		}
-	}
-}
-
-void AWidgetController::ShowLoseScreen()
-{
-	if (LoseWidgetClass)
-	{
-		if (bIsInVR)
-		{
-			WidgetContainer->Widget->SetWidgetClass(LoseWidgetClass);
-			LoseWidget = Cast<ULoseWidget>(WidgetContainer->Widget->GetUserWidgetObject());
-			if(!LoseWidget)
+			if (WinWidgetClass)
 			{
-				FString ErrorString = "No WinWidget!";
+				RemoveAllWidgets(GetWorld());
+			
+				APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+				WinWidget = CreateWidget<UWinWidget>(PlayerController, WinWidgetClass);
+				FInputModeUIOnly InputMode;
+				InputMode.SetWidgetToFocus(WinWidget->TakeWidget());
+				InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+				PlayerController->SetInputMode(InputMode);
+				PlayerController->bShowMouseCursor = true;
+				WinWidget->SetTime(TimeOnLevel);
+				WinWidget->WidgetController = this;
+				UWorld* World = GetWorld();
+				if (World)
+				{
+					AVRGameState* GameState = World->GetGameState<AVRGameState>();
+					if (PlayerController)
+					{
+						UButtonWidget* NewLevelButton = CreateWidget<UButtonWidget>(PlayerController, ButtonWidgetClass);
+						NewLevelButton->OnClickedDelegate.AddUniqueDynamic(this, &AWidgetController::NextLevelButtonClicked);
+
+						// Setup the button properties
+						FText Text = FText::FromString(TEXT("Continue to level"));
+						FText Number = FText::AsNumber(GameState->GetCurrentLevel() + 1);
+						FText Delimiter = FText::FromString(TEXT(" "));
+						FText CombinedText = FText::Join(Delimiter, Text, Number);
+						// FText NextLevelText = FText::FromString(TEXT("Next Level"));
+						NewLevelButton->ButtonText = CombinedText;
+						WinWidget->VerticalBox->AddChildToVerticalBox(NewLevelButton);
+					}
+						
+				}
+				WinWidget->SetFocusToButton();
+				WinWidget->AddToViewport(0);
+			} else {
+				FString ErrorString = "No WinWidgetClass set!";
 				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
 				OnWidgetSError.Broadcast();
 			}
-			LoseWidget->WidgetController = this;
+		}
+}
+
+void AWidgetController::ShowLoseScreen(const bool bIsPlayerDead)
+{
+	
+		if (bIsInVR)
+		{
+			if(VRLoseWidgetClass)
+			{
+				if (DamageWidget)
+				{
+					DamageWidget->RemoveFromParent();
+				}
+				WidgetContainer->Widget->SetWidgetClass(VRLoseWidgetClass);
+				LoseWidget = Cast<ULoseWidget>(WidgetContainer->Widget->GetUserWidgetObject());
+				if (!LoseWidget)
+				{
+					FString ErrorString = "No LoseWidget!";
+					UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
+					OnWidgetSError.Broadcast();
+					return;
+				}
+				LoseWidget->WidgetController = this;
+			} else {
+				FString ErrorString = "No VRLobbyWidgetClass set!";
+				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
+				OnWidgetSError.Broadcast();
+			}
+			
 		} else
 		{
-			RemoveAllWidgets(GetWorld());
+			if (LoseWidgetClass)
+			{
+				RemoveAllWidgets(GetWorld());
 			
-			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-			LoseWidget = CreateWidget<ULoseWidget>(PlayerController, LoseWidgetClass);
-			LoseWidget->WidgetController = this;
-			FInputModeUIOnly InputMode;
-			InputMode.SetWidgetToFocus(LoseWidget->TakeWidget());
-			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+				APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+				LoseWidget = CreateWidget<ULoseWidget>(PlayerController, LoseWidgetClass);
+				LoseWidget->WidgetController = this;
+				FInputModeUIOnly InputMode;
+				InputMode.SetWidgetToFocus(LoseWidget->TakeWidget());
+				InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 
-			PlayerController->SetInputMode(InputMode);
-			PlayerController->bShowMouseCursor = true;
-			LoseWidget->AddToViewport(0);
-			
+				PlayerController->SetInputMode(InputMode);
+				PlayerController->bShowMouseCursor = true;
+				LoseWidget->SetFocusToButton();
+				LoseWidget->AddToViewport(0);
+			} else {
+				FString ErrorString = "No LoseWidgetClass set!";
+				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
+				OnWidgetSError.Broadcast();
+			}
 		}
-	}
+		if (bIsPlayerDead)
+		{
+			LoseWidget->SetLoseText("You Died!");
+		} else
+		{
+			LoseWidget->SetLoseText("You Lost!");
+		}
 }
 
 void AWidgetController::MainMenuButtonClicked()
 {
-	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Main Menu Button Clicked!"));
+	UE_LOG(LabyrAInthVR_Widget_Log, Display, TEXT("Main Menu Button Clicked!"));
 	OnReturnToMainMenuEvent.Broadcast();
 }
 
 void AWidgetController::RestartButtonClicked()
 {
-	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Restart Button Clicked!"));
+	UE_LOG(LabyrAInthVR_Widget_Log, Display, TEXT("Restart Button Clicked!"));
 	OnRestartLevelEvent.Broadcast();
 }
 
 void AWidgetController::StartNewGameButtonClicked() const
 {
-	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Play Game Button Clicked!"));
+	UE_LOG(LabyrAInthVR_Widget_Log, Display, TEXT("Play Game Button Clicked!"));
 	// Gets the game state and sets the current level to 0
 	UWorld* World = GetWorld();
 	if (!World)
@@ -321,7 +555,7 @@ void AWidgetController::StartNewGameButtonClicked() const
 		OnWidgetSError.Broadcast();
 		return;
 	}
-	GetWorld()->GetGameState<AVRGameState>()->SetCurrentLevel(0);
+	GetWorld()->GetGameState<AVRGameState>()->SetCurrentLevel(1);
 	
 	OnPlayGameButtonClicked.Broadcast();
 }
@@ -329,12 +563,7 @@ void AWidgetController::StartNewGameButtonClicked() const
 void AWidgetController::ReplayContinueButtonClicked() 
 {
 	
-	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Replay/Continue Button Clicked!"));
-	// TODO: should ask the Game State the list of levels and times of the player
-	// if the player has already played the game, there should be a list of levels and times
-	// if the player has not played the game, the list should be empty so the click will be ignored
-	// if the player has played the game, the player can choose to replay the previous level already beaten
-	// or proceed to the next level
+	UE_LOG(LabyrAInthVR_Widget_Log, Display, TEXT("Replay/Continue Button Clicked!"));
 
 	UWorld* World = GetWorld();
 	if (!World)
@@ -391,12 +620,15 @@ void AWidgetController::ReplayContinueButtonClicked()
 						}
 					}
 					UButtonWidget* NewLevelButton = CreateWidget<UButtonWidget>(PlayerController, ButtonWidgetClass);
-					NewLevelButton->Level = Levels.Num();
+					NewLevelButton->Level = Levels.Num() + 1;
 					NewLevelButton->OnClickedDelegate.AddUniqueDynamic(this, &AWidgetController::OnLevelButtonClicked);
 					if (NewLevelButton && NewLevelButton->TextBlock)
 					{
 						// Setup the button properties
-						FText NextLevelText = FText::FromString(TEXT("Next Level"));
+						FText Delimiter = FText::FromString(TEXT(" "));
+						FText TextLevel = FText::FromString(TEXT("Continue to Level"));
+						FText LevelNumber = FText::AsNumber(NewLevelButton->Level);
+						FText NextLevelText = FText::Join(Delimiter, TextLevel, LevelNumber);
 						NewLevelButton->ButtonText = NextLevelText;
 					}
 					LoadLevelsWidget->LevelsBox->AddChildToVerticalBox(NewLevelButton);
@@ -408,6 +640,14 @@ void AWidgetController::ReplayContinueButtonClicked()
 					WidgetContainer->Widget->SetWidget(LoadLevelsWidget);
 				} else
 				{
+					FInputModeUIOnly InputMode;
+					InputMode.SetWidgetToFocus(LoadLevelsWidget->TakeWidget());
+					InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+					PlayerController->SetInputMode(InputMode);
+					PlayerController->bShowMouseCursor = true;
+					
+					LoadLevelsWidget->SetFocusToButton();
 					LoadLevelsWidget->AddToViewport(0);
 
 				}
@@ -421,13 +661,16 @@ void AWidgetController::ReplayContinueButtonClicked()
 		else
 		{
 			// the player has not played the game, the click will be ignored
-			UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Player has not played the game yet!"));
+			UE_LOG(LabyrAInthVR_Widget_Log, Display, TEXT("Player has not played the game yet!"));
 			return;
 		}
 	}
+}
 
-	// MOCKUP ONLY FOR TESTING
-	// NextLevelButtonClicked();
+void AWidgetController::PlayDemoButtonClicked()
+{
+	UE_LOG(LabyrAInthVR_Widget_Log, Display, TEXT("Play Demo Button Clicked!"));
+	OnPlayDemoButtonClicked.Broadcast();
 }
 
 void AWidgetController::OnLevelButtonClicked(UButtonWidget* Button)
@@ -452,12 +695,12 @@ void AWidgetController::LoadLevel(int8 Level)
 		return;
 	}
 	GameState->SetCurrentLevel(Level);
-	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("LIVELLO CARICATO %d "), Level);
+	UE_LOG(LabyrAInthVR_Widget_Log, Display, TEXT("Selected Level %d "), Level);
 
 	OnPlayGameButtonClicked.Broadcast();
 }
 
-void AWidgetController::NextLevelButtonClicked() const
+void AWidgetController::NextLevelButtonClicked(UButtonWidget* Button)
 {
 	UWorld* World = GetWorld();
 	if (!World)
@@ -478,15 +721,9 @@ void AWidgetController::NextLevelButtonClicked() const
 	OnPlayGameButtonClicked.Broadcast();
 }
 
-void AWidgetController::RankingsButtonClicked() const
-{
-	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Rankings Button Clicked!"));
-	OnRankingsButtonClicked.Broadcast();
-}
-
 void AWidgetController::SettingsButtonClicked()
 {
-	UE_LOG(LabyrAInthVR_Widget_Log, Warning, TEXT("Settings Button Clicked!"));
+	UE_LOG(LabyrAInthVR_Widget_Log, Display, TEXT("Settings Button Clicked!"));
 	// TODO: should open the settings widget
 }
 
@@ -528,6 +765,7 @@ void AWidgetController::OnPauseGamePressed()
 					
 					PlayerController->SetInputMode(InputMode);
 					PlayerController->bShowMouseCursor = true;
+					MenuWidget->SetFocusToButton();
 					MenuWidget->AddToViewport(0);
 					OnPauseGameEvent.Broadcast();
 				}
@@ -558,6 +796,54 @@ void AWidgetController::RemoveAllWidgets(UObject* WorldContextObject)
 		{
 			Widget->RemoveFromParent();
 		}
+	}
+}
+
+void AWidgetController::ClearStatisticsTimer()
+{
+	if (StatisticsWidget)
+	{
+		StatisticsWidget->StopTimer();
+	}
+}
+
+
+void AWidgetController::SetSpeedWidget(float Timer)
+{
+	if(SpeedWidget==nullptr || (IsValid(SpeedWidget) && !SpeedWidget->IsInViewport()))
+	{
+		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+		SpeedWidget = CreateWidget<USpeedWidget>(PlayerController, SpeedWidgetClass);
+		SpeedWidget->AddToViewport();
+	}
+	FTimerDelegate Delegate;
+	Delegate.BindUObject(this, &ThisClass::RemoveSpeedWidget);
+	GetWorld()->GetTimerManager().SetTimer(RemoveSlowWidgetTimerHandle, Delegate, Timer, false);
+}
+
+void AWidgetController::RemoveSpeedWidget()
+{
+	if(IsValid(SpeedWidget) && SpeedWidget->IsInViewport())
+	{
+		SpeedWidget->RemoveFromParent();
+	}
+}
+
+void AWidgetController::SetSlowWidget()
+{
+	if(SlowWidget==nullptr || (IsValid(SlowWidget) && !SlowWidget->IsInViewport()))
+	{
+		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+		SlowWidget = CreateWidget<USlowWidget>(PlayerController, SlowWidgetClass);
+		SlowWidget->AddToViewport();
+	}
+}
+
+void AWidgetController::RemoveSlowWidget()
+{
+	if(IsValid(SlowWidget) && SlowWidget->IsInViewport())
+	{
+		SlowWidget->RemoveFromParent();
 	}
 }
 

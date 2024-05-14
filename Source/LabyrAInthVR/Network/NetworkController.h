@@ -51,9 +51,9 @@ protected:
 private:
 
 	FString BaseURL = "https://localhost:8080/api";
-	FString LabyrinthEndPoint = "/labyrinth/getLabyrinthFromDataset";
+	FString LabyrinthEndPoint = "/labyrinth/get-labyrinth-from-dataset";
 	FString LeaderboardEndPoint = "/leaderboards";
-	FString LabyrinthURL = "http://localhost:8090/gpm/api/labyrinth/getLabyrinthFromDataset";;
+	FString LabyrinthURL = "http://localhost:8090/gpm/api/labyrinth/get-labyrinth-from-dataset";;
 	FString LeaderboardUrl = "https://localhost:8080/api/leaderboards";
 
 	bool DeserializeAllLeaderBoards(FString AllLeaderBoardsString, ULeaderBoardDTO* LeaderBoardDTO);
