@@ -6,6 +6,7 @@
 
 class AMainCharacter;
 class AMusicController;
+class USoundCue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_PlayerStatistics_Log, Display, All);
 

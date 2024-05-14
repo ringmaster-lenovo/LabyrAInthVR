@@ -25,7 +25,7 @@ public:
 	class UTextBlock* TimeText;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UUserWidget* NextLevelButton;
+	class UButtonWidget* NextLevelButton;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* MainMenuButton;

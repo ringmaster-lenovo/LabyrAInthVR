@@ -56,39 +56,30 @@ bool LabyrinthSerializer::DeSerializeLabyrinth(FString LabyrinthString, ULabyrin
 		UE_LOG(LabyrAInthVR_LabyrinthSerializer_Log, Error, TEXT("Error during Labyrinth Structure Deserialization: 'labyrinthStructure' field not found or not an array."));
 		return false;
 	}
-
-	try
-	{
-		// Extract the values from the Json array and store them in the LabyrinthDTO
-		int32 LabyrinthRows = LabyrinthStructureArray->Num();
-		int32 LabyrinthColumns = (LabyrinthRows > 0) ? (*LabyrinthStructureArray)[0]->AsArray().Num() : 0;
-		UE_LOG(LabyrAInthVR_LabyrinthSerializer_Log, Display, TEXT("Labyrinth Rows: %d, Labyrinth Columns: %d"), LabyrinthRows, LabyrinthColumns);
-		LabyrinthDTO->LabyrinthStructure.resize(LabyrinthRows);
-		for (auto& row : LabyrinthDTO->LabyrinthStructure) {
-			row.resize(LabyrinthColumns, 0);
-		}
-		
-		uint8 i = 0;
-		for (auto LabyrinthRow : *LabyrinthStructureArray)
-		{
-			uint8 j = 0;
-			for (auto Value : LabyrinthRow->AsArray())
-			{
-				uint8 LabValue;
-				if (Value.IsValid() && Value->Type == EJson::Number && Value->TryGetNumber(LabValue))
-				{
-					LabyrinthDTO->LabyrinthStructure[i][j] = LabValue;
-				}
-				j++;
-			}
-			i++;
-		}
+	
+	// Extract the values from the Json array and store them in the LabyrinthDTO
+	int32 LabyrinthRows = LabyrinthStructureArray->Num();
+	int32 LabyrinthColumns = (LabyrinthRows > 0) ? (*LabyrinthStructureArray)[0]->AsArray().Num() : 0;
+	UE_LOG(LabyrAInthVR_LabyrinthSerializer_Log, Display, TEXT("Labyrinth Rows: %d, Labyrinth Columns: %d"), LabyrinthRows, LabyrinthColumns);
+	LabyrinthDTO->LabyrinthStructure.resize(LabyrinthRows);
+	for (auto& row : LabyrinthDTO->LabyrinthStructure) {
+		row.resize(LabyrinthColumns, 0);
 	}
-	catch (...)
+	
+	uint8 i = 0;
+	for (auto LabyrinthRow : *LabyrinthStructureArray)
 	{
-		FString ErrorMessage = TEXT("Si è verificato un errore durante il ridimensionamento della matrice del labirinto.");
-		UE_LOG(LabyrAInthVR_LabyrinthSerializer_Log, Error, TEXT("%s"), *ErrorMessage);
-		return false;
+		uint8 j = 0;
+		for (auto Value : LabyrinthRow->AsArray())
+		{
+			uint8 LabValue;
+			if (Value.IsValid() && Value->Type == EJson::Number && Value->TryGetNumber(LabValue))
+			{
+				LabyrinthDTO->LabyrinthStructure[i][j] = LabValue;
+			}
+			j++;
+		}
+		i++;
 	}
 	UE_LOG(LabyrAInthVR_LabyrinthSerializer_Log, Display, TEXT("Labyrinth deserialized correctly"));
 	return true;

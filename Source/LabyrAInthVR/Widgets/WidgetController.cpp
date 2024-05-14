@@ -60,13 +60,13 @@ void AWidgetController::BeginPlay()
 		AWidgetContainer* FoundWidgetContainer = Cast<AWidgetContainer>(Actor);
 		if (FoundWidgetContainer)
 		{
-			if (FoundWidgetContainer->GetActorLabel().Contains("LobbyWidgetContainer"))
+			if (FoundWidgetContainer->ActorHasTag("LobbyWidgetContainer"))
 			{
 				WidgetContainer = FoundWidgetContainer;
 				WidgetContainer->bIsInVR = bIsInVR;
 				WidgetContainer->WidgetController = this;
 			}
-			else if (FoundWidgetContainer->GetActorLabel().Contains("DemoWidgetContainer"))
+			else if (FoundWidgetContainer->ActorHasTag("DemoWidgetContainer"))
 			{
 				WidgetContainerTooltip = FoundWidgetContainer;
 			}
@@ -579,7 +579,10 @@ void AWidgetController::ReplayContinueButtonClicked()
 					if (NewLevelButton && NewLevelButton->TextBlock)
 					{
 						// Setup the button properties
-						FText NextLevelText = FText::FromString(TEXT("Next Level"));
+						FText Delimiter = FText::FromString(TEXT(" "));
+						FText TextLevel = FText::FromString(TEXT("Continue to Level"));
+						FText LevelNumber = FText::AsNumber(NewLevelButton->Level);
+						FText NextLevelText = FText::Join(Delimiter, TextLevel, LevelNumber);
 						NewLevelButton->ButtonText = NextLevelText;
 					}
 					LoadLevelsWidget->LevelsBox->AddChildToVerticalBox(NewLevelButton);
@@ -668,6 +671,11 @@ void AWidgetController::NextLevelButtonClicked() const
 		return;
 	}
 	GameState->SetCurrentLevel(GameState->GetCurrentLevel() + 1);
+	FText Delimiter = FText::FromString(TEXT(" "));
+	FText TextLevel = FText::FromString(TEXT("Continue to Level"));
+	FText LevelNumber = FText::AsNumber(GameState->GetCurrentLevel() + 1);
+	FText NextLevelText = FText::Join(Delimiter, TextLevel, LevelNumber);
+	WinWidget->NextLevelButton->ButtonText = NextLevelText;
 	
 	OnPlayGameButtonClicked.Broadcast();
 }

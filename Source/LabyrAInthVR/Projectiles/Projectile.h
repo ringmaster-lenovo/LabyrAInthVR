@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
 
+class USoundCue;
 class AProceduralSplineWall;
 class UBoxComponent;
 class UNiagaraSystem;
