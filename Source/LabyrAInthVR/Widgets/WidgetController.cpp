@@ -364,9 +364,14 @@ void AWidgetController::ShowGameUI()
 				StatisticsWidget->AddToViewport(1);
 			}
 		}
-	}  
-	DamageWidget = CreateWidget<UDamageWidget>(PlayerController, DamageWidgetClass);
-	DamageWidget->AddToViewport(0);
+		DamageWidget = CreateWidget<UDamageWidget>(PlayerController, DamageWidgetClass);
+		DamageWidget->AddToViewport(0);
+	}  else
+	{
+		DamageWidget = CreateWidget<UDamageWidget>(PlayerController, DamageWidgetClassVR);
+		DamageWidget->AddToViewport(0);
+	}
+	
 }
 
 void AWidgetController::ShowWinScreen(const int32 TimeOnLevel)
@@ -389,6 +394,27 @@ void AWidgetController::ShowWinScreen(const int32 TimeOnLevel)
 				}
 				WinWidget->SetTime(TimeOnLevel);
 				WinWidget->WidgetController = this;
+				UWorld* World = GetWorld();
+				if (World)
+				{
+					AVRGameState* GameState = World->GetGameState<AVRGameState>();
+					APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+					if (PlayerController)
+					{
+						UButtonWidget* NewLevelButton = CreateWidget<UButtonWidget>(PlayerController, ButtonWidgetClass);
+						NewLevelButton->OnClickedDelegate.AddUniqueDynamic(this, &AWidgetController::NextLevelButtonClicked);
+
+						// Setup the button properties
+						FText Text = FText::FromString(TEXT("Continue to level"));
+						FText Number = FText::AsNumber(GameState->GetCurrentLevel() + 1);
+						FText Delimiter = FText::FromString(TEXT(" "));
+						FText CombinedText = FText::Join(Delimiter, Text, Number);
+						// FText NextLevelText = FText::FromString(TEXT("Next Level"));
+						NewLevelButton->ButtonText = CombinedText;
+						WinWidget->VerticalBox->AddChildToVerticalBox(NewLevelButton);
+					}
+						
+				}
 			} else {
 				FString ErrorString = "No VRWinWidgetClass set!";
 				UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
@@ -410,6 +436,26 @@ void AWidgetController::ShowWinScreen(const int32 TimeOnLevel)
 				PlayerController->bShowMouseCursor = true;
 				WinWidget->SetTime(TimeOnLevel);
 				WinWidget->WidgetController = this;
+				UWorld* World = GetWorld();
+				if (World)
+				{
+					AVRGameState* GameState = World->GetGameState<AVRGameState>();
+					if (PlayerController)
+					{
+						UButtonWidget* NewLevelButton = CreateWidget<UButtonWidget>(PlayerController, ButtonWidgetClass);
+						NewLevelButton->OnClickedDelegate.AddUniqueDynamic(this, &AWidgetController::NextLevelButtonClicked);
+
+						// Setup the button properties
+						FText Text = FText::FromString(TEXT("Continue to level"));
+						FText Number = FText::AsNumber(GameState->GetCurrentLevel() + 1);
+						FText Delimiter = FText::FromString(TEXT(" "));
+						FText CombinedText = FText::Join(Delimiter, Text, Number);
+						// FText NextLevelText = FText::FromString(TEXT("Next Level"));
+						NewLevelButton->ButtonText = CombinedText;
+						WinWidget->VerticalBox->AddChildToVerticalBox(NewLevelButton);
+					}
+						
+				}
 				WinWidget->SetFocusToButton();
 				WinWidget->AddToViewport(0);
 			} else {
@@ -435,7 +481,7 @@ void AWidgetController::ShowLoseScreen(const bool bIsPlayerDead)
 				LoseWidget = Cast<ULoseWidget>(WidgetContainer->Widget->GetUserWidgetObject());
 				if (!LoseWidget)
 				{
-					FString ErrorString = "No WinWidget!";
+					FString ErrorString = "No LoseWidget!";
 					UE_LOG(LabyrAInthVR_Widget_Log, Error, TEXT("%s"), *ErrorString);
 					OnWidgetSError.Broadcast();
 					return;
@@ -654,7 +700,7 @@ void AWidgetController::LoadLevel(int8 Level)
 	OnPlayGameButtonClicked.Broadcast();
 }
 
-void AWidgetController::NextLevelButtonClicked() const
+void AWidgetController::NextLevelButtonClicked(UButtonWidget* Button)
 {
 	UWorld* World = GetWorld();
 	if (!World)
@@ -671,11 +717,6 @@ void AWidgetController::NextLevelButtonClicked() const
 		return;
 	}
 	GameState->SetCurrentLevel(GameState->GetCurrentLevel() + 1);
-	FText Delimiter = FText::FromString(TEXT(" "));
-	FText TextLevel = FText::FromString(TEXT("Continue to Level"));
-	FText LevelNumber = FText::AsNumber(GameState->GetCurrentLevel() + 1);
-	FText NextLevelText = FText::Join(Delimiter, TextLevel, LevelNumber);
-	WinWidget->NextLevelButton->ButtonText = NextLevelText;
 	
 	OnPlayGameButtonClicked.Broadcast();
 }

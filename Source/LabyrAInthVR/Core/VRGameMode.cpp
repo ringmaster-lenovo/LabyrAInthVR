@@ -212,7 +212,7 @@ void AVRGameMode::PlayerWantsToPlayGame()
 	// MockNetwork();  // uncomment this line and comment the followings to test the game without the backend
 	 NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
 	 NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
-
+	 
 	 const int32 LevelToPlay = VRGameState->GetCurrentLevel();
 	 UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Requesting Labyrinth for level %d"), LevelToPlay);
 	 ULabyrinthRequestDTO* LabyrinthRequestDTO = NewObject<ULabyrinthRequestDTO>();
