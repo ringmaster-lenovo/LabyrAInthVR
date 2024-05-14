@@ -768,6 +768,7 @@ void ASpawnManager::TriggerCompass(UParticleSystem* CompassEffect)
 
 	CompassInstance = UGameplayStatics::SpawnEmitterAtLocation(this, CompassEffect, MainCharacter->GetActorLocation(),
 															   ToPortal.Rotation());
+	
 }
 
 void ASpawnManager::GetNumOfActorSpawned(int& NumOfEnemies, int& NumOfTraps, int& NumOfPowerUps,
@@ -777,6 +778,12 @@ void ASpawnManager::GetNumOfActorSpawned(int& NumOfEnemies, int& NumOfTraps, int
 	NumOfTraps = NumOfTrapsSpawned;
 	NumOfPowerUps = NumOfPowerUpsSpawned;
 	NumOfWeapons = NumOfWeaponsSpawned;
+}
+
+void ASpawnManager::ClearCompassEffect()
+{
+	if(!IsValid(CompassInstance)) return;
+	CompassInstance->Deactivate();
 }
 
 void ASpawnManager::UpdateSpawnableActor(AActor* SpawnedWall)
