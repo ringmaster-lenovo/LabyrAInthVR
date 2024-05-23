@@ -79,6 +79,11 @@ void AProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompone
 		return;
 	}
 
+	if (OtherActor->IsA<AProjectile>())
+	{
+		return;
+	}
+
 	if (!OtherActor->Implements<UDamageableActor>())
 	{
 		PlaySound(SurfaceHit);
