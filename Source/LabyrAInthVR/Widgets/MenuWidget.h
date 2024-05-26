@@ -41,5 +41,8 @@ public:
 
 	UFUNCTION()
 	void OnMainMenuClicked();
+
+	UFUNCTION()
+	void SetFocusToButton();
 	
 };

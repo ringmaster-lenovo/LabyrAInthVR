@@ -12,6 +12,7 @@
 #include "MenuWidget.h"
 #include "SettingsWidget.h"
 #include "LoadingWidget.h"
+#include "DemoTooltipWidget.h"
 #include "WinWidget.h"
 #include "LoseWidget.h"
 #include "StatisticsWidget.h"
@@ -46,7 +47,13 @@ public:
 	TSubclassOf<AWidgetContainer> WidgetContainerClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<AWidgetContainer> WidgetTooltipContainerClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<ULobbyWidget> LobbyWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UDemoTooltipWidget> DemoTooltipWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<UPromptingWidget> PromptingWidgetClass;
@@ -94,6 +101,9 @@ public:
 	TSubclassOf<UDamageWidget> DamageWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UDamageWidget> DamageWidgetClassVR;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 	TSubclassOf<USpeedWidget> SpeedWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
@@ -101,6 +111,9 @@ public:
 	
 	UPROPERTY()
 	USpeedWidget* SpeedWidget = nullptr;
+
+	UPROPERTY()
+	UDemoTooltipWidget* DemoTooltipWidget = nullptr;
 
 	UPROPERTY()
 	USlowWidget* SlowWidget = nullptr;
@@ -140,6 +153,9 @@ public:
 
 	UPROPERTY()
 	AWidgetContainer* WidgetContainer = nullptr;
+
+	UPROPERTY()
+	AWidgetContainer* WidgetContainerTooltip = nullptr;
 
 	DECLARE_MULTICAST_DELEGATE(FPlayGameEvent);
 	FPlayGameEvent OnPlayGameButtonClicked;
@@ -184,6 +200,9 @@ public:
 	void ShowGameUI();
 
 	UFUNCTION(Category = "Widgets")
+	void ShowDemoTooltip();
+
+	UFUNCTION(Category = "Widgets")
 	void ShowWinScreen(int32 TimeOnLevel);
 
 	UFUNCTION(Category = "Widgets")
@@ -208,7 +227,7 @@ public:
 	void PlayDemoButtonClicked();
 
 	UFUNCTION(Category = "Widgets")
-	void NextLevelButtonClicked() const;
+	void NextLevelButtonClicked(UButtonWidget* Button);
 
 	UFUNCTION(Category = "Widgets")
 	void SettingsButtonClicked();
@@ -239,6 +258,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Widgets")
 	void RemoveSlowWidget();
+
+	UFUNCTION(Category = "Widgets")
+	bool IsUsingGamepad();
 
 private:
 	FTimerHandle RemoveSlowWidgetTimerHandle;

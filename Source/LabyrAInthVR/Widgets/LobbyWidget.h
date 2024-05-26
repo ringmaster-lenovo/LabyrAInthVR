@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Button.h"
 #include "LobbyWidget.generated.h"
 
 class AWidgetController;
@@ -45,6 +46,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* QuitButton;
+	
 
 	UFUNCTION()
 	void OnStartNewGameButtonClicked();
@@ -63,5 +65,8 @@ public:
 
 	UFUNCTION()
 	void OnLogoutClicked();
+
+	UFUNCTION()
+	void SetFocusToButton();
 	
 };
