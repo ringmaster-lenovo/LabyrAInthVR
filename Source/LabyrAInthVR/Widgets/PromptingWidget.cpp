@@ -74,6 +74,7 @@ void UPromptingWidget::OnSendClicked()
 				// Check if ErrorText is valid and then make it visible
 				if (ErrorText)
 				{
+					ErrorText->SetText(FText::FromString(ErrorString));
 					ErrorText->SetVisibility(ESlateVisibility::Visible);
 				}
 			}

@@ -173,6 +173,8 @@ void AVRGameMode::PlayerWantsToPlayDemo()
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
 
 	bIsDemo = true;
+
+	WidgetController->ShowDemoTooltip();
 	
 	// unbind all main menu events
 	WidgetController->OnPlayGameButtonClicked.RemoveAll(this);
@@ -210,7 +212,7 @@ void AVRGameMode::PlayerWantsToPlayGame()
 	// MockNetwork();  // uncomment this line and comment the followings to test the game without the backend
 	 NetworkController->OnLabyrinthReceived.AddUObject(this, &AVRGameMode::PrepareGame);
 	 NetworkController->OnNetworkError.AddUObject(this, &AVRGameMode::MockNetwork);
-
+	 
 	 const int32 LevelToPlay = VRGameState->GetCurrentLevel();
 	 UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Requesting Labyrinth for level %d"), LevelToPlay);
 	 ULabyrinthRequestDTO* LabyrinthRequestDTO = NewObject<ULabyrinthRequestDTO>();
@@ -348,7 +350,7 @@ void AVRGameMode::EndGame(const int Result)
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
 	
 	UGameplayStatics::SetGamePaused(this, false);
-	
+	BasePlayerController->MainCharacter->SetIsFrozen(false);
 	// unbind all game events
 	BasePlayerController->OnPLayerDeath.RemoveAll(this);
 	BasePlayerController->OnCollisionWithEndPortal.RemoveAll(this);
@@ -426,6 +428,7 @@ void AVRGameMode::EndGame(const int Result)
 	WidgetController->RemoveSpeedWidget();
 	WidgetController->ClearStatisticsTimer();
 	MusicController->StopClockSound();
+	
 	BasePlayerController->ResetPlayerStats();
 }
 
@@ -439,7 +442,9 @@ void AVRGameMode::RestartGame()
 	}
 	VRGameState->SetStateOfTheGame(EGameState::Egs_Restarting);
 	UE_LOG(LabyrAInthVR_Core_Log, Display, TEXT("Active Game State: %s"), *VRGameState->GetCurrentStateOfTheGameAsString());
-	
+	if(IsValid(BasePlayerController) && IsValid(BasePlayerController->MainCharacter)) {
+		BasePlayerController->MainCharacter->SetIsFrozen(false);
+	}
 	// unbind all game events
 	BasePlayerController->OnPLayerDeath.RemoveAll(this);
 	BasePlayerController->OnCollisionWithEndPortal.RemoveAll(this);

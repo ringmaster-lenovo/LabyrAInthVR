@@ -9,6 +9,7 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "BaseEnemy.generated.h"
 
+class USoundCue;
 class UStatsChangerComponent;
 class AVRMainCharacter;
 class AMainCharacter;

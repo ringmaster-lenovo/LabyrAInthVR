@@ -26,6 +26,9 @@ public:
 	class UTextBlock* seconds;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UTextBlock* Separator;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* speed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
@@ -60,11 +63,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StopTimer();
 
+	UFUNCTION(BlueprintCallable)
+	void PauseLevelTimer();
+
+	UFUNCTION(BlueprintCallable)
+	void ResumeLevelTimer();
+
 	UPROPERTY()
 	AMainCharacter* MainCharacter;
 private:
 	
     FTimerHandle TimerHandle;
     int32 CurrentTimeInSeconds = 0;
+	float RemainingTime = 0.0f;
+	bool bIsTimerPaused = false;
 	
 };

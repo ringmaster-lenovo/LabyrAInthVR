@@ -24,14 +24,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* TimeText;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	class UUserWidget* NextLevelButton;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	// class UButtonWidget* NextLevelButton;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UUserWidget* MainMenuButton;
 
-	UFUNCTION()
-	void OnNextLevelClicked();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UVerticalBox* VerticalBox;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	int32 Level;
+
+	// UFUNCTION()
+	// void OnNextLevelClicked();
 
 	UFUNCTION()
 	void SetFocusToButton();

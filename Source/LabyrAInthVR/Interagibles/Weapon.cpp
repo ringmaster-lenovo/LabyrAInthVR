@@ -80,29 +80,53 @@ void AWeapon::ResetShooting()
 {
 	bCanShoot = true;
 }
+
+void AWeapon::GenerateNoise()
+{
+	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if(Character)
+	{
+		Character->GetPawnNoiseEmitterComponent()->MakeNoise(
+		this, 1.0f, GetActorLocation());
+	}
+}
+
+
 void AWeapon::AssignToPlayerRight()
 {
 	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	Character->SetEquippedWeapon(this);
+	if(Character)
+	{
+		Character->SetEquippedWeapon(this);
+	}
 	
 }
 
 void AWeapon::RemoveFromPlayerRight()
 {
 	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	Character->SetEquippedWeapon(nullptr);
+	if(Character)
+	{
+		Character->SetEquippedWeapon(nullptr);
+	}
 }
 
 void AWeapon::AssignToPlayerLeft()
 {
 	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	Character->SetEquippedWeaponLeft(this);
+	if(Character)
+	{
+		Character->SetEquippedWeaponLeft(this);
+	}
 	
 }
 
 void AWeapon::RemoveFromPlayerLeft()
 {
 	AMainCharacter* Character = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	Character->SetEquippedWeaponLeft(nullptr);
+	if(Character)
+	{
+		Character->SetEquippedWeaponLeft(nullptr);
+	}
 }
 

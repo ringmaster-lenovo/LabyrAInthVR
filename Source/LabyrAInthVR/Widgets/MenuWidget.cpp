@@ -11,7 +11,8 @@
 void UMenuWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-
+	AVRGameMode* GameMode = Cast<AVRGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	
 	// Collega gli eventi dei pulsanti
 	if (SettingsButton)
 	{
@@ -19,6 +20,10 @@ void UMenuWidget::NativeConstruct()
 		if (SettingsButtonWidget)
 		{
 			SettingsButtonWidget->OnClicked.AddDynamic(this, &UMenuWidget::OnSettingsClicked);
+		}
+		if (GameMode && GameMode->IsInDemo())
+		{
+			SettingsButton->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
 
@@ -28,6 +33,11 @@ void UMenuWidget::NativeConstruct()
 		if (RestartButtonWidget)
 		{
 			RestartButtonWidget->OnClicked.AddDynamic(this, &UMenuWidget::OnRestartClicked);
+		}
+		
+		if (GameMode && GameMode->IsInDemo())
+		{
+			RestartButton->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
 
