@@ -10,10 +10,12 @@
 #include "LabyrAInthVR/Enemy/RangedEnemy.h"
 #include "LabyrAInthVR/Interagibles/Portal.h"
 #include "LabyrAInthVR/Scene/ProceduralSplineWall.h"
-#include "LabyrAInthVR/Interagibles/PowerUp.h"
+// #include "LabyrAInthVR/Interagibles/PowerUp.h"
+#include "LabyrAInthVR/Interagibles/PowerUp/BasePowerUp.h"
 #include "LabyrAInthVR/Interagibles/Trap.h"
 #include "LabyrAInthVR/Network/DTO/LabyrinthDTO.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
+#include "LabyrAInthVR/Player/PlayerStatistics.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "LabyrAInthVR/Pickups/BasePickup.h"
@@ -509,7 +511,7 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 		if (SpawnableActors[Index] == nullptr) return "";
 		const UClass* ObjectClass = SpawnableActors[Index]->GetSuperClass();
 
-		if (ObjectClass == APowerUp::StaticClass())
+		if (ObjectClass == ABasePowerUp::StaticClass())
 		{
 			SpawnPoint = FVector{
 				WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,

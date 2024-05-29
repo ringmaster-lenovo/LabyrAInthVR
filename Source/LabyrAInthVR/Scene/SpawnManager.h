@@ -14,7 +14,7 @@ class AMainCharacter;
 class IMovableActor;
 class UFreezableActor;
 class IFreezableActor;
-class APowerUp;
+class ABasePowerUp;
 class ATrap;
 class ABaseEnemy;
 
