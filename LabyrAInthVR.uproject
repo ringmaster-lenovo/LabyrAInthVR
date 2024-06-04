@@ -44,7 +44,7 @@
 		},
 		{
 			"Name": "PlayerStatistics",
-			"Enabled": true,
+			"Enabled": false,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/d7f729d535a04754b0c6b3e02f337d24"
 		},
 		{
@@ -54,6 +54,10 @@
 				"Win64",
 				"Android"
 			]
+		},
+		{
+			"Name": "CommonUI",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [

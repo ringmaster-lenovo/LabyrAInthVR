@@ -31,6 +31,15 @@ void ULoseWidget::NativeConstruct()
 	}
 }
 
+void ULoseWidget::SetFocusToButton()
+{
+	if (RestartButton)
+	{
+		RestartButton->bIsFocusable = true;
+		RestartButton->SetKeyboardFocus();
+	}
+}
+
 void ULoseWidget::OnRestartClicked()
 {
 	WidgetController->RestartButtonClicked();

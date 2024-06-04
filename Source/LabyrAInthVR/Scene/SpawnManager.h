@@ -185,4 +185,6 @@ public:
 	FString SpawnPlayerStart();
 
 	void GetNumOfActorSpawned(int &NumOfEnemies, int &NumOfTraps, int &NumOfPowerUps, int &NumOfWeapons) const;
+
+	void ClearCompassEffect();
 };

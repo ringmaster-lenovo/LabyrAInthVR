@@ -80,6 +80,9 @@ public:
 	FORCEINLINE void SetMainCharacter(AMainCharacter* CharacterMain) { MainCharacter = CharacterMain; }
 
 	UFUNCTION(BlueprintCallable)
+	void GenerateNoise();
+
+	UFUNCTION(BlueprintCallable)
 	void AssignToPlayerRight();
 
 	UFUNCTION(BlueprintCallable)

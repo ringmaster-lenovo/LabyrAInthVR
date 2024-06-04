@@ -165,6 +165,35 @@ void UPlayerStatistics::StopLevelTimer()
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 }
 
+void UPlayerStatistics::PauseLevelTimerForDuration(float PauseDuration)
+{
+	if (!GetWorld()) return;
+
+	// First, stop the main timer.
+	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+
+	// Set a new timer that will wait for 'PauseDuration' seconds before restarting the main timer.
+	GetWorld()->GetTimerManager().SetTimer(PauseTimerHandle, this, &UPlayerStatistics::ResumeLevelTimer, PauseDuration, false);
+}
+
+
+void UPlayerStatistics::ResumeLevelTimer()
+{
+	if (!GetWorld()) return;
+
+	// Clear any existing pause timer handle
+	GetWorld()->GetTimerManager().ClearTimer(PauseTimerHandle);
+
+	// Restart the main timer as before
+	const float TimerInterval = 1.0f;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UPlayerStatistics::UpdateTimer, TimerInterval, true);
+	if(IsValid(MainCharacter)) {
+		MainCharacter->SetIsFrozen(false);
+	}
+}
+
+
+
 float UPlayerStatistics::GetLevelTime()
 {
 	return LevelTime;

@@ -35,5 +35,8 @@ public:
 
 	UFUNCTION()
 	void OnSendClicked();
+
+	UFUNCTION()
+	void SetFocusToFirstInteractiveElement();
 	
 };

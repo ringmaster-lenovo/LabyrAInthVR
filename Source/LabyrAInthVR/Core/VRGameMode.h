@@ -140,4 +140,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool IsInVR() { return bIsVRHMDConnected; }
+
+	UFUNCTION(BlueprintCallable)
+	bool IsInDemo() { return bIsDemo; }
 };

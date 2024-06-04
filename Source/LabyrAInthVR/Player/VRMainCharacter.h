@@ -48,6 +48,11 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR", meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* VRRoot;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR", meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* VRCamera;
+
+	FVector LastCameraPosition;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MovementSpeed", meta = (AllowPrivateAccess = "true"))
 	double BaseMovementSpeed = 0.5;
 

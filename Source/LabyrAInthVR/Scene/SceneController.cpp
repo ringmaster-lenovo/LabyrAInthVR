@@ -91,6 +91,7 @@ FString ASceneController::CleanUpOnlyLevel() const
 {
 	// Get a reference to the game world
 	TArray<AActor*> ActorsSpawned {SpawnedActors};
+	if(IsValid(SpawnManager)) SpawnManager->ClearCompassEffect();
 	const UWorld* World = GetWorld();
 	if (!World)
 	{
@@ -117,6 +118,7 @@ FString ASceneController::CleanUpLevelAndDoStatistics(int& NumOfEnemiesKilled, i
 		return "No valid world found";
 	}
 	TArray<AActor*> ActorsSpawned {SpawnedActors};
+	if(IsValid(SpawnManager)) SpawnManager->ClearCompassEffect();
 	int NumOfEnemiesAlive = 0;
 	int NumOfTrapsActive = 0;
 	int NumOfPowerUpsNotCollected = 0;

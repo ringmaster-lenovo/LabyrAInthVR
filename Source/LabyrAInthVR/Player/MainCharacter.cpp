@@ -87,8 +87,6 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(SprintInputAction, ETriggerEvent::Completed, this, &ThisClass::Sprint, false);
 		
 		EnhancedInputComponent->BindAction(ShootInputAction, ETriggerEvent::Started, this, &ThisClass::Shoot, true);
-		EnhancedInputComponent->BindAction(ShootInputAction, ETriggerEvent::Canceled, this, &ThisClass::Shoot, false);
-		EnhancedInputComponent->BindAction(ShootInputAction, ETriggerEvent::Completed, this, &ThisClass::Shoot, false);
 	}
 }
 

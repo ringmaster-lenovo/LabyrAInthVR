@@ -6,6 +6,7 @@
 
 #include "MovieSceneSequenceID.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
 #include "Components/PostProcessComponent.h"
 #include "Components/SpotLightComponent.h"
@@ -33,6 +34,16 @@ AVRMainCharacter::AVRMainCharacter()
 void AVRMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	VRCamera = Cast<UCameraComponent>(GetDefaultSubobjectByName(TEXT("Camera")));
+	if (VRCamera == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("VRCamera is nullptr"));
+	}
+	else
+	{
+		LastCameraPosition = VRCamera->GetRelativeLocation();
+	}
 	
 	if (BlinkerFlag && BlinkerMaterialBase != nullptr)
 	{
@@ -47,6 +58,27 @@ void AVRMainCharacter::Tick(float const DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	if (BlinkerFlag) UpdateBlinkerRadius();
+
+	// Calculate the player's real-world movement
+	FVector CurrentCameraPosition = VRCamera->GetRelativeLocation();
+	UE_LOG(LabyrAInthVR_Character_Log, Display, TEXT("CurrentCameraPosition: %s"), *CurrentCameraPosition.ToString());
+	FVector CurrentVRRootPosition = VRRoot->GetRelativeLocation();
+	UE_LOG(LabyrAInthVR_Character_Log, Display, TEXT("Current VRRootPosition: %s"), *CurrentVRRootPosition.ToString());
+	FVector Movement = CurrentCameraPosition - CurrentVRRootPosition;
+	UE_LOG(LabyrAInthVR_Character_Log, Display, TEXT("Movement: %s"), *Movement.ToString());
+	UE_LOG(LabyrAInthVR_Character_Log, Display, TEXT("GetCapsuleComponent()->GetScaledCapsuleRadius(): %f"), GetCapsuleComponent()->GetScaledCapsuleRadius());
+
+	// if the Movement is greater than the radius of the capsule component, the vr root needs to be re-adjusted
+	// to prevent the player from going through walls
+	if (FMath::Abs(Movement.X) >= GetCapsuleComponent()->GetScaledCapsuleRadius() || FMath::Abs(Movement.Y) >= GetCapsuleComponent()->GetScaledCapsuleRadius())
+	{
+		// Move the VR origin in the opposite direction to cancel out the real-world movement
+		VRRoot->SetRelativeLocation(FVector { CurrentCameraPosition.X, CurrentCameraPosition.Y, 0 }, true, nullptr, ETeleportType::TeleportPhysics);
+		UE_LOG(LabyrAInthVR_Character_Log, Warning, TEXT("VRRoot->GetRelativeLocation(): %s"), *VRRoot->GetRelativeLocation().ToString());
+	}
+	
+	// Update LastCameraPosition
+	LastCameraPosition = VRCamera->GetRelativeLocation();
 }
 
 // Called to bind functionality to input

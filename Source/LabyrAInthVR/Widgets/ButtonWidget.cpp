@@ -5,6 +5,7 @@
 
 #include "WidgetController.h"
 #include "Components/Button.h"
+#include "Components/TextBlock.h"
 
 
 void UButtonWidget::NativeConstruct()

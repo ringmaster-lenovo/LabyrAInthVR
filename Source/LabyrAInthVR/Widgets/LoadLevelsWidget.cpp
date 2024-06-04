@@ -21,6 +21,15 @@ void ULoadLevelsWidget::NativeConstruct()
 	}
 }
 
+void ULoadLevelsWidget::SetFocusToButton()
+{
+	if (BackButton)
+	{
+		BackButton->bIsFocusable = true;
+		BackButton->SetKeyboardFocus();
+	}
+}
+
 void ULoadLevelsWidget::OnBackClicked()
 {
 	WidgetController->ShowMainMenu();
