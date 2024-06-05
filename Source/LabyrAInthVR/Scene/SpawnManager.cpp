@@ -511,7 +511,8 @@ FString ASpawnManager::SpawnActors(const TArray<int>& SpawnLocations, const TArr
 		if (SpawnableActors[Index] == nullptr) return "";
 		const UClass* ObjectClass = SpawnableActors[Index]->GetSuperClass();
 
-		if (ObjectClass == ABasePowerUp::StaticClass())
+		//if (ObjectClass == ABasePowerUp::StaticClass())
+		if (SpawnableActors[Index]->IsChildOf(ABasePowerUp::StaticClass()))
 		{
 			SpawnPoint = FVector{
 				WallSettings::WallOffset * Column, WallSettings::WallOffset * Row,

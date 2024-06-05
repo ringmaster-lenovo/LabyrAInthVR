@@ -245,3 +245,9 @@ void ASceneController::UpdateNavMeshBoundsVolume(const ULabyrinthDTO* LabyrinthD
 	GetWorldTimerManager().SetTimer(NavMeshBoundsTimerHandle, this, &ASceneController::UpdateNavMeshBoundsPosition,
 	                                0.25f, false);
 }
+
+//PowerUp Utils
+void ASceneController::RemoveFromSpawnManagerList(AActor* ActorToRemove)
+{
+	SpawnManager->RemoveFromList(ActorToRemove);
+}

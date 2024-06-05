@@ -36,6 +36,12 @@ public:
 		return WidgetController;
 	}
 
+	UFUNCTION()
+	ASceneController* GetSceneController()
+	{
+		return SceneController;
+	}
+
 protected:
 	virtual void BeginPlay() override;
 

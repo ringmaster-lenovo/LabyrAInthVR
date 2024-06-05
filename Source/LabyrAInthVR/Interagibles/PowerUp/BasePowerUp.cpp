@@ -1,10 +1,10 @@
 #include "BasePowerUp.h"
 
-#include "EffectManager.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 #include "NiagaraComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "LabyrAInthVR/Core/VRGameMode.h"
 #include "LabyrAInthVR/Player/MainCharacter.h"
 
 DEFINE_LOG_CATEGORY(LabyrAInthVR_PowerUp_Log);
@@ -39,7 +39,7 @@ void ABasePowerUp::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompon
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//Check if PowerUp is overlapped by the player
-	AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor);
+	MainCharacter = Cast<AMainCharacter>(OtherActor);
 	if (!IsValid(MainCharacter)) return;
 	
 	UE_LOG(LabyrAInthVR_PowerUp_Log, Display, TEXT("%s: start overlap"), *GetName());
@@ -51,11 +51,16 @@ void ABasePowerUp::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCompon
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, NiagaraEmitter, GetActorLocation());
 	}
-	PowerUp(MainCharacter);
+	
+	/*PowerUp logic here*/
+	PowerUp();
+	
+	AVRGameMode* GameMode = Cast<AVRGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameMode->GetSceneController()->RemoveFromSpawnManagerList(this);
 	this->K2_DestroyActor();
 }
 
-void ABasePowerUp::PowerUp(AMainCharacter* MainCharacter)
+void ABasePowerUp::PowerUp()
 {
-	UEffectManager::ApplyEffect(PowerUpType, MainCharacter);
+	
 }

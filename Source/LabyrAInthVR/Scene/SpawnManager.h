@@ -22,16 +22,6 @@ UENUM()
 enum EActorToSpawn { PowerUps, Traps, Enemies };
 
 UENUM(BlueprintType)
-enum class EPowerUpsTypes : uint8
-{
-	Ept_Heart        UMETA(DisplayName="Heart"),
-	Ept_Shield       UMETA(DisplayName="Shield"),
-	Ept_Lightning    UMETA(DisplayName="Lightning"),
-	Ept_FrozenStar   UMETA(DisplayName="Frozen Star"),
-	Ept_Diamond	     UMETA(DisplayName="Diamond Compass")
-};
-
-UENUM(BlueprintType)
 enum class ETrapsTypes : uint8
 {
 	Ett_TripWire     UMETA(DisplayName="TripWire"),

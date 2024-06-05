@@ -49,6 +49,9 @@ public:
 	void GetPlayerDemoStartPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
 
 	void FreezeAllActors(bool bFreeze);
+
+	//PowerUp Utils
+	void RemoveFromSpawnManagerList(AActor* ActorToRemove);
 	
 	UFUNCTION()
 	void GeEndPortalPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;

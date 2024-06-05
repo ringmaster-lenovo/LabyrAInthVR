@@ -7,7 +7,6 @@
 #include "LabyrAInthVR/Player/MainCharacter.h"
 #include "LabyrAInthVR/Interfaces/MovableActor.h"
 #include "LabyrAInthVR/Interfaces/SpawnableActor.h"
-#include "LabyrAInthVR/Scene/SpawnManager.h"
 #include "BasePowerUp.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LabyrAInthVR_PowerUp_Log, Display, All);
@@ -24,24 +23,23 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	//PowerUp type
-	UPROPERTY(EditAnywhere)
-	EPowerUpsTypes PowerUpType;
-	
+	//PowerUp logic
+	virtual void PowerUp();
+
+	UPROPERTY()
+	AMainCharacter* MainCharacter;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	
 private:
 	// Called when the powerup collide
 	UFUNCTION()
 	void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 								 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
 								 const FHitResult& SweepResult);
-	// PowerUp the player
-	UFUNCTION()
-	void PowerUp(AMainCharacter* MainCharacter);
-private:
+
 	/** Sound to play on collect */
 	UPROPERTY(EditAnywhere)
 	USoundBase* CollectSound;
