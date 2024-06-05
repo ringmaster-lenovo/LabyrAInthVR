@@ -39,11 +39,6 @@ void ASpawnManager::BeginPlay()
 void ASpawnManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (!IsValid(CompassInstance) || !IsValid(MainCharacter)) return;
-	FVector ToPortal = (EndPortalPosition - MainCharacter->GetActorLocation()).GetSafeNormal() * 500.f;
-	CompassInstance->SetWorldLocation(MainCharacter->GetActorLocation());
-	CompassInstance->SetWorldRotation(ToPortal.Rotation());
 }
 
 /**
@@ -748,28 +743,6 @@ void ASpawnManager::TriggerFrozenStar()
 	}
 }
 
-void ASpawnManager::TriggerCompass(UParticleSystem* CompassEffect)
-{
-	if (IsValid(CompassInstance))
-	{
-		CompassInstance->Deactivate();
-	}
-	
-	MainCharacter = Cast<AMainCharacter>(UGameplayStatics::GetActorOfClass(this, AMainCharacter::StaticClass()));
-
-	if (!IsValid(MainCharacter)) return;
-
-	FVector ToPortal = (EndPortalPosition - MainCharacter->GetActorLocation()).GetSafeNormal() * 500.f;
-
-	//DrawDebugLine(GetWorld(), MainCharacter->GetActorLocation(), ToPortal, FColor::Red, true);
-
-	if (!IsValid(CompassEffect)) return;
-
-	CompassInstance = UGameplayStatics::SpawnEmitterAtLocation(this, CompassEffect, MainCharacter->GetActorLocation(),
-															   ToPortal.Rotation());
-	
-}
-
 void ASpawnManager::GetNumOfActorSpawned(int& NumOfEnemies, int& NumOfTraps, int& NumOfPowerUps,
                                          int& NumOfWeapons) const
 {
@@ -777,12 +750,6 @@ void ASpawnManager::GetNumOfActorSpawned(int& NumOfEnemies, int& NumOfTraps, int
 	NumOfTraps = NumOfTrapsSpawned;
 	NumOfPowerUps = NumOfPowerUpsSpawned;
 	NumOfWeapons = NumOfWeaponsSpawned;
-}
-
-void ASpawnManager::ClearCompassEffect()
-{
-	if(!IsValid(CompassInstance)) return;
-	CompassInstance->Deactivate();
 }
 
 void ASpawnManager::UpdateSpawnableActor(AActor* SpawnedWall)

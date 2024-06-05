@@ -54,7 +54,7 @@ public:
 	void RemoveFromSpawnManagerList(AActor* ActorToRemove);
 	
 	UFUNCTION()
-	void GeEndPortalPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
+	void GetEndPortalPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
 
 private:
 	UPROPERTY()

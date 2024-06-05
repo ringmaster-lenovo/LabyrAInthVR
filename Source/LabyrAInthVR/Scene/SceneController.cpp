@@ -10,6 +10,7 @@
 #include "LabyrAInthVR/Interagibles/Trap.h"
 #include "LabyrAInthVR/Enemy/BaseEnemy.h"
 #include "LabyrAInthVR/Interagibles/Weapon.h"
+#include "LabyrAInthVR/Player/MainCharacter.h"
 #include "NavMesh/NavMeshBoundsVolume.h"
 
 ASceneController::ASceneController()
@@ -91,7 +92,19 @@ FString ASceneController::CleanUpOnlyLevel() const
 {
 	// Get a reference to the game world
 	TArray<AActor*> ActorsSpawned {SpawnedActors};
-	if(IsValid(SpawnManager)) SpawnManager->ClearCompassEffect();
+
+	//Compass effect clear
+
+	//OLD
+	//if(IsValid(SpawnManager)) SpawnManager->ClearCompassEffect();
+
+	//NEW - DA RIVEDERE
+	AMainCharacter* MainCharacter=Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(),0));
+	if(IsValid(MainCharacter) && IsValid(MainCharacter->GetCompassComponent()))
+	{
+		MainCharacter->GetCompassComponent()->ClearCompassEffect();
+	}
+
 	const UWorld* World = GetWorld();
 	if (!World)
 	{
@@ -118,7 +131,18 @@ FString ASceneController::CleanUpLevelAndDoStatistics(int& NumOfEnemiesKilled, i
 		return "No valid world found";
 	}
 	TArray<AActor*> ActorsSpawned {SpawnedActors};
-	if(IsValid(SpawnManager)) SpawnManager->ClearCompassEffect();
+	//Compass effect clear
+
+	//OLD
+	//if(IsValid(SpawnManager)) SpawnManager->ClearCompassEffect();
+
+	//NEW - DA RIVEDERE
+	AMainCharacter* MainCharacter=Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(),0));
+	if(IsValid(MainCharacter) && IsValid(MainCharacter->GetCompassComponent()))
+	{
+		MainCharacter->GetCompassComponent()->ClearCompassEffect();
+	}
+
 	int NumOfEnemiesAlive = 0;
 	int NumOfTrapsActive = 0;
 	int NumOfPowerUpsNotCollected = 0;
@@ -209,7 +233,7 @@ void ASceneController::FreezeAllActors(bool bFreeze)
 	}
 }
 
-void ASceneController::GeEndPortalPositionAndRotation(FVector& PlayerEndPosition, FRotator& PlayerEndRotation) const
+void ASceneController::GetEndPortalPositionAndRotation(FVector& PlayerEndPosition, FRotator& PlayerEndRotation) const
 {
 	PlayerEndPosition = SpawnManager->EndPortalPosition;
 	PlayerEndRotation = SpawnManager->EndPortalRotation;

@@ -126,13 +126,7 @@ public:
 	void TriggerFrozenStar();
 
 	UFUNCTION(BlueprintCallable)
-	void TriggerCompass(UParticleSystem* CompassEffect);
-
-	UFUNCTION(BlueprintCallable)
 	void RemoveFromList(AActor* ActorToRemove);
-
-	UPROPERTY()
-	UParticleSystemComponent* CompassInstance;
 
 	UPROPERTY()
 	AMainCharacter* MainCharacter;
@@ -175,6 +169,4 @@ public:
 	FString SpawnPlayerStart();
 
 	void GetNumOfActorSpawned(int &NumOfEnemies, int &NumOfTraps, int &NumOfPowerUps, int &NumOfWeapons) const;
-
-	void ClearCompassEffect();
 };

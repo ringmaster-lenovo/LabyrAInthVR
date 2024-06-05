@@ -22,6 +22,8 @@ AMainCharacter::AMainCharacter()
  	// Set this character to call Tick() every frame. You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	PlayerStats = CreateDefaultSubobject<UPlayerStatistics>(TEXT("PlayerStatistics"));
+
+	CompassComponent = CreateDefaultSubobject<UCompassComponent>(TEXT("CompassComponent"));
 	
 	Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
 	Flashlight->SetAttenuationRadius(500000.f);

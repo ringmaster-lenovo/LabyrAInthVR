@@ -6,6 +6,7 @@
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "LabyrAInthVR/Interagibles/Weapon.h"
+#include "LabyrAInthVR/Interagibles/PowerUp/Compass/CompassComponent.h"
 #include "LabyrAInthVR/Interfaces/DamageableActor.h"
 #include "MainCharacter.generated.h"
 
@@ -43,6 +44,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetIsFrozen(bool NewFrozenState) { bIsFrozen = NewFrozenState; }
+
+	UFUNCTION()
+	UCompassComponent* GetCompassComponent()
+	{
+		return CompassComponent;
+	}
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -56,6 +63,9 @@ protected:
 
 	UPROPERTY()
 	AWeapon* EquippedWeapon;
+
+	UPROPERTY()
+	UCompassComponent* CompassComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	UPlayerStatistics* PlayerStats;
