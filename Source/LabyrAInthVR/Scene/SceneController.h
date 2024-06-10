@@ -56,6 +56,9 @@ public:
 	UFUNCTION()
 	void GetEndPortalPositionAndRotation(FVector& PlayerStartPosition, FRotator& PlayerStartRotation) const;
 
+	UFUNCTION()
+	void TriggerFrozenStar(float PauseDuration);
+
 private:
 	UPROPERTY()
 	ALabyrinthParser* LabyrinthParser;

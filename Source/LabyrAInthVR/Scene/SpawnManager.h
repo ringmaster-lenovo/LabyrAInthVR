@@ -123,7 +123,7 @@ public:
 	TArray<AActor*> SpawnedActors;
 	
 	UFUNCTION(BlueprintCallable)
-	void TriggerFrozenStar();
+	void TriggerFrozenStar(float PauseDuration);
 
 	UFUNCTION(BlueprintCallable)
 	void RemoveFromList(AActor* ActorToRemove);

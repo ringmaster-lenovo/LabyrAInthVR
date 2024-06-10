@@ -275,3 +275,8 @@ void ASceneController::RemoveFromSpawnManagerList(AActor* ActorToRemove)
 {
 	SpawnManager->RemoveFromList(ActorToRemove);
 }
+
+void ASceneController::TriggerFrozenStar(float PauseDuration)
+{
+	SpawnManager->TriggerFrozenStar(PauseDuration);
+}

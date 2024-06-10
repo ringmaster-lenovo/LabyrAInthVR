@@ -718,11 +718,9 @@ void ASpawnManager::RemoveFromList(AActor* ActorToRemove)
 	SpawnedActors.Remove(ActorToRemove);
 }
 
-void ASpawnManager::TriggerFrozenStar()
+void ASpawnManager::TriggerFrozenStar(float PauseDuration)
 {
 	MainCharacter = Cast<AMainCharacter>(UGameplayStatics::GetActorOfClass(this, AMainCharacter::StaticClass()));
-
-	float PauseDuration = 15.f;
 	
 	if (IsValid(MainCharacter))
 	{

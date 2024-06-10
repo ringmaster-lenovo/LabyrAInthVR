@@ -14,3 +14,8 @@ namespace HealthProperties
 {
 	constexpr inline float BonusHealth {500.f };
 }
+
+namespace FrozenStarProperties
+{
+	constexpr inline float PauseDuration {15.f};;
+}
