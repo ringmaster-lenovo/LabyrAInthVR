@@ -34,7 +34,7 @@ void UCompassComponent::Trigger(UParticleSystem* CompassEffect)
 	ClearCompassEffect();
 
 	AVRGameMode* GameMode = Cast<AVRGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	if(!IsValid(GameMode))
+	if(!IsValid(GameMode) || !IsValid(GameMode->GetSceneController()))
 	{
 		return;
 	}
