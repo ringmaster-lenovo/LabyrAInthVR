@@ -32,7 +32,7 @@ public:
 	
 	FString CleanUpLevelAndDoStatistics(int &NumOfEnemiesKilled, int &NumOfTrapsExploded, int &NumOfPowerUpsCollected, int &NumOfWeaponsFound) const;
 
-	FString RespawnMovableActors(ULabyrinthDTO* LabyrinthDto) const;
+	FString RespawnMovableActors(ULabyrinthDTO* LabyrinthDto);
 
 	DECLARE_MULTICAST_DELEGATE(FSceneReadyEvent);
 	FSceneReadyEvent OnSceneReady;

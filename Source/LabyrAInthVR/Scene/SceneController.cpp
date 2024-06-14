@@ -155,7 +155,7 @@ FString ASceneController::CleanUpLevelAndDoStatistics(int& NumOfEnemiesKilled, i
 	return "";
 }
 
-FString ASceneController::RespawnMovableActors(ULabyrinthDTO* LabyrinthDto) const
+FString ASceneController::RespawnMovableActors(ULabyrinthDTO* LabyrinthDto)
 {
 	// Get a reference to the game world
 	const UWorld* World = GetWorld();
@@ -169,11 +169,15 @@ FString ASceneController::RespawnMovableActors(ULabyrinthDTO* LabyrinthDto) cons
 		MovableActors[i - 1]->Destroy();
 	}
 	FString ErrorMessage = SpawnManager->SpawnActorsInLabyrinth(LabyrinthDto);
+
+	UpdateNavMeshBoundsVolume(LabyrinthDto);
+	
 	if (ErrorMessage != "")
 	{
 		return ErrorMessage;
 	}
 	// OnActorsRespawned.Broadcast();
+	
 	return "";
 }
 

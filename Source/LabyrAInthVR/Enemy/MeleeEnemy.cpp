@@ -92,7 +92,7 @@ void AMeleeEnemy::PlayMontage(UAnimMontage* MontageToPlay)
 	
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	
-	if (MontageToPlay == MeleeAttackMontage) AnimInstance->Montage_SetPlayRate(MeleeAttackMontage, MeleeAttackSpeed);
+	if (MontageToPlay == MeleeAttackMontage && GetDistanceToCharacter() < MeleeAttackDistance) AnimInstance->Montage_SetPlayRate(MeleeAttackMontage, MeleeAttackSpeed);
 }
 
 void AMeleeEnemy::SetWeaponCollision(bool bEnabled, bool bRightWeapon)
